@@ -1,0 +1,189 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}ThemeHaven — Premium Themes & Templates{% endblock %}
+{% block meta_description %}Discover premium website themes and templates to create stunning websites, grow your brand and boost your business.{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-[1432px] px-5 sm:px-8 xl:px-0">
+  <section aria-labelledby="hero-title" class="mx-auto grid w-full items-center gap-1 pt-3 lg:max-w-[1376px] lg:min-h-[398px] lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-3">
+    <div class="relative z-10 py-5 lg:self-start lg:py-0">
+      <p class="inline-flex items-center gap-2 rounded-full border border-[rgba(142,67,255,0.18)] bg-[rgba(130,55,235,0.12)] px-3.5 py-1.5 text-[12px] font-semibold text-[var(--accent)] sm:text-[13px]">
+        <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20" aria-hidden="true"><path d="M11.7 1.5 4.9 10h4.2l-.8 8.5 6.8-9h-4.2l.8-8Z"/></svg>
+        Premium Themes. Limitless Possibilities.
+      </p>
+      <h1 id="hero-title" class="mt-4 max-w-[650px] text-[clamp(3rem,5.4vw,4.55rem)] font-extrabold leading-[0.96] tracking-[-0.065em]">
+        <span class="block">Build Something</span>
+        <span class="mt-1 block bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Extraordinary</span>
+      </h1>
+      <p class="mt-5 max-w-[570px] text-[16px] leading-[1.5] text-[var(--text-secondary)] sm:text-[18px]">
+        Discover premium website themes &amp; templates to create stunning websites, grow your brand and boost your business.
+      </p>
+      <form action="{% url 'theme' %}" method="get" role="search" class="mt-5 flex h-[52px] max-w-[590px] items-center gap-3 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] p-[4px] pl-4 shadow-[var(--shadow-card)] backdrop-blur-md focus-within:border-[var(--border-hover)]">
+        <svg class="h-[20px] w-[20px] shrink-0 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+        <label class="sr-only" for="home-search">Search themes</label>
+        <input id="home-search" type="search" name="q" placeholder="Search themes and templates..." class="min-w-0 flex-1 bg-transparent text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:text-[14px]" />
+        <button type="submit" class="h-[42px] shrink-0 rounded-full bg-[image:var(--accent-gradient)] px-6 text-[13px] font-semibold text-white shadow-[0_4px_16px_rgba(125,30,237,0.32)] transition hover:brightness-110 focus-visible:outline-offset-2 sm:px-8">Search</button>
+      </form>
+      <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[12px] font-medium text-[var(--text-secondary)] sm:text-[13px]">
+        <li class="flex items-center gap-1.5"><svg class="h-4 w-4 text-[var(--accent)]" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Instant Download</li>
+        <li class="flex items-center gap-1.5"><svg class="h-4 w-4 text-[var(--accent)]" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Lifetime Updates</li>
+        <li class="flex items-center gap-1.5"><svg class="h-4 w-4 text-[var(--accent)]" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Dedicated Support</li>
+      </ul>
+    </div>
+    <div class="relative -mx-3 min-w-0 lg:mx-0 2xl:mr-[-72px]">
+      <img src="{% static 'img/hero-reference-dark.webp' %}" alt="Layered previews of gaming, ecommerce, and business themes surrounded by a glowing purple orbit" class="theme-dark-only h-auto w-full object-contain xl:-mt-4 xl:h-[380px] xl:object-cover 2xl:-mt-8 2xl:h-[420px]" />
+      <img src="{% static 'img/hero-reference-light.webp' %}" alt="Layered previews of gaming, ecommerce, and business themes surrounded by a glowing purple orbit" class="theme-light-only h-auto w-full object-contain xl:-mt-4 xl:h-[380px] xl:object-cover 2xl:-mt-8 2xl:h-[420px]" />
+    </div>
+  </section>
+
+  <section aria-label="ThemeHaven benefits" class="mx-auto mt-5 grid w-full grid-cols-2 overflow-hidden rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-2 shadow-[var(--shadow-card)] backdrop-blur-lg lg:mt-3 lg:max-w-[1376px] lg:grid-cols-4 lg:px-4">
+    <div class="flex min-h-[60px] items-center justify-center gap-3 border-b border-[var(--border-color)] px-2 py-2 sm:gap-4 lg:border-b-0 lg:border-r lg:px-4">
+      <svg class="h-8 w-8 shrink-0 text-[var(--accent)] sm:h-9 sm:w-9" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="m12 4 12 0 9 11-15 17L3 15 12 4Z"/><path d="m3 15 30 0M12 4l6 28 6-28M12 4l-9 11m21-11 9 11"/></svg>
+      <div><h2 class="text-[12px] font-bold tracking-[-0.02em] sm:text-[14px]">Premium Quality</h2><p class="mt-0.5 text-[11px] leading-tight text-[var(--text-secondary)] sm:text-[12px]">Curated Themes</p></div>
+    </div>
+    <div class="flex min-h-[60px] items-center justify-center gap-3 border-b border-[var(--border-color)] px-2 py-2 sm:gap-4 lg:border-b-0 lg:border-r lg:px-4">
+      <svg class="h-8 w-8 shrink-0 text-[var(--accent)] sm:h-9 sm:w-9" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 25v-5a10 10 0 0 1 20 0v5M8 24H5v-4h5v9H8a3 3 0 0 1-3-3v-2m23 0h3v-4h-5v9h2a3 3 0 0 0 3-3v-2M28 29a8 8 0 0 1-8 4h-3"/></svg>
+      <div><h2 class="text-[12px] font-bold tracking-[-0.02em] sm:text-[14px]">24/7 Support</h2><p class="mt-0.5 text-[11px] leading-tight text-[var(--text-secondary)] sm:text-[12px]">We've Got You</p></div>
+    </div>
+    <div class="flex min-h-[60px] items-center justify-center gap-3 border-r border-[var(--border-color)] px-2 py-2 sm:gap-4 lg:px-4">
+      <svg class="h-8 w-8 shrink-0 text-[var(--accent)] sm:h-9 sm:w-9" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M30 12V5l-6 6a12 12 0 0 0-20 5M6 24v7l6-6a12 12 0 0 0 20-5"/><path d="M4 16h7m14 4h7"/></svg>
+      <div><h2 class="text-[12px] font-bold tracking-[-0.02em] sm:text-[14px]">Regular Updates</h2><p class="mt-0.5 text-[11px] leading-tight text-[var(--text-secondary)] sm:text-[12px]">Stay Ahead</p></div>
+    </div>
+    <div class="flex min-h-[60px] items-center justify-center gap-3 px-2 py-2 sm:gap-4 lg:px-4">
+      <svg class="h-8 w-8 shrink-0 text-[var(--accent)] sm:h-9 sm:w-9" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 3 30 7v9c0 8-5 13-12 17C11 29 6 24 6 16V7l12-4Z"/><path d="m12 18 4 4 8-9"/></svg>
+      <div><h2 class="text-[12px] font-bold tracking-[-0.02em] sm:text-[14px]">Secure Payments</h2><p class="mt-0.5 text-[11px] leading-tight text-[var(--text-secondary)] sm:text-[12px]">Shop with Confidence</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="platform-title" class="mt-7 grid gap-5 lg:mt-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-center lg:gap-7">
+    <div class="relative flex items-center justify-between lg:block">
+      <div>
+        <h2 id="platform-title" class="text-[29px] font-extrabold leading-[0.98] tracking-[-0.05em] sm:text-[34px]">Browse by<br /><span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Platform</span></h2>
+        <p class="mt-3 max-w-[190px] text-[13px] leading-[1.45] text-[var(--text-secondary)] sm:text-[14px]">Find the perfect theme for your project.</p>
+      </div>
+      <svg class="mr-2 h-10 w-20 text-[var(--accent)] lg:absolute lg:right-[-10px] lg:top-[46px] lg:mr-0 lg:rotate-[-9deg]" viewBox="0 0 88 36" fill="none" aria-hidden="true"><path d="M2 27c23 6 43-19 75-14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="2 3"/><path d="m68 7 13 5-10 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      <a href="{% url 'catagories' %}?platform=wordpress" class="platform-card platform-wordpress group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+        <svg class="h-12 w-12" viewBox="0 0 48 48" aria-label="WordPress"><circle cx="24" cy="24" r="21" fill="#21759b"/><circle cx="24" cy="24" r="19" fill="none" stroke="white" stroke-width="1.5"/><path d="m7.5 17 9.2 25.2 6.1-17.1-4.2-10.7c-.6-1.3-1.2-2.2-2.8-2.2H13v-.7h14v.7h-2.2c-1.5 0-2.3.8-2.3 2 0 .7.3 1.4.7 2.4l4.5 11.7 4.2-12.4c.3-.8.4-1.5.4-2.1 0-1-.7-1.6-2.1-1.6h-1.5v-.7h10.2v.7h-1.7c-1.6 0-2.4 1.2-3.1 3.2L26 42.2h-1.1l-6.5-17.7-6.3 17.7H11L2.9 20.3A21 21 0 0 1 7.5 17Z" fill="white"/></svg>
+        <span class="mt-2 text-[14px] font-bold">WordPress</span><span class="text-[11px] text-[var(--text-secondary)]">1,200+ Themes</span>
+        <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
+      </a>
+      <a href="{% url 'catagories' %}?platform=elementor" class="platform-card platform-elementor group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+        <svg class="h-12 w-12" viewBox="0 0 48 48" aria-label="Elementor"><rect x="4" y="4" width="40" height="40" rx="9" fill="#92003b"/><path d="M16 15h3v18h-3zm8 0h11v3H24zm0 7h11v3H24zm0 8h11v3H24z" fill="white"/></svg>
+        <span class="mt-2 text-[14px] font-bold">Elementor</span><span class="text-[11px] text-[var(--text-secondary)]">800+ Templates</span>
+        <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
+      </a>
+      <a href="{% url 'catagories' %}?platform=excel" class="platform-card platform-excel group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+        <svg class="h-12 w-12" viewBox="0 0 48 48" role="img" aria-label="Microsoft Excel"><path d="M18 4h24a3 3 0 0 1 3 3v34a3 3 0 0 1-3 3H18z" fill="#21a366"/><path d="M24 10h18v7H24zm0 10h18v7H24zm0 10h18v7H24z" fill="#107c41"/><path d="M7 12.5 25 9v30L7 35.5z" fill="#185c37"/><path d="m12 17 3.4-.2 2.5 4.5 2.6-5.5 3.5-.2-4.3 8 4.5 7.8-3.6-.2-2.8-5-2.7 4.4-3.5-.2 4.4-6.6z" fill="#fff"/></svg>
+        <span class="mt-2 text-[14px] font-bold">Excel</span><span class="text-[11px] text-[var(--text-secondary)]">Spreadsheet Templates</span>
+        <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
+      </a>
+      <a href="{% url 'catagories' %}?platform=word" class="platform-card platform-word group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+        <svg class="h-12 w-12" viewBox="0 0 48 48" role="img" aria-label="Microsoft Word"><path d="M14 5h25a3 3 0 0 1 3 3v32a3 3 0 0 1-3 3H14z" fill="#2b579a"/><path d="M22 10h16v6H22zm0 9h16v6H22zm0 9h16v6H22z" fill="#41a5ee"/><path d="M5 13.5 25 10v28L5 34.5z" fill="#185abd"/><path d="m9.5 18 3.4-.2 1.6 9.1 2.1-9.7 3.3-.2 2.1 9.9 1.7-10.3 3.4-.2-3.6 15-3.6-.2-1.9-8.8-2 8.4-3.5-.2z" fill="#fff"/></svg>
+        <span class="mt-2 text-[14px] font-bold">Microsoft Word</span><span class="text-[11px] text-[var(--text-secondary)]">Document Templates</span>
+        <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section aria-labelledby="trending-title" class="mt-8 pb-12 lg:mt-9">
+    <div class="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
+      <div class="flex flex-col">
+        <h2 id="trending-title" class="flex items-center gap-2 text-[27px] font-extrabold tracking-[-0.05em] sm:text-[30px]">
+          <svg class="h-7 w-7 shrink-0 text-[var(--accent)] sm:h-8 sm:w-8" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M17.8 1.8c.8 5.4-3.3 7-2.3 11.1.5 1.9 2.3 2.8 3.5 1.4 1.1-1.2.9-3.3.6-4.3 5 3.1 8 7.2 7.1 12.3-.9 5.2-5.2 8.1-10.9 8.1C8.6 30.4 4 26.5 4 20.9c0-4.1 2.2-7.1 6.4-10.7-.4 3.5.6 5.4 2.1 5.3 1.3-.1 1.6-1.6 1.3-3.1-.6-3.3-.1-7.2 4-10.6Z"/><path d="M16.2 21c1.8 1.8 2.7 2.8 2.7 4.5 0 1.8-1.2 3-2.9 3s-3-1.2-3-3c0-1.7 1.3-3 3.2-4.5Z" fill="var(--bg-primary)"/></svg>
+          <span>Trending <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Themes</span></span>
+        </h2>
+        <p class="mt-1 text-[13px] leading-relaxed text-[var(--text-secondary)] sm:text-[14px]">Loved by creators. Trusted by businesses.</p>
+      </div>
+      <div class="min-w-0">
+        <div class="mb-2 flex justify-end"><a href="{% url 'theme' %}" class="inline-flex items-center gap-2 text-[12px] font-semibold text-[var(--accent)] transition hover:gap-3 sm:text-[13px]">View All Themes <span aria-hidden="true">→</span></a></div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          <a href="{% url 'theme' %}?theme=astra" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+            <img src="{% static 'img/theme-astra.webp' %}" alt="Astra WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-astra-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
+            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">Astra</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Build Faster. Grow Bigger.</p></div>
+          </a>
+          <a href="{% url 'theme' %}?theme=neve" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+            <img src="{% static 'img/theme-neve.webp' %}" alt="Neve WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-neve-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
+            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">Neve</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Create. Innovate. Grow.</p></div>
+          </a>
+          <a href="{% url 'theme' %}?theme=oceanwp" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+            <img src="{% static 'img/theme-oceanwp.webp' %}" alt="OceanWP WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-oceanwp-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
+            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">OceanWP</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Build Beautiful Websites.</p></div>
+          </a>
+          <a href="{% url 'theme' %}?theme=kadence" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+            <img src="{% static 'img/theme-kadence.webp' %}" alt="Kadence WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-kadence-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
+            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">Kadence</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Your Vision. Our Design.</p></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="about-marketplace-title" class="relative isolate mt-6 overflow-hidden rounded-[28px] border border-[var(--border-color)] bg-[var(--bg-card)] px-5 py-8 shadow-[var(--shadow-card)] sm:px-8 sm:py-10 lg:mt-10 lg:grid lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-10 lg:px-12 lg:py-12">
+    <div class="pointer-events-none absolute -right-24 -top-28 -z-10 h-72 w-72 rounded-full bg-[var(--glow-purple)] blur-3xl"></div>
+    <div>
+      <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">A marketplace for what’s next</p>
+      <h2 id="about-marketplace-title" class="mt-3 max-w-xl text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] sm:text-4xl">A Universe of Designs,<br /><span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Templates for Every Business</span></h2>
+      <p class="mt-4 max-w-xl text-sm leading-7 text-[var(--text-secondary)] sm:text-base">Discover thoughtfully designed WordPress themes, Excel dashboards, ecommerce storefronts, website layouts, and productivity resources—all in one place to help bring your next idea to life.</p>
+      <a href="{% url 'theme' %}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-5 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-offset-4">Explore Collection <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="relative mx-auto mt-8 grid w-full max-w-[690px] grid-cols-2 gap-3 lg:mt-0 lg:grid-cols-6 lg:gap-3" aria-label="Different types of ThemeHaven digital template previews">
+      <a href="{% url 'catagories' %}?platform=excel" class="about-preview group col-span-2 lg:col-span-3"><img src="{% static 'img/about/excel-dashboard.svg' %}" alt="Spreadsheet dashboard preview with revenue KPIs, sales analytics, and charts" loading="lazy" /><span><strong>Excel Dashboards</strong><small>Clear insights for your work</small></span></a>
+      <a href="{% url 'theme' %}" class="about-preview group col-span-2 lg:col-span-3"><img src="{% static 'img/about/wordpress-theme.svg' %}" alt="WordPress theme preview with studio navigation, editorial hero, and call to action" loading="lazy" /><span><strong>WordPress Themes</strong><small>Beautiful sites, ready to shape</small></span></a>
+      <a href="{% url 'theme' %}" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/website-collection.svg' %}" alt="Three distinct website template layouts for creative and business websites" loading="lazy" /><span><strong>Website Templates</strong><small>SaaS, agency, and portfolio layouts</small></span></a>
+      <a href="{% url 'catagories' %}?category=ecommerce-store" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/ecommerce-store.svg' %}" alt="Ecommerce storefront preview with a navigation bar and product cards" loading="lazy" /><span><strong>Ecommerce Stores</strong><small>Storefronts with polished product grids</small></span></a>
+      <a href="{% url 'catagories' %}?platform=excel" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/productivity-planner.svg' %}" alt="Productivity workspace preview with a project timeline, weekly tasks, and progress charts" loading="lazy" /><span><strong>Business &amp; Productivity</strong><small>Planners and useful work tools</small></span></a>
+    </div>
+  </section>
+
+  <section aria-labelledby="showcase-title" class="relative mt-14 overflow-hidden py-3 sm:mt-16">
+    <div class="pointer-events-none absolute inset-x-0 top-1/3 -z-10 mx-auto h-64 max-w-5xl rounded-full bg-[var(--glow-purple)] blur-3xl" aria-hidden="true"></div>
+    <div class="mx-auto max-w-2xl px-2 text-center">
+      <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">The ThemeHaven collection</p>
+      <h2 id="showcase-title" class="mt-2 text-3xl font-extrabold tracking-[-0.055em] sm:text-4xl">Discover More <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Designs</span></h2>
+      <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">Explore the featured website previews and find a starting point for your next idea.</p>
+    </div>
+    <div class="showcase-marquee mt-8 space-y-3 sm:mt-10 sm:space-y-4" aria-label="Moving showcase of featured themes">
+      <div class="showcase-track showcase-track-left">
+        <div class="showcase-set">{% for image,name,slug in showcase_themes %}<a href="{% url 'theme' %}?theme={{ slug }}" class="showcase-card group"><img src="{% static image %}" alt="{{ name }} theme preview" loading="lazy" /><span>{{ name }} <small>WordPress theme</small></span></a>{% endfor %}</div>
+        <div class="showcase-set" aria-hidden="true">{% for image,name,slug in showcase_themes %}<a tabindex="-1" href="{% url 'theme' %}?theme={{ slug }}" class="showcase-card group"><img src="{% static image %}" alt="" loading="lazy" /><span>{{ name }} <small>WordPress theme</small></span></a>{% endfor %}</div>
+      </div>
+      <div class="showcase-track showcase-track-right">
+        <div class="showcase-set">{% for image,name,slug in showcase_themes %}<a href="{% url 'theme' %}?theme={{ slug }}" class="showcase-card group"><img src="{% static image %}" alt="{{ name }} theme preview" loading="lazy" /><span>{{ name }} <small>Featured design</small></span></a>{% endfor %}</div>
+        <div class="showcase-set" aria-hidden="true">{% for image,name,slug in showcase_themes %}<a tabindex="-1" href="{% url 'theme' %}?theme={{ slug }}" class="showcase-card group"><img src="{% static image %}" alt="" loading="lazy" /><span>{{ name }} <small>Featured design</small></span></a>{% endfor %}</div>
+      </div>
+    </div>
+    <div class="mt-6 text-center"><a href="{% url 'theme' %}" class="inline-flex items-center gap-2 text-sm font-bold text-[var(--accent)] hover:gap-3">Browse all themes <span aria-hidden="true">→</span></a></div>
+  </section>
+
+  <section aria-labelledby="industries-title" class="mt-14 sm:mt-16">
+    <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+      <div><p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Start with your industry</p><h2 id="industries-title" class="mt-2 text-3xl font-extrabold tracking-[-0.055em] sm:text-4xl">Browse by <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Industry</span></h2></div>
+      <p class="max-w-md text-sm leading-6 text-[var(--text-secondary)]">Browse by the kind of work you do and discover a visual direction for your next project.</p>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+      {% for category in business_categories %}<a href="{% url 'catagories' %}?category={{ category.slug }}" class="industry-card group relative isolate flex min-h-[178px] items-end overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-4 shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-1 hover:border-[var(--border-hover)] sm:min-h-[205px] sm:p-5">
+        <img src="{% static category.image %}" alt="" loading="lazy" class="absolute inset-0 -z-20 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <span class="absolute inset-0 -z-10 bg-gradient-to-t from-[#100b1c]/95 via-[#100b1c]/45 to-transparent" aria-hidden="true"></span>
+        <span class="absolute right-3 top-3 rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">Explore</span>
+        <span><span class="block text-base font-extrabold tracking-tight text-white sm:text-lg">{{ category.name }}</span><span class="mt-1 block text-[11px] leading-4 text-white/80 sm:text-xs">{{ category.description }}</span></span>
+      </a>{% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="why-title" class="mt-14 rounded-[26px] border border-[var(--border-color)] bg-[var(--bg-card)] px-5 py-8 shadow-[var(--shadow-card)] sm:mt-16 sm:px-8 sm:py-10">
+    <div class="mx-auto max-w-2xl text-center"><p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Made for your next big idea</p><h2 id="why-title" class="mt-2 text-3xl font-extrabold tracking-[-0.055em] sm:text-4xl">Build with <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Confidence</span></h2><p class="mt-3 text-sm leading-6 text-[var(--text-secondary)]">A thoughtful collection, clear support, and a smoother path from inspiration to launch.</p></div>
+    <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {% for title,description,icon in value_points %}<article class="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)]/70 p-5 transition hover:-translate-y-1 hover:border-[var(--border-hover)]"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ icon }}"/></svg></span><h3 class="mt-4 text-base font-bold">{{ title }}</h3><p class="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{{ description }}</p></article>{% endfor %}
+    </div>
+  </section>
+
+  <section aria-labelledby="final-cta-title" class="relative isolate mb-12 mt-14 overflow-hidden rounded-[28px] border border-[var(--border-hover)] bg-[linear-gradient(115deg,rgba(113,35,225,0.20),rgba(97,68,214,0.10),var(--bg-card))] px-6 py-10 text-center shadow-[var(--shadow-card)] sm:mb-16 sm:mt-16 sm:px-10 sm:py-14">
+    <span class="pointer-events-none absolute -left-20 -top-24 -z-10 h-64 w-64 rounded-full bg-[var(--glow-purple)] blur-3xl" aria-hidden="true"></span><span class="pointer-events-none absolute -bottom-28 -right-16 -z-10 h-72 w-72 rounded-full bg-[var(--glow-purple)] blur-3xl" aria-hidden="true"></span>
+    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Find your next starting point</p><h2 id="final-cta-title" class="mx-auto mt-3 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.055em] sm:text-5xl">Your Next Great Website <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Starts Here.</span></h2><p class="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">Explore curated themes and templates designed to help bring your ideas to life.</p>
+    <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><a href="{% url 'theme' %}" class="rounded-full bg-[image:var(--accent-gradient)] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5">Explore Themes</a><a href="{% url 'catagories' %}" class="rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:border-[var(--border-hover)]">Browse Templates</a></div>
+  </section>
+</div>
+{% endblock %}

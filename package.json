@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "dev": "npx @tailwindcss/cli -i ./static/src/input.css -o ./static/css/output.css --watch",
+    "build": "npx @tailwindcss/cli -i ./static/src/input.css -o ./static/css/output.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.5",
+    "tailwindcss": "^4.3.5"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true
+  }
+}
