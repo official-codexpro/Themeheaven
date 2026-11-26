@@ -110,6 +110,7 @@
 
     {% include "components/footer.html" %}
 
+    <div class="theme-ambient" aria-hidden="true"></div>
     <!-- =============================================
          THEME SWITCH SCRIPT
     ============================================= -->
@@ -119,87 +120,153 @@
         "use strict";
 
         const THEME_KEY = "themehub-theme";
-
         const root = document.documentElement;
+        const pullButton = document.getElementById("themePullToggle");
+        const pullCord = document.getElementById("themePullCord");
+        const pullKnob = document.getElementById("themePullKnob");
 
-        const toggleButton = document.getElementById("themeToggle");
+        function getTheme() { return root.getAttribute("data-theme") || "dark"; }
 
-        const toggleIcon = document.getElementById("themeToggleIcon");
-
-        // Get currently active theme
-
-        function getTheme() {
-          return root.getAttribute("data-theme") || "dark";
+        function updateButton(theme) {
+          if (!pullButton) return;
+          const nextLabel = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
+          pullButton.setAttribute("aria-label", nextLabel);
+          pullButton.setAttribute("title", nextLabel);
+          pullButton.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
         }
-
-        // Apply theme
 
         function setTheme(theme) {
           root.setAttribute("data-theme", theme);
-
-          // Save preference
-
-          try {
-            localStorage.setItem(THEME_KEY, theme);
-          } catch (error) {
-            // Theme still works without localStorage
-          }
-
-          // Update button icon
-
+          try { localStorage.setItem(THEME_KEY, theme); } catch (error) {}
           updateButton(theme);
-
-          // Update browser theme color
-
-          const themeColorMeta = document.querySelector(
-            'meta[name="theme-color"]',
-          );
-
-          if (themeColorMeta) {
-            themeColorMeta.setAttribute(
-              "content",
-              theme === "dark" ? "#080511" : "#f8f6ff",
-            );
-          }
+          const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeColorMeta) themeColorMeta.setAttribute("content", theme === "dark" ? "#080511" : "#f8f6ff");
         }
 
-        // Update button state
+        function toggleTheme() { setTheme(getTheme() === "dark" ? "light" : "dark"); }
 
-        function updateButton(theme) {
-          if (!toggleButton || !toggleIcon) return;
-
-          if (theme === "dark") {
-            toggleIcon.innerHTML = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>';
-
-            toggleButton.setAttribute("aria-label", "Switch to light theme");
-
-            toggleButton.setAttribute("title", "Switch to light theme");
-          } else {
-            toggleIcon.innerHTML = '<path d="M20.8 15.4A8.5 8.5 0 0 1 8.6 3.2 8.5 8.5 0 1 0 20.8 15.4Z"></path>';
-
-            toggleButton.setAttribute("aria-label", "Switch to dark theme");
-
-            toggleButton.setAttribute("title", "Switch to dark theme");
-          }
+        if (pullButton) {
+          pullButton.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              pullButton.classList.add("is-activated");
+              toggleTheme();
+              window.setTimeout(() => pullButton.classList.remove("is-activated"), 420);
+            }
+          });
         }
 
-        // Toggle between themes
+        if (pullButton && pullCord && pullKnob) {
+          let pointerId = null, startY = 0, dragging = false, activated = false;
+          let raf = null, targetY = 0, currentY = 0, velocity = 0, swingRaf = null;
+          const threshold = 42, maxPull = 68;
+          const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        function toggleTheme() {
-          const currentTheme = getTheme();
+          const render = () => {
+            pullCord.style.setProperty("--pull-y", `${currentY}px`);
+            pullKnob.style.setProperty("--pull-y", `${currentY}px`);
+          };
+          const stopSwing = () => {
+            if (swingRaf) cancelAnimationFrame(swingRaf);
+            swingRaf = null;
+            pullButton.style.setProperty("--swing", "0deg");
+          };
+          const startSwing = (amplitude) => {
+            if (reducedMotion || amplitude < 0.2) return;
+            stopSwing();
+            const start = performance.now(), duration = 900, from = amplitude;
+            const tick = (now) => {
+              const t = Math.min(1, (now - start) / duration);
+              const decay = Math.exp(-4.2 * t);
+              const angle = from * decay * Math.cos(11 * t);
+              pullButton.style.setProperty("--swing", `${angle.toFixed(3)}deg`);
+              if (t < 1) swingRaf = requestAnimationFrame(tick);
+              else pullButton.style.setProperty("--swing", "0deg");
+            };
+            swingRaf = requestAnimationFrame(tick);
+          };
+          const animateTo = (to, done) => {
+            if (raf) cancelAnimationFrame(raf);
+            if (reducedMotion) { currentY = to; targetY = to; velocity = 0; render(); done && done(); return; }
+            const step = () => {
+              const spring = (to - currentY) * 0.22;
+              velocity = (velocity + spring) * 0.74;
+              currentY += velocity;
+              if (Math.abs(to - currentY) < 0.35 && Math.abs(velocity) < 0.35) {
+                currentY = to; velocity = 0; render(); raf = null; done && done(); return;
+              }
+              render();
+              raf = requestAnimationFrame(step);
+            };
+            raf = requestAnimationFrame(step);
+          };
+          const setTargetFromPointer = (clientY) => {
+            const raw = Math.max(0, clientY - startY);
+            targetY = Math.min(maxPull, maxPull * (1 - Math.exp(-raw / 55)));
+            if (raf) return;
+            const follow = () => {
+              currentY += (targetY - currentY) * 0.45;
+              if (Math.abs(targetY - currentY) < 0.2) currentY = targetY;
+              render();
+              if (dragging) raf = requestAnimationFrame(follow); else raf = null;
+            };
+            raf = requestAnimationFrame(follow);
+          };
+          const resetPull = (didToggle) => {
+            pullButton.classList.remove("is-dragging");
+            pullButton.classList.add(didToggle ? "is-activated" : "is-releasing");
+            const releaseVelocity = Math.min(10, currentY * 0.12);
+            targetY = 0;
+            animateTo(0, () => pullButton.classList.remove("is-releasing", "is-activated"));
+            startSwing(didToggle ? 2.8 + releaseVelocity * 0.25 : 1.4 + releaseVelocity * 0.15);
+          };
 
-          const nextTheme = currentTheme === "dark" ? "light" : "dark";
-
-          setTheme(nextTheme);
+          pullButton.addEventListener("pointerdown", (event) => {
+            if (event.button !== 0) return;
+            pointerId = event.pointerId; startY = event.clientY; dragging = true; activated = false;
+            pullButton.dataset.dragged = "false";
+            pullButton.classList.add("is-dragging");
+            pullButton.classList.remove("is-releasing", "is-activated");
+            stopSwing();
+            if (pullButton.setPointerCapture) pullButton.setPointerCapture(pointerId);
+          });
+          pullButton.addEventListener("pointermove", (event) => {
+            if (!dragging || event.pointerId !== pointerId) return;
+            if ((event.clientY - startY) > 7) pullButton.dataset.dragged = "true";
+            setTargetFromPointer(event.clientY);
+            if (!activated && targetY >= threshold) { activated = true; toggleTheme(); }
+          });
+          const finishDrag = (event) => {
+            if (!dragging || event.pointerId !== pointerId) return;
+            dragging = false;
+            if (pullButton.hasPointerCapture && pullButton.hasPointerCapture(pointerId)) {
+              try { pullButton.releasePointerCapture(pointerId); } catch (error) {}
+            }
+            const didToggle = activated, wasDrag = pullButton.dataset.dragged === "true";
+            pointerId = null;
+            resetPull(didToggle);
+            if (!didToggle && !wasDrag) {
+              pullButton.dataset.clickHandled = "true";
+              toggleTheme();
+              window.setTimeout(() => { pullButton.dataset.clickHandled = "false"; }, 0);
+            }
+            window.setTimeout(() => { pullButton.dataset.dragged = "false"; }, 50);
+          };
+          pullButton.addEventListener("pointerup", finishDrag);
+          pullButton.addEventListener("pointercancel", finishDrag);
+          pullButton.addEventListener("lostpointercapture", () => {
+            if (!dragging) return; dragging = false; pointerId = null; resetPull(activated);
+          });
+          pullButton.addEventListener("click", (event) => {
+            if (pullButton.dataset.dragged === "true" || pullButton.dataset.clickHandled === "true") {
+              event.preventDefault(); event.stopPropagation();
+              pullButton.dataset.dragged = "false"; pullButton.dataset.clickHandled = "false";
+              return;
+            }
+            if (!reducedMotion) { stopSwing(); currentY = 0; targetY = 8; render(); animateTo(0); startSwing(1.2); }
+            toggleTheme();
+          });
         }
-
-        // Button event
-
-        if (toggleButton) {
-          toggleButton.addEventListener("click", toggleTheme);
-        }
-
-        // Initialize button
 
         updateButton(getTheme());
       })();
