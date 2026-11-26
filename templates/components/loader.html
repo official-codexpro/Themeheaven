@@ -1,0 +1,375 @@
+{% load static %}
+<div id="th-loader" class="th-loader" role="status" aria-live="polite" aria-label="Loading ThemeHaven">
+  <style>
+    .th-loader{--l-bg:#080611;--l-bg2:#120a20;--l-text:#f8f6ff;--l-muted:#c2bdd0;--l-accent:#8b35f5;--l-accent2:#c4b5fd;--l-glow:rgba(139,53,245,.28);--l-glow2:rgba(167,139,250,.18);--l-smoke-rgb:150,110,255;--l-smoke2-rgb:196,181,253;--l-smoke-hot:rgba(200,170,255,.12);--l-line:rgba(196,181,253,.14);--l-logo-filter:drop-shadow(0 12px 34px rgba(139,53,245,.3));position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--l-bg);color:var(--l-text);font-family:var(--font-primary,"Plus Jakarta Sans",sans-serif);transition:opacity .9s cubic-bezier(.22,.9,.2,1),visibility .9s;isolation:isolate}
+    [data-theme="light"] .th-loader{--l-bg:#faf8ff;--l-bg2:#f3ecff;--l-text:#101027;--l-muted:#5b5472;--l-accent:#7a2fe0;--l-accent2:#8b5cf6;--l-glow:rgba(139,53,245,.12);--l-glow2:rgba(255,255,255,.9);--l-smoke-rgb:255,255,255;--l-smoke2-rgb:230,220,255;--l-smoke-hot:rgba(255,255,255,.55);--l-line:rgba(122,47,224,.1);--l-logo-filter:drop-shadow(0 12px 28px rgba(122,47,224,.14))}
+    .th-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .th-loader-canvas,.th-loader-front,.th-loader-fx{position:absolute;inset:0;width:100%;height:100%}
+    .th-loader-canvas{z-index:0}
+    .th-loader-fx{z-index:1;pointer-events:none}
+    .th-loader-front{z-index:3;pointer-events:none}
+    .th-loader-bg{position:absolute;inset:-12%;background:radial-gradient(ellipse 55% 45% at 50% 46%,var(--l-glow),transparent 70%),radial-gradient(ellipse 35% 30% at 18% 78%,var(--l-glow2),transparent 65%),radial-gradient(ellipse 40% 35% at 82% 22%,var(--l-glow2),transparent 68%),linear-gradient(180deg,var(--l-bg2),var(--l-bg));transform:scale(1.04)}
+    .th-loader-grid{position:absolute;inset:0;background-image:linear-gradient(var(--l-line) 1px,transparent 1px),linear-gradient(90deg,var(--l-line) 1px,transparent 1px);background-size:88px 88px;mask-image:radial-gradient(circle at 50% 50%,black 28%,transparent 74%);-webkit-mask-image:radial-gradient(circle at 50% 50%,black 28%,transparent 74%);opacity:.28}
+    .th-loader-orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5;mix-blend-mode:screen}
+    [data-theme="light"] .th-loader-orb{mix-blend-mode:multiply;opacity:.18;filter:blur(12px)}
+    .th-loader-orb-a{width:min(44vw,560px);height:min(44vw,560px);left:50%;top:46%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(139,53,245,.32),rgba(139,53,245,0) 68%)}
+    .th-loader-orb-b{width:min(20vw,240px);height:min(20vw,240px);left:28%;top:28%;background:radial-gradient(circle,rgba(167,139,250,.24),transparent 70%)}
+    .th-loader-orb-c{width:min(24vw,300px);height:min(24vw,300px);right:18%;bottom:18%;background:radial-gradient(circle,rgba(99,102,241,.18),transparent 72%)}
+    .th-loader-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:28px;padding:24px;text-align:center;transform-style:preserve-3d;perspective:1000px;will-change:transform,opacity,filter}
+    .th-loader-brand{display:flex;align-items:center;gap:14px;transform:translateY(18px) scale(.96);opacity:0;will-change:transform,opacity,filter}
+    .th-loader-logo-wrap{position:relative;width:76px;height:42px;display:flex;align-items:center;justify-content:center}
+    .th-loader-logo{width:76px;height:42px;object-fit:contain;filter:var(--l-logo-filter);position:relative;z-index:2;will-change:transform,opacity,filter}
+    .th-loader-logo-glow{position:absolute;inset:-35%;background:radial-gradient(circle,rgba(167,139,250,.5),transparent 70%);filter:blur(16px);opacity:.65;z-index:0}
+    [data-theme="light"] .th-loader-logo-glow{background:radial-gradient(circle,rgba(139,53,245,.18),transparent 70%)}
+    .th-loader-sheen{position:absolute;inset:-20%;z-index:3;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0) 42%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 58%,transparent 70%);transform:translateX(-140%) skewX(-18deg);mix-blend-mode:screen;pointer-events:none}
+    [data-theme="light"] .th-loader-sheen{mix-blend-mode:soft-light}
+    .th-loader-wordmark{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-0.04em;color:var(--l-text);text-shadow:0 0 40px rgba(139,53,245,.16)}
+    .th-loader-wordmark span{display:inline-block;opacity:0;transform:translateY(18px);will-change:transform,opacity,filter}
+    .th-loader-tag{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--l-muted);opacity:0;transform:translateY(10px)}
+    .th-loader-progress{width:min(280px,72vw);display:flex;flex-direction:column;gap:10px;opacity:0;transform:translateY(10px)}
+    .th-loader-bar{height:2px;background:rgba(196,181,253,.14);border-radius:999px;overflow:hidden;position:relative}
+    [data-theme="light"] .th-loader-bar{background:rgba(122,47,224,.12)}
+    .th-loader-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#782bfa,#a78bfa,#c4b5fd);box-shadow:0 0 18px rgba(167,139,250,.55);border-radius:999px;transform-origin:left;will-change:width}
+    .th-loader-meta{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--l-muted)}
+    .th-loader-percent{font-variant-numeric:tabular-nums;color:var(--l-accent2)}
+    [data-theme="light"] .th-loader-percent{color:var(--l-accent)}
+    .th-loader-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    html.th-loader-active,html.th-loader-active body{overflow:hidden}
+    @media (max-width:640px){.th-loader-brand{gap:10px}.th-loader-logo-wrap,.th-loader-logo{width:62px;height:34px}.th-loader-content{gap:24px}}
+    @media (prefers-reduced-motion:reduce){.th-loader,.th-loader *{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.th-loader-sheen{display:none}}
+  </style>
+  <canvas class="th-loader-canvas" id="thLoaderCanvas" aria-hidden="true"></canvas>
+  <div class="th-loader-fx" aria-hidden="true">
+    <div class="th-loader-bg"></div>
+    <div class="th-loader-grid"></div>
+    <div class="th-loader-orb th-loader-orb-a"></div>
+    <div class="th-loader-orb th-loader-orb-b"></div>
+    <div class="th-loader-orb th-loader-orb-c"></div>
+  </div>
+  <div class="th-loader-content" id="thLoaderContent">
+    <div class="th-loader-brand" id="thLoaderBrand">
+      <div class="th-loader-logo-wrap">
+        <div class="th-loader-logo-glow"></div>
+        <img src="{% static 'img/logo.png' %}" alt="" class="th-loader-logo" width="76" height="42" />
+        <div class="th-loader-sheen" id="thLoaderSheen"></div>
+      </div>
+      <div class="th-loader-wordmark" aria-label="ThemeHaven">
+        <span>T</span><span>h</span><span>e</span><span>m</span><span>e</span><span>H</span><span>a</span><span>v</span><span>e</span><span>n</span>
+      </div>
+    </div>
+    <div class="th-loader-tag" id="thLoaderTag">Premium Digital Experience</div>
+    <div class="th-loader-progress" id="thLoaderProgress">
+      <div class="th-loader-bar"><div class="th-loader-bar-fill" id="thLoaderFill"></div></div>
+      <div class="th-loader-meta"><span>Loading</span><span class="th-loader-percent" id="thLoaderPercent">0%</span></div>
+    </div>
+    <span class="th-loader-sr" id="thLoaderSr">Loading ThemeHaven</span>
+  </div>
+  <canvas class="th-loader-front" id="thLoaderFront" aria-hidden="true"></canvas>
+</div>
+<script>
+(() => {
+  'use strict';
+  const loader = document.getElementById('th-loader');
+  if (!loader || loader.dataset.init === '1') return;
+  loader.dataset.init = '1';
+
+  const root = document.documentElement;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+  const navType = nav ? nav.type : '';
+  const seen = sessionStorage.getItem('th-loader-seen') === '1';
+  const shouldShow = !seen || navType === 'reload';
+  if (!shouldShow) { loader.remove(); return; }
+
+  const content = document.getElementById('thLoaderContent');
+  const brand = document.getElementById('thLoaderBrand');
+  const tag = document.getElementById('thLoaderTag');
+  const progress = document.getElementById('thLoaderProgress');
+  const fill = document.getElementById('thLoaderFill');
+  const percent = document.getElementById('thLoaderPercent');
+  const sr = document.getElementById('thLoaderSr');
+  const sheen = document.getElementById('thLoaderSheen');
+  const letters = Array.from(loader.querySelectorAll('.th-loader-wordmark span'));
+  const orbs = Array.from(loader.querySelectorAll('.th-loader-orb'));
+  const backCanvas = document.getElementById('thLoaderCanvas');
+  const frontCanvas = document.getElementById('thLoaderFront');
+  const bctx = backCanvas && backCanvas.getContext ? backCanvas.getContext('2d') : null;
+  const fctx = frontCanvas && frontCanvas.getContext ? frontCanvas.getContext('2d') : null;
+
+  root.classList.add('th-loader-active');
+
+  let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let raf = 0, start = 0, done = false, pageReady = document.readyState === 'complete', exitStarted = false, exitAt = 0;
+  let visualProgress = 0, targetProgress = 0;
+  let smoke = [], ambient = [], sprites = {};
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInOut(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function theme() { return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+  function smokeRGB() { return theme() === 'light' ? [255,255,255] : [150,110,255]; }
+  function smokeRGB2() { return theme() === 'light' ? [225,215,245] : [196,181,253]; }
+
+  function makeSprite(rgb, alpha, size) {
+    const key = rgb.join(',') + ':' + alpha + ':' + size;
+    if (sprites[key]) return sprites[key];
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d');
+    const r = size / 2;
+    const grad = g.createRadialGradient(r, r, r * 0.05, r, r, r);
+    grad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`);
+    grad.addColorStop(0.35, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha * 0.55})`);
+    grad.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    sprites[key] = c;
+    return c;
+  }
+
+  function rebuildSprites() { sprites = {}; }
+
+  function resize() {
+    w = window.innerWidth; h = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    [backCanvas, frontCanvas].forEach(c => {
+      if (!c) return;
+      c.width = Math.floor(w * dpr);
+      c.height = Math.floor(h * dpr);
+      c.style.width = w + 'px';
+      c.style.height = h + 'px';
+    });
+    if (bctx) bctx.setTransform(dpr,0,0,dpr,0,0);
+    if (fctx) fctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function spawnSmoke(count, mode) {
+    const cx = w * 0.5, cy = h * 0.46;
+    for (let i = 0; i < count; i++) {
+      const angle = rand(0, Math.PI * 2);
+      const radius = mode === 'exit' ? rand(0, Math.min(w,h) * 0.12) : rand(Math.min(w,h)*0.05, Math.min(w,h)*0.35);
+      const speed = mode === 'exit' ? rand(0.5, 2.2) : rand(0.08, 0.35);
+      smoke.push({
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius * 0.6,
+        vx: Math.cos(angle) * speed * (mode === 'exit' ? 1 : 0.35),
+        vy: Math.sin(angle) * speed * 0.25 - (mode === 'exit' ? rand(0.2,0.9) : rand(0.02,0.12)),
+        size: rand(Math.min(w,h)*0.08, Math.min(w,h)*0.22) * (mode === 'exit' ? 1.1 : 1),
+        life: 0,
+        ttl: mode === 'exit' ? rand(900, 1700) : rand(2200, 4200),
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-0.003, 0.003),
+        alpha: mode === 'exit' ? rand(0.12, 0.24) : rand(0.05, 0.12),
+        mode,
+        seed: rand(0, 1000),
+        warm: Math.random() > 0.7
+      });
+    }
+  }
+
+  function initSmoke() {
+    smoke = [];
+    ambient = [];
+    const base = reduce ? 8 : Math.max(18, Math.min(34, Math.floor(w * h / 55000)));
+    spawnSmoke(base, 'intro');
+    const ambCount = reduce ? 0 : Math.max(10, Math.min(24, Math.floor(w * h / 70000)));
+    for (let i = 0; i < ambCount; i++) {
+      ambient.push({
+        x: rand(0,w), y: rand(0,h), r: rand(0.5,1.8), vx: rand(-0.15,0.15), vy: rand(-0.12,0.12),
+        a: rand(0.12,0.35), p: rand(0,Math.PI*2)
+      });
+    }
+  }
+
+  function drawSmoke(ctx, list, now, alphaMul) {
+    if (!ctx) return;
+    ctx.clearRect(0,0,w,h);
+    const rgbA = smokeRGB();
+    const rgbB = smokeRGB2();
+    for (let i = 0; i < list.length; i++) {
+      const p = list[i];
+      const t = p.life / p.ttl;
+      if (t >= 1) continue;
+      const fade = t < 0.2 ? t / 0.2 : (1 - t);
+      const turbX = Math.sin(now * 0.00035 + p.seed) * 10 + Math.cos(now * 0.00022 + p.seed * 1.7) * 6;
+      const turbY = Math.cos(now * 0.0003 + p.seed) * 8;
+      const x = p.x + turbX;
+      const y = p.y + turbY;
+      const size = p.size * (0.85 + t * 0.45);
+      const a = p.alpha * fade * alphaMul;
+      const rgb = p.warm ? rgbB : rgbA;
+      const sprite = makeSprite(rgb, clamp(a, 0, 0.35), 128);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.rot);
+      ctx.globalCompositeOperation = theme() === 'light' ? 'source-over' : 'screen';
+      ctx.drawImage(sprite, -size/2, -size/2, size, size);
+      ctx.restore();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    // ambient particles
+    const prgb = theme() === 'light' ? '122,47,224' : '196,181,253';
+    for (let i = 0; i < ambient.length; i++) {
+      const p = ambient[i];
+      p.x += p.vx + Math.sin(now*0.0004 + p.p)*0.05;
+      p.y += p.vy + Math.cos(now*0.00035 + p.p)*0.05;
+      if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+      if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${prgb},${p.a * (0.6 + Math.sin(now*0.001+p.p)*0.4) * alphaMul})`;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  function updateSmoke(dt) {
+    for (let i = smoke.length - 1; i >= 0; i--) {
+      const p = smoke[i];
+      p.life += dt;
+      p.x += p.vx * dt * 0.06;
+      p.y += p.vy * dt * 0.06;
+      p.rot += p.vr * dt * 0.06;
+      p.vx *= 0.998;
+      p.vy *= 0.998;
+      if (p.life >= p.ttl) smoke.splice(i, 1);
+    }
+    // keep subtle atmospheric base during intro
+    if (!exitStarted && smoke.length < (reduce ? 6 : 14)) spawnSmoke(reduce ? 2 : 4, 'intro');
+  }
+
+  function setProgress(p) {
+    const pct = Math.round(clamp(p, 0, 100));
+    if (fill) fill.style.width = pct + '%';
+    if (percent) percent.textContent = pct + '%';
+    if (sr) sr.textContent = 'Loading ThemeHaven ' + pct + ' percent';
+  }
+
+  function reveal(now) {
+    const t = clamp((now - start) / (reduce ? 1 : 1500), 0, 1);
+    const e = easeOut(t);
+    if (brand) {
+      brand.style.opacity = String(e);
+      brand.style.transform = `translateY(${(1-e)*18}px) scale(${0.96 + e*0.04})`;
+      brand.style.filter = `blur(${(1-e)*8}px)`;
+    }
+    letters.forEach((el, i) => {
+      const lt = clamp((now - start - (reduce ? 0 : 220 + i * 35)) / (reduce ? 1 : 560), 0, 1);
+      const le = easeOut(lt);
+      el.style.opacity = String(le);
+      el.style.transform = `translateY(${(1-le)*18}px)`;
+      el.style.filter = `blur(${(1-le)*6}px)`;
+    });
+    const tt = clamp((now - start - (reduce ? 0 : 700)) / (reduce ? 1 : 500), 0, 1);
+    if (tag) { tag.style.opacity = String(easeOut(tt)); tag.style.transform = `translateY(${(1-easeOut(tt))*10}px)`; }
+    const pt = clamp((now - start - (reduce ? 0 : 900)) / (reduce ? 1 : 450), 0, 1);
+    if (progress) { progress.style.opacity = String(easeOut(pt)); progress.style.transform = `translateY(${(1-easeOut(pt))*10}px)`; }
+  }
+
+  function animateSheen(now) {
+    if (!sheen || reduce) return;
+    const cycle = 2600;
+    const p = ((now - start) % cycle) / cycle;
+    sheen.style.transform = `translateX(${-140 + p * 280}%) skewX(-18deg)`;
+    sheen.style.opacity = p > 0.15 && p < 0.7 ? '1' : '0';
+  }
+
+  function animateOrbs(now) {
+    if (reduce) return;
+    orbs.forEach((orb, i) => {
+      const dx = Math.sin(now * 0.00035 + i) * (8 + i * 4);
+      const dy = Math.cos(now * 0.0003 + i * 1.3) * (6 + i * 3);
+      const s = 1 + Math.sin(now * 0.00025 + i) * 0.03;
+      orb.style.transform = `translate3d(${dx}px,${dy}px,0) scale(${s})`;
+    });
+  }
+
+  function startExit(now) {
+    if (exitStarted) return;
+    exitStarted = true;
+    exitAt = now;
+    sessionStorage.setItem('th-loader-seen', '1');
+    if (!reduce) spawnSmoke(Math.max(16, Math.min(30, Math.floor(w*h/60000))), 'exit');
+  }
+
+  function applyExit(now) {
+    const t = clamp((now - exitAt) / (reduce ? 120 : 1100), 0, 1);
+    const e = easeInOut(t);
+    if (content) {
+      content.style.opacity = String(1 - e);
+      content.style.transform = `translateY(${-e * 18}px) scale(${1 - e * 0.035})`;
+      content.style.filter = `blur(${e * 10}px)`;
+    }
+    loader.style.opacity = String(1 - e * 0.15);
+    if (t >= 1) {
+      loader.classList.add('is-hidden');
+      root.classList.remove('th-loader-active');
+      setTimeout(() => {
+        done = true;
+        if (raf) cancelAnimationFrame(raf);
+        window.removeEventListener('resize', resize);
+        loader.remove();
+      }, reduce ? 30 : 120);
+    }
+  }
+
+  let last = 0;
+  function tick(now) {
+    if (done) return;
+    if (!last) last = now;
+    const dt = Math.min(48, now - last);
+    last = now;
+
+    reveal(now);
+    animateSheen(now);
+    animateOrbs(now);
+    updateSmoke(dt);
+    drawSmoke(bctx, smoke.filter(p => p.mode !== 'exit' || p.life < p.ttl*0.5), now, exitStarted ? 0.65 : 1);
+    drawSmoke(fctx, smoke.filter(p => p.mode === 'exit'), now, exitStarted ? 1 : 0);
+
+    const elapsed = now - start;
+    const naturalCap = pageReady ? 100 : 90;
+    const natural = Math.min(naturalCap, (elapsed / (reduce ? 250 : 2300)) * 90);
+    targetProgress = Math.max(targetProgress, natural);
+    if (pageReady) targetProgress = 100;
+    visualProgress += (targetProgress - visualProgress) * (reduce ? 1 : 0.085);
+    if (pageReady && 100 - visualProgress < 0.4) visualProgress = 100;
+    setProgress(visualProgress);
+
+    if (!exitStarted && pageReady && visualProgress >= 99.6 && elapsed > (reduce ? 150 : 1200)) startExit(now);
+    if (exitStarted) applyExit(now);
+
+    raf = requestAnimationFrame(tick);
+  }
+
+  function onReady() { pageReady = true; }
+  if (document.readyState === 'complete') pageReady = true;
+  else window.addEventListener('load', onReady, { once: true });
+
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      loader.classList.add('is-hidden');
+      root.classList.remove('th-loader-active');
+      setTimeout(() => loader.remove(), 30);
+    }
+  });
+
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+  rebuildSprites();
+  initSmoke();
+  setProgress(0);
+  start = performance.now();
+
+  if (reduce) {
+    brand.style.opacity='1'; brand.style.transform='none'; brand.style.filter='none';
+    letters.forEach(el=>{el.style.opacity='1';el.style.transform='none';el.style.filter='none';});
+    tag.style.opacity='1'; tag.style.transform='none';
+    progress.style.opacity='1'; progress.style.transform='none';
+  }
+  raf = requestAnimationFrame(tick);
+  setTimeout(() => { pageReady = true; }, 5000);
+})();
+</script>
