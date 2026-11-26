@@ -101,7 +101,7 @@
   </head>
 
   <body class="flex min-h-screen flex-col">
-    {% include "components/loader.html" %}
+    {% comment %} {% include "components/loader.html" %} {% endcomment %}
     {% include "components/navbar.html" %}
     <!-- =============================================
          MAIN CONTENT
@@ -310,6 +310,35 @@
         }
 
         updateButton(getTheme());
+      })();
+    </script>
+
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const pullButton = document.getElementById("themePullToggle");
+        const toggles = document.querySelectorAll("[data-theme-toggle]");
+
+        const sync = () => {
+          const theme = root.getAttribute("data-theme") || "dark";
+          const nextTheme = theme === "dark" ? "light" : "dark";
+          const nextLabel = `Switch to ${nextTheme} theme`;
+          toggles.forEach((button) => {
+            button.setAttribute("aria-label", nextLabel);
+            button.setAttribute("title", nextLabel);
+            button.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
+            const label = button.querySelector("[data-theme-label]");
+            if (label) label.textContent = nextTheme === "light" ? "Light mode" : "Dark mode";
+          });
+        };
+
+        toggles.forEach((button) => button.addEventListener("click", () => {
+          pullButton?.click();
+          sync();
+        }));
+
+        new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+        sync();
       })();
     </script>
 

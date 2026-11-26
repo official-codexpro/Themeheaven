@@ -26,20 +26,19 @@
         <h2 class="text-[13px] font-bold text-[var(--text-primary)]">Explore</h2>
         <ul class="mt-4 space-y-2.5 text-[13px] text-[var(--text-secondary)]">
           <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}">Home</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'theme' %}">Browse Themes</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'catagories' %}">Templates</a></li>
+          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#trending-title">Browse Themes</a></li>
+          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#industries-title">Templates</a></li>
           <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#trending-title">Trending Themes</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'about' %}">About Us</a></li>
         </ul>
       </div>
 
       <div>
         <h2 class="text-[13px] font-bold text-[var(--text-primary)]">Platforms</h2>
         <ul class="mt-4 space-y-2.5 text-[13px] text-[var(--text-secondary)]">
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'catagories' %}?platform=wordpress">WordPress</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'catagories' %}?platform=elementor">Elementor</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'catagories' %}?platform=excel">Excel</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'catagories' %}?platform=word">Microsoft Word</a></li>
+          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">WordPress</a></li>
+          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">Elementor</a></li>
+          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">Excel</a></li>
+          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">Microsoft Word</a></li>
         </ul>
       </div>
 

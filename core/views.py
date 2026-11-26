@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 # Create your views here.
 
 def home(request):
@@ -30,31 +29,6 @@ def home(request):
         'business_categories': business_categories,
         'value_points': value_points,
     })
-
-def about(request):
-    return render(request, 'core/about.html')
-
-def catagories(request):
-    category_labels = {
-        'agency-portfolio': 'Agency & Portfolio',
-        'business-corporate': 'Business & Corporate',
-        'ecommerce-store': 'Ecommerce & Online Store',
-        'restaurant-food': 'Restaurant & Food',
-        'real-estate-architecture': 'Real Estate & Architecture',
-        'education-courses': 'Education & Courses',
-        'blog-magazine': 'Blog & Magazine',
-        'saas-technology': 'SaaS & Technology',
-    }
-    selected_category = category_labels.get(request.GET.get('category', ''))
-    selected_platform = request.GET.get('platform', '').lower()
-    platform_labels = {'wordpress': 'WordPress', 'elementor': 'Elementor', 'excel': 'Excel', 'word': 'Microsoft Word'}
-    return render(request, 'core/catagories.html', {
-        'selected_category': selected_category,
-        'selected_platform': platform_labels.get(selected_platform),
-    })
-
-def theme(request):
-    return render(request, 'core/theme.html')
 
 def support(request):
     return render(request, 'core/support.html')
