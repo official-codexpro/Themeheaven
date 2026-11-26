@@ -2,19 +2,16 @@
 <div id="th-loader" class="th-loader" role="status" aria-live="polite" aria-label="Loading ThemeHaven">
   <style>
     .th-loader {
-      --l-bg: #070510;
-      --l-bg2: #120922;
-      --l-bg3: #0b0716;
+      --l-bg: #06040f;
+      --l-bg2: #120824;
+      --l-bg3: #090516;
       --l-text: #f8f6ff;
-      --l-muted: #bdb6d4;
+      --l-muted: #b7afd1;
       --l-accent: #8b35f5;
       --l-accent2: #c4b5fd;
       --l-glow: rgba(139, 53, 245, 0.24);
       --l-glow2: rgba(167, 139, 250, 0.12);
-      --l-lamp-warm: rgba(255, 224, 178, 0.95);
-      --l-lamp-purple: rgba(196, 181, 253, 0.85);
-      --l-logo-shadow: drop-shadow(0 14px 36px rgba(139, 53, 245, 0.34));
-      --l-floor: rgba(255, 255, 255, 0.04);
+      --l-logo-shadow: drop-shadow(0 12px 30px rgba(139, 53, 245, 0.34));
       position: fixed;
       inset: 0;
       z-index: 10000;
@@ -22,175 +19,186 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background: var(--l-bg);
+      background: transparent;
       color: var(--l-text);
       font-family: var(--font-primary, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif);
-      transition: opacity 0.85s cubic-bezier(0.22, 0.9, 0.2, 1), visibility 0.85s;
       isolation: isolate;
     }
 
     [data-theme="light"] .th-loader {
-      --l-bg: #f6f3fc;
-      --l-bg2: #ece4fa;
-      --l-bg3: #fdfcff;
+      --l-bg: #f5f1fc;
+      --l-bg2: #e7ddf8;
+      --l-bg3: #fbf9ff;
       --l-text: #121026;
-      --l-muted: #575070;
+      --l-muted: #564e70;
       --l-accent: #7a2fe0;
       --l-accent2: #6d28d9;
       --l-glow: rgba(122, 47, 224, 0.14);
       --l-glow2: rgba(167, 139, 250, 0.12);
-      --l-lamp-warm: rgba(255, 244, 214, 0.98);
-      --l-lamp-purple: rgba(139, 92, 246, 0.72);
-      --l-logo-shadow: drop-shadow(0 12px 28px rgba(122, 47, 224, 0.16));
-      --l-floor: rgba(18, 16, 38, 0.06);
+      --l-logo-shadow: drop-shadow(0 10px 24px rgba(122, 47, 224, 0.16));
     }
 
-    .th-loader.is-hidden {
-      opacity: 0;
+    .th-loader.is-done {
       visibility: hidden;
       pointer-events: none;
     }
 
-    .th-loader-backdrop {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
+    /* Unified full-bleed curtain backdrop split cleanly into left & right panels */
+    .th-drape-left,
+    .th-drape-right {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 50vw;
+      z-index: 1;
       pointer-events: none;
+      overflow: hidden;
+      will-change: transform;
+    }
+
+    .th-drape-left {
+      left: 0;
+    }
+
+    .th-drape-right {
+      right: 0;
+    }
+
+    .th-drape-sheet {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100vw;
       background:
-        radial-gradient(ellipse 62% 48% at 50% 44%, var(--l-glow), transparent 72%),
-        radial-gradient(ellipse 42% 36% at 76% 24%, var(--l-glow2), transparent 70%),
-        radial-gradient(ellipse 46% 40% at 22% 78%, var(--l-glow2), transparent 72%),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.0) 0px,
+          rgba(255, 255, 255, 0.025) 36px,
+          rgba(0, 0, 0, 0.24) 72px,
+          rgba(255, 255, 255, 0.02) 108px,
+          rgba(0, 0, 0, 0.22) 144px
+        ),
+        radial-gradient(ellipse 68% 52% at 50% 45%, var(--l-glow), transparent 72%),
+        radial-gradient(ellipse 46% 38% at 76% 24%, var(--l-glow2), transparent 70%),
+        radial-gradient(ellipse 46% 38% at 24% 78%, var(--l-glow2), transparent 72%),
         linear-gradient(175deg, var(--l-bg2) 0%, var(--l-bg) 56%, var(--l-bg3) 100%);
     }
 
-    .th-loader-vignette {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: radial-gradient(circle at 50% 48%, transparent 45%, rgba(3, 2, 8, 0.52) 100%);
+    [data-theme="light"] .th-drape-sheet {
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.0) 0px,
+          rgba(255, 255, 255, 0.34) 38px,
+          rgba(67, 52, 112, 0.075) 76px,
+          rgba(255, 255, 255, 0.28) 114px,
+          rgba(67, 52, 112, 0.07) 152px
+        ),
+        radial-gradient(ellipse 68% 52% at 50% 45%, var(--l-glow), transparent 72%),
+        radial-gradient(ellipse 46% 38% at 76% 24%, var(--l-glow2), transparent 70%),
+        linear-gradient(175deg, var(--l-bg2) 0%, var(--l-bg) 56%, var(--l-bg3) 100%);
     }
 
-    [data-theme="light"] .th-loader-vignette {
-      background: radial-gradient(circle at 50% 48%, transparent 52%, rgba(28, 22, 54, 0.08) 100%);
+    .th-drape-left .th-drape-sheet {
+      left: 0;
     }
 
-    .th-loader-stage {
-      position: absolute;
+    .th-drape-right .th-drape-sheet {
+      right: 0;
+    }
+
+    .th-loader-canvas {
+      position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       z-index: 2;
       pointer-events: none;
+      will-change: opacity;
     }
 
-    .th-loader-center {
+    .th-loader-hero {
       position: relative;
       z-index: 3;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 16px;
       padding: 24px;
       text-align: center;
       pointer-events: none;
-      max-width: min(90vw, 640px);
-      transform: translateY(-28px);
+      transform: translateY(-24px);
       will-change: transform, opacity, filter;
     }
 
-    .th-loader-brand {
-      display: flex;
+    .th-loader-brand-lockup {
+      position: relative;
+      display: inline-flex;
+      min-width: 0;
       align-items: center;
-      justify-content: center;
-      gap: 16px;
+      gap: 14px;
+      padding: 12px 22px;
+      border-radius: 18px;
       opacity: 0;
-      transform: translateY(16px) scale(0.96);
+      transform: translateY(14px) scale(0.96);
       filter: blur(8px);
       will-change: transform, opacity, filter;
     }
 
-    .th-loader-logo-frame {
-      position: relative;
-      width: 92px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 14px;
-      overflow: hidden;
-    }
-
-    .th-loader-logo-aura {
+    .th-loader-brand-aura {
       position: absolute;
-      inset: -45%;
-      background: radial-gradient(circle, rgba(167, 139, 250, 0.42), rgba(139, 53, 245, 0.08) 58%, transparent 75%);
-      filter: blur(14px);
-      opacity: 0.75;
+      inset: -26px -34px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(139, 53, 245, 0.34), rgba(167, 139, 250, 0.07) 60%, transparent 76%);
+      filter: blur(18px);
       z-index: 0;
-      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
     }
 
-    [data-theme="light"] .th-loader-logo-aura {
-      background: radial-gradient(circle, rgba(122, 47, 224, 0.2), transparent 72%);
+    [data-theme="light"] .th-loader-brand-aura {
+      background: radial-gradient(circle, rgba(122, 47, 224, 0.16), transparent 74%);
     }
 
     .th-loader-logo {
       position: relative;
       z-index: 2;
-      width: 86px;
-      height: 48px;
+      display: block;
+      height: 46px;
+      width: 82px;
+      flex-shrink: 0;
       object-fit: contain;
       filter: var(--l-logo-shadow);
     }
 
-    .th-loader-sheen {
-      position: absolute;
-      inset: -25%;
-      z-index: 3;
-      background: linear-gradient(
-        112deg,
-        transparent 32%,
-        rgba(255, 255, 255, 0) 43%,
-        rgba(255, 255, 255, 0.52) 50%,
-        rgba(255, 255, 255, 0) 57%,
-        transparent 68%
-      );
-      transform: translateX(-150%) skewX(-18deg);
-      mix-blend-mode: screen;
-      opacity: 0;
-    }
-
-    [data-theme="light"] .th-loader-sheen {
-      mix-blend-mode: soft-light;
-    }
-
-    .th-loader-wordmark {
-      font-size: clamp(32px, 4.4vw, 48px);
+    .th-loader-title {
+      position: relative;
+      z-index: 2;
+      white-space: nowrap;
+      font-size: clamp(32px, 4.2vw, 44px);
       font-weight: 800;
-      letter-spacing: -0.04em;
+      letter-spacing: -0.7px;
       line-height: 1.05;
       color: var(--l-text);
-      text-shadow: 0 8px 32px rgba(139, 53, 245, 0.22);
+      text-shadow: 0 10px 30px rgba(139, 53, 245, 0.24);
     }
 
-    [data-theme="light"] .th-loader-wordmark {
-      text-shadow: 0 6px 24px rgba(122, 47, 224, 0.12);
+    [data-theme="light"] .th-loader-title {
+      text-shadow: 0 6px 22px rgba(122, 47, 224, 0.12);
     }
 
-    .th-loader-wordmark span {
+    .th-loader-title span {
       display: inline-block;
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(12px);
       filter: blur(5px);
       will-change: transform, opacity, filter;
     }
 
-    .th-loader-tag {
+    .th-loader-sub {
       font-size: 11px;
       font-weight: 600;
-      letter-spacing: 0.32em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
       color: var(--l-muted);
       opacity: 0;
@@ -199,10 +207,10 @@
     }
 
     .th-loader-progress {
-      width: min(260px, 68vw);
+      width: min(240px, 64vw);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
       opacity: 0;
       transform: translateY(8px);
       will-change: transform, opacity;
@@ -212,12 +220,12 @@
       height: 2px;
       width: 100%;
       border-radius: 999px;
-      background: rgba(196, 181, 253, 0.14);
+      background: rgba(196, 181, 253, 0.15);
       overflow: hidden;
     }
 
     [data-theme="light"] .th-loader-track {
-      background: rgba(122, 47, 224, 0.14);
+      background: rgba(122, 47, 224, 0.15);
     }
 
     .th-loader-fill {
@@ -225,16 +233,15 @@
       width: 0%;
       border-radius: 999px;
       background: linear-gradient(90deg, #782bfa, #a78bfa, #e9d5ff);
-      box-shadow: 0 0 16px rgba(167, 139, 250, 0.5);
+      box-shadow: 0 0 14px rgba(167, 139, 250, 0.45);
       will-change: width;
     }
 
     .th-loader-meta {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       font-size: 10px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--l-muted);
     }
@@ -243,34 +250,6 @@
       font-variant-numeric: tabular-nums;
       color: var(--l-accent2);
       font-weight: 600;
-    }
-
-    .th-loader-flash {
-      position: fixed;
-      inset: 0;
-      z-index: 4;
-      pointer-events: none;
-      opacity: 0;
-      background: radial-gradient(
-        circle at var(--lamp-x, 68%) var(--lamp-y, 34%),
-        var(--l-lamp-warm) 0%,
-        rgba(221, 214, 254, 0.58) 28%,
-        rgba(139, 53, 245, 0.22) 58%,
-        transparent 82%
-      );
-      mix-blend-mode: screen;
-      will-change: opacity, transform;
-    }
-
-    [data-theme="light"] .th-loader-flash {
-      mix-blend-mode: normal;
-      background: radial-gradient(
-        circle at var(--lamp-x, 68%) var(--lamp-y, 34%),
-        rgba(255, 250, 232, 0.96) 0%,
-        rgba(237, 233, 254, 0.72) 34%,
-        rgba(196, 181, 253, 0.24) 65%,
-        transparent 85%
-      );
     }
 
     .th-loader-sr {
@@ -291,20 +270,21 @@
     }
 
     @media (max-width: 640px) {
-      .th-loader-center {
-        transform: translateY(-44px);
-        gap: 16px;
+      .th-loader-hero {
+        transform: translateY(-38px);
+        gap: 14px;
       }
-      .th-loader-brand {
-        gap: 12px;
-      }
-      .th-loader-logo-frame {
-        width: 74px;
-        height: 42px;
+      .th-loader-brand-lockup {
+        gap: 10px;
+        padding: 10px 14px;
       }
       .th-loader-logo {
-        width: 70px;
-        height: 38px;
+        height: 36px;
+        width: 64px;
+      }
+      .th-loader-title {
+        font-size: 26px;
+        letter-spacing: -0.7px;
       }
     }
 
@@ -316,41 +296,38 @@
         animation: none !important;
         transition-duration: 0.01ms !important;
       }
-      .th-loader-sheen {
-        display: none;
-      }
     }
   </style>
 
-  <div class="th-loader-backdrop" aria-hidden="true"></div>
-  <div class="th-loader-vignette" aria-hidden="true"></div>
-  <canvas class="th-loader-stage" id="thLoaderStage" aria-hidden="true"></canvas>
+  <div class="th-drape-left" id="thDrapeLeft" aria-hidden="true">
+    <div class="th-drape-sheet"></div>
+  </div>
+  <div class="th-drape-right" id="thDrapeRight" aria-hidden="true">
+    <div class="th-drape-sheet"></div>
+  </div>
 
-  <div class="th-loader-center" id="thLoaderCenter">
-    <div class="th-loader-brand" id="thLoaderBrand">
-      <div class="th-loader-logo-frame">
-        <div class="th-loader-logo-aura" id="thLoaderAura"></div>
-        <img src="{% static 'img/logo.png' %}" alt="ThemeHaven" class="th-loader-logo" width="86" height="48" />
-        <div class="th-loader-sheen" id="thLoaderSheen"></div>
-      </div>
-      <div class="th-loader-wordmark" aria-label="ThemeHaven">
+  <canvas class="th-loader-canvas" id="thLoaderCanvas" aria-hidden="true"></canvas>
+
+  <div class="th-loader-hero" id="thLoaderHero">
+    <div class="th-loader-brand-lockup" id="thLoaderBrand">
+      <div class="th-loader-brand-aura" id="thLoaderAura"></div>
+      <img src="{% static 'img/logo.png' %}" alt="" class="th-loader-logo" width="82" height="46" />
+      <span class="th-loader-title" aria-label="ThemeHaven">
         <span>T</span><span>h</span><span>e</span><span>m</span><span>e</span><span>H</span><span>a</span><span>v</span><span>e</span><span>n</span>
-      </div>
+      </span>
     </div>
-    <div class="th-loader-tag" id="thLoaderTag">Crafted Digital Architecture</div>
+    <div class="th-loader-sub" id="thLoaderSub">Signature Web &amp; UI Craft</div>
     <div class="th-loader-progress" id="thLoaderProgress">
       <div class="th-loader-track">
         <div class="th-loader-fill" id="thLoaderFill"></div>
       </div>
       <div class="th-loader-meta">
-        <span id="thLoaderStatus">Initializing</span>
+        <span id="thLoaderState">Loading</span>
         <span class="th-loader-pct" id="thLoaderPct">0%</span>
       </div>
     </div>
     <span class="th-loader-sr" id="thLoaderSr">Loading ThemeHaven</span>
   </div>
-
-  <div class="th-loader-flash" id="thLoaderFlash" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -367,27 +344,24 @@
   const navType = navEntry ? navEntry.type : '';
   const alreadySeen = sessionStorage.getItem('th-loader-seen') === '1';
 
-  if (!alreadySeen || navType === 'reload') {
-    // Proceed with loader intro
-  } else {
+  if (alreadySeen && navType !== 'reload') {
     loader.remove();
     return;
   }
 
-  const canvas = document.getElementById('thLoaderStage');
+  const drapeLeft = document.getElementById('thDrapeLeft');
+  const drapeRight = document.getElementById('thDrapeRight');
+  const canvas = document.getElementById('thLoaderCanvas');
   const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
-  const centerEl = document.getElementById('thLoaderCenter');
+  const heroEl = document.getElementById('thLoaderHero');
   const brandEl = document.getElementById('thLoaderBrand');
-  const auraEl = document.getElementById('thLoaderAura');
-  const sheenEl = document.getElementById('thLoaderSheen');
-  const tagEl = document.getElementById('thLoaderTag');
+  const subEl = document.getElementById('thLoaderSub');
   const progressEl = document.getElementById('thLoaderProgress');
   const fillEl = document.getElementById('thLoaderFill');
   const pctEl = document.getElementById('thLoaderPct');
-  const statusEl = document.getElementById('thLoaderStatus');
+  const stateEl = document.getElementById('thLoaderState');
   const srEl = document.getElementById('thLoaderSr');
-  const flashEl = document.getElementById('thLoaderFlash');
-  const letters = Array.from(loader.querySelectorAll('.th-loader-wordmark span'));
+  const letters = Array.from(loader.querySelectorAll('.th-loader-title span'));
 
   root.classList.add('th-loader-active');
 
@@ -396,27 +370,15 @@
   let dpr = 1;
   let rafId = 0;
   let startTime = 0;
-  let lastTime = 0;
   let disposed = false;
   let pageLoaded = document.readyState === 'complete';
 
-  // Progress & state machine
   let visualProgress = 0;
   let targetProgress = 0;
-  let lightOn = false;
-  let lightIntensity = 0; // 0 -> 1 smoothly when pulled
-  let lightTriggeredAt = 0;
-  let exitStarted = false;
-  let exitStartAt = 0;
-
-  // Pendulum physics for lamp
-  let lampAngle = 0;
-  let lampAngularVel = 0;
-  let cordPullOffset = 0; // downward pull in px
-  let cordBendX = 0; // horizontal flex when pulled
-
-  // Dust motes for atmospheric depth
-  let motes = [];
+  let curtainStarted = false;
+  let curtainStartAt = 0;
+  let ropePullDown = 0;
+  let ropePullLeft = 0;
 
   function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
@@ -434,17 +396,15 @@
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 
-  function easeOutBack(t) {
-    const c1 = 1.45;
-    const c3 = c1 + 1;
-    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  function easeInOutQuint(t) {
+    return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
   }
 
-  function isLightTheme() {
+  function isLight() {
     return root.getAttribute('data-theme') === 'light';
   }
 
-  function resizeCanvas() {
+  function resize() {
     width = window.innerWidth || document.documentElement.clientWidth || 1280;
     height = window.innerHeight || document.documentElement.clientHeight || 720;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -456,887 +416,637 @@
       canvas.style.height = height + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-
-    initMotes();
   }
 
-  function initMotes() {
-    const count = prefersReduced ? 0 : clamp(Math.floor((width * height) / 65000), 10, 26);
-    motes = Array.from({ length: count }, (_, idx) => ({
-      x: ((idx * 197) % 100) * 0.01 * width,
-      y: ((idx * 313) % 100) * 0.01 * height,
-      r: 0.7 + (idx % 3) * 0.55,
-      vx: ((idx % 5) - 2) * 0.04,
-      vy: -0.04 - (idx % 4) * 0.025,
-      phase: idx * 0.85,
-      alpha: 0.14 + (idx % 4) * 0.06
-    }));
-  }
-
-  // Compute scene anchors responsively so logo, lamp, and character never clip or collide awkwardly
-  function getSceneLayout() {
-    const compact = width < 640;
-    const floorY = height * (compact ? 0.84 : 0.82);
-
-    // Lamp placed to the right-upper quadrant on desktop, slightly closer on mobile
-    const lampAnchorX = width * (compact ? 0.74 : 0.73);
-    const ceilingY = 0;
-    const cordBaseLen = clamp(height * (compact ? 0.17 : 0.21), 95, 195);
-    const shadeHeight = clamp(height * 0.052, 30, 46);
-    const pullRopeLen = clamp(height * (compact ? 0.11 : 0.13), 68, 118);
-
-    // Character scale relative to viewport height
-    const scale = clamp(height / 760, compact ? 0.56 : 0.68, 1.12);
-
-    // Where the character stands when pulling the cord
-    const standX = lampAnchorX - 44 * scale;
+  function getLayout() {
+    const mobile = width < 640;
+    const floorY = height * (mobile ? 0.85 : 0.83);
+    const scale = clamp(height / 760, mobile ? 0.58 : 0.72, 1.15);
+    const ropeTopX = width * (mobile ? 0.76 : 0.74);
+    const ropeTopY = 0;
+    const ropeRestY = clamp(height * (mobile ? 0.44 : 0.48), 220, 430);
+    const standX = ropeTopX - 46 * scale;
 
     return {
-      compact,
+      mobile,
       floorY,
-      lampAnchorX,
-      ceilingY,
-      cordBaseLen,
-      shadeHeight,
-      pullRopeLen,
       scale,
+      ropeTopX,
+      ropeTopY,
+      ropeRestY,
       standX
     };
   }
 
-  // Two-bone analytical inverse kinematics (IK) in 2D
-  // Returns { elbow: {x, y}, hand: {x, y} } so hand reaches target exactly when within reach
-  function solveTwoBoneIK(shoulder, target, len1, len2, bendSign) {
-    const dx = target.x - shoulder.x;
-    const dy = target.y - shoulder.y;
-    const maxReach = (len1 + len2) * 0.985;
-    const minReach = Math.abs(len1 - len2) + 2;
+  function solveTwoBone(origin, target, lenA, lenB, elbowDir) {
+    const dx = target.x - origin.x;
+    const dy = target.y - origin.y;
+    const maxLen = (lenA + lenB) * 0.985;
+    const minLen = Math.abs(lenA - lenB) + 2;
     const rawDist = Math.hypot(dx, dy);
-    const dist = clamp(rawDist, minReach, maxReach);
+    const dist = clamp(rawDist, minLen, maxLen);
 
-    const dirX = rawDist > 0.0001 ? dx / rawDist : 0;
-    const dirY = rawDist > 0.0001 ? dy / rawDist : -1;
+    const ux = rawDist > 0.0001 ? dx / rawDist : 0;
+    const uy = rawDist > 0.0001 ? dy / rawDist : -1;
 
-    const handX = shoulder.x + dirX * dist;
-    const handY = shoulder.y + dirY * dist;
+    const endX = origin.x + ux * dist;
+    const endY = origin.y + uy * dist;
 
-    const cosAngle1 = clamp(
-      (len1 * len1 + dist * dist - len2 * len2) / (2 * len1 * dist),
-      -1,
-      1
-    );
-    const angle1 = Math.acos(cosAngle1);
-    const baseAngle = Math.atan2(handY - shoulder.y, handX - shoulder.x);
-    const elbowAngle = baseAngle + bendSign * angle1;
+    const cosTheta = clamp((lenA * lenA + dist * dist - lenB * lenB) / (2 * lenA * dist), -1, 1);
+    const theta = Math.acos(cosTheta);
+    const baseAngle = Math.atan2(endY - origin.y, endX - origin.x);
+    const elbowAngle = baseAngle + elbowDir * theta;
 
     return {
-      elbow: {
-        x: shoulder.x + Math.cos(elbowAngle) * len1,
-        y: shoulder.y + Math.sin(elbowAngle) * len1
+      joint: {
+        x: origin.x + Math.cos(elbowAngle) * lenA,
+        y: origin.y + Math.sin(elbowAngle) * lenA
       },
-      hand: {
-        x: handX,
-        y: handY
+      end: {
+        x: endX,
+        y: endY
       }
     };
   }
 
-  function updateLampPhysics(dtSec, now) {
-    if (!lightOn) {
-      // Subtle ambient breath before pull
-      lampAngle = Math.sin(now * 0.0011) * 0.012;
-      lampAngularVel = 0;
-      return;
-    }
-
-    // Damped pendulum oscillation after pull/release
-    const gravityK = 26;
-    const damping = 3.8;
-    const angularAcc = -gravityK * lampAngle - damping * lampAngularVel;
-    lampAngularVel += angularAcc * dtSec;
-    lampAngle += lampAngularVel * dtSec;
-  }
-
-  function drawFloor(layout, lightFactor) {
-    const lightMode = isLightTheme();
+  function drawFloor(layout) {
+    const light = isLight();
     const { floorY } = layout;
 
-    const grad = ctx.createLinearGradient(0, floorY - 4, 0, height);
-    if (lightMode) {
-      grad.addColorStop(0, `rgba(122, 47, 224, ${0.08 + lightFactor * 0.06})`);
-      grad.addColorStop(0.35, `rgba(255, 248, 230, ${0.18 + lightFactor * 0.35})`);
-      grad.addColorStop(1, 'rgba(236, 228, 250, 0.05)');
+    const grad = ctx.createLinearGradient(0, floorY - 2, 0, height);
+    if (light) {
+      grad.addColorStop(0, 'rgba(24, 18, 48, 0.08)');
+      grad.addColorStop(1, 'rgba(24, 18, 48, 0)');
     } else {
-      grad.addColorStop(0, `rgba(196, 181, 253, ${0.08 + lightFactor * 0.1})`);
-      grad.addColorStop(0.25, `rgba(255, 214, 155, ${lightFactor * 0.11})`);
-      grad.addColorStop(1, 'rgba(6, 4, 14, 0.0)');
+      grad.addColorStop(0, 'rgba(196, 181, 253, 0.11)');
+      grad.addColorStop(1, 'rgba(6, 4, 15, 0)');
     }
-
     ctx.fillStyle = grad;
     ctx.fillRect(0, floorY, width, height - floorY);
 
-    // Subtle horizon hairline
     ctx.beginPath();
     ctx.moveTo(0, floorY);
     ctx.lineTo(width, floorY);
-    ctx.strokeStyle = lightMode
-      ? `rgba(18, 16, 38, ${0.1 + lightFactor * 0.08})`
-      : `rgba(196, 181, 253, ${0.12 + lightFactor * 0.14})`;
+    ctx.strokeStyle = light ? 'rgba(24, 18, 48, 0.12)' : 'rgba(196, 181, 253, 0.14)';
     ctx.lineWidth = 1;
     ctx.stroke();
   }
 
-  function drawVolumetricLight(lampPos, shadeTip, lightFactor) {
-    if (lightFactor <= 0.005) return;
-    const lightMode = isLightTheme();
+  function drawRope(layout, now) {
+    const light = isLight();
+    const { ropeTopX, ropeTopY, ropeRestY, scale } = layout;
+
+    const sway = curtainStarted ? 0 : Math.sin(now * 0.0014) * (2.2 * scale);
+    const tipX = ropeTopX + ropePullLeft + sway;
+    const tipY = ropeRestY + ropePullDown;
+
+    const ctrlX = lerp(ropeTopX, tipX, 0.5) - (ropePullDown > 0 ? 3.5 * scale : 0);
+    const ctrlY = lerp(ropeTopY, tipY, 0.52);
 
     ctx.save();
-    ctx.globalCompositeOperation = lightMode ? 'source-over' : 'screen';
-
-    // Outer volumetric light cone from lamp shade downward
-    const coneLen = Math.max(width, height) * 0.72;
-    const spreadHalf = coneLen * 0.42;
-
-    const coneGrad = ctx.createLinearGradient(shadeTip.x, shadeTip.y, shadeTip.x, shadeTip.y + coneLen);
-    if (lightMode) {
-      coneGrad.addColorStop(0, `rgba(255, 246, 214, ${0.55 * lightFactor})`);
-      coneGrad.addColorStop(0.45, `rgba(237, 233, 254, ${0.26 * lightFactor})`);
-      coneGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    } else {
-      coneGrad.addColorStop(0, `rgba(255, 226, 176, ${0.34 * lightFactor})`);
-      coneGrad.addColorStop(0.32, `rgba(196, 181, 253, ${0.16 * lightFactor})`);
-      coneGrad.addColorStop(0.75, `rgba(139, 53, 245, ${0.07 * lightFactor})`);
-      coneGrad.addColorStop(1, 'rgba(139, 53, 245, 0)');
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(shadeTip.x - 24, shadeTip.y);
-    ctx.lineTo(shadeTip.x + 24, shadeTip.y);
-    ctx.lineTo(shadeTip.x + spreadHalf, shadeTip.y + coneLen);
-    ctx.lineTo(shadeTip.x - spreadHalf, shadeTip.y + coneLen);
-    ctx.closePath();
-    ctx.fillStyle = coneGrad;
-    ctx.fill();
-
-    // Bulb bloom right beneath shade
-    const bloomRadius = 150 * lightFactor;
-    const bloom = ctx.createRadialGradient(lampPos.x, shadeTip.y + 6, 2, lampPos.x, shadeTip.y + 12, bloomRadius);
-    if (lightMode) {
-      bloom.addColorStop(0, `rgba(255, 252, 240, ${0.9 * lightFactor})`);
-      bloom.addColorStop(0.45, `rgba(254, 240, 199, ${0.42 * lightFactor})`);
-      bloom.addColorStop(1, 'rgba(254, 240, 199, 0)');
-    } else {
-      bloom.addColorStop(0, `rgba(255, 248, 224, ${0.85 * lightFactor})`);
-      bloom.addColorStop(0.35, `rgba(253, 214, 146, ${0.38 * lightFactor})`);
-      bloom.addColorStop(0.75, `rgba(167, 139, 250, ${0.14 * lightFactor})`);
-      bloom.addColorStop(1, 'rgba(139, 53, 245, 0)');
-    }
-    ctx.fillStyle = bloom;
-    ctx.beginPath();
-    ctx.arc(lampPos.x, shadeTip.y + 10, bloomRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  // Returns { knobPos: {x, y}, shadeTip: {x, y} } so character hand aligns with actual knob
-  function drawLampAndCord(layout, lightFactor) {
-    const { lampAnchorX, ceilingY, cordBaseLen, shadeHeight, pullRopeLen, scale } = layout;
-    const lightMode = isLightTheme();
+    ctx.lineCap = 'round';
 
     // Ceiling mount
-    ctx.save();
-    ctx.fillStyle = lightMode ? '#2b2442' : '#251e3d';
+    ctx.fillStyle = light ? '#2c2345' : '#261e40';
     ctx.beginPath();
-    ctx.roundRect(lampAnchorX - 20 * scale, ceilingY, 40 * scale, 9 * scale, 4 * scale);
+    ctx.arc(ropeTopX, ropeTopY + 5 * scale, 5.5 * scale, 0, Math.PI * 2);
     ctx.fill();
 
-    // Pendulum position of lamp body
-    const sinA = Math.sin(lampAngle);
-    const cosA = Math.cos(lampAngle);
-    const lampX = lampAnchorX + sinA * cordBaseLen;
-    const lampY = ceilingY + cosA * cordBaseLen;
-
-    // Main suspension wire
-    ctx.strokeStyle = lightMode ? 'rgba(36, 30, 58, 0.78)' : 'rgba(218, 210, 245, 0.58)';
-    ctx.lineWidth = Math.max(1.4, 2 * scale);
+    // Soft rope shadow
+    ctx.strokeStyle = light ? 'rgba(20, 15, 38, 0.15)' : 'rgba(0, 0, 0, 0.45)';
+    ctx.lineWidth = Math.max(3.6, 4.6 * scale);
     ctx.beginPath();
-    ctx.moveTo(lampAnchorX, ceilingY + 7 * scale);
-    ctx.lineTo(lampX, lampY);
+    ctx.moveTo(ropeTopX + 2, ropeTopY + 5 * scale);
+    ctx.quadraticCurveTo(ctrlX + 2, ctrlY, tipX + 2, tipY);
     ctx.stroke();
 
-    // Draw lamp shade rotated by lampAngle
-    ctx.save();
-    ctx.translate(lampX, lampY);
-    ctx.rotate(lampAngle);
+    // Rope strands
+    const rGrad = ctx.createLinearGradient(ropeTopX - 4, ropeTopY, tipX + 4, tipY);
+    if (light) {
+      rGrad.addColorStop(0, '#5a4978');
+      rGrad.addColorStop(0.5, '#8c7ab3');
+      rGrad.addColorStop(1, '#463763');
+    } else {
+      rGrad.addColorStop(0, '#a694c7');
+      rGrad.addColorStop(0.5, '#e6dfff');
+      rGrad.addColorStop(1, '#7a66a3');
+    }
 
-    const topW = 14 * scale;
-    const botW = 46 * scale;
-    const h = shadeHeight;
+    ctx.strokeStyle = rGrad;
+    ctx.lineWidth = Math.max(3.3, 4.2 * scale);
+    ctx.beginPath();
+    ctx.moveTo(ropeTopX, ropeTopY + 5 * scale);
+    ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+    ctx.stroke();
 
-    // Bulb glow inside shade
-    const bulbY = h * 0.72;
-    if (lightFactor > 0.01) {
-      ctx.save();
-      ctx.fillStyle = lightMode ? '#fffbeb' : '#fff3d1';
-      ctx.shadowColor = lightMode ? 'rgba(245, 158, 11, 0.7)' : 'rgba(255, 214, 138, 0.95)';
-      ctx.shadowBlur = 22 * lightFactor;
+    // Twist lines
+    const ticks = 14;
+    ctx.strokeStyle = light ? 'rgba(32, 22, 54, 0.34)' : 'rgba(18, 12, 36, 0.44)';
+    ctx.lineWidth = Math.max(1, 1.2 * scale);
+    for (let i = 1; i < ticks; i++) {
+      const t = i / ticks;
+      const mt = 1 - t;
+      const px = mt * mt * ropeTopX + 2 * mt * t * ctrlX + t * t * tipX;
+      const py = mt * mt * (ropeTopY + 5 * scale) + 2 * mt * t * ctrlY + t * t * tipY;
       ctx.beginPath();
-      ctx.arc(0, bulbY, 7.5 * scale, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    } else {
-      ctx.fillStyle = lightMode ? '#cbd5e1' : '#474063';
-      ctx.beginPath();
-      ctx.arc(0, bulbY, 6 * scale, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.moveTo(px - 2.2 * scale, py - 1.4 * scale);
+      ctx.lineTo(px + 2.2 * scale, py + 1.4 * scale);
+      ctx.stroke();
     }
 
-    // Metallic/matte shade body with shading gradient
-    const shadeGrad = ctx.createLinearGradient(-botW * 0.5, 0, botW * 0.5, h);
-    if (lightMode) {
-      shadeGrad.addColorStop(0, '#362d52');
-      shadeGrad.addColorStop(0.55, '#1e1933');
-      shadeGrad.addColorStop(1, '#120f21');
+    // Pull grip handle
+    const gw = 8.5 * scale;
+    const gh = 22 * scale;
+    const gGrad = ctx.createLinearGradient(tipX - gw * 0.5, tipY, tipX + gw * 0.5, tipY + gh);
+    if (light) {
+      gGrad.addColorStop(0, '#493a66');
+      gGrad.addColorStop(0.5, '#7c6aa1');
+      gGrad.addColorStop(1, '#2d2245');
     } else {
-      shadeGrad.addColorStop(0, '#3b325c');
-      shadeGrad.addColorStop(0.5, '#1e1834');
-      shadeGrad.addColorStop(1, '#100c1f');
+      gGrad.addColorStop(0, '#c4b5fd');
+      gGrad.addColorStop(0.5, '#8b5cf6');
+      gGrad.addColorStop(1, '#4c1d95');
     }
 
-    ctx.fillStyle = shadeGrad;
+    ctx.fillStyle = gGrad;
     ctx.beginPath();
-    ctx.moveTo(-topW * 0.5, 0);
-    ctx.lineTo(topW * 0.5, 0);
-    ctx.lineTo(botW * 0.5, h);
-    ctx.quadraticCurveTo(0, h + 4 * scale, -botW * 0.5, h);
-    ctx.closePath();
+    ctx.roundRect(tipX - gw * 0.5, tipY, gw, gh, 4 * scale);
     ctx.fill();
 
-    // Subtle rim highlight on shade
-    ctx.strokeStyle = lightMode ? 'rgba(255, 255, 255, 0.45)' : 'rgba(196, 181, 253, 0.28)';
-    ctx.lineWidth = 1.1;
-    ctx.stroke();
-
-    // Inner rim highlight
-    ctx.beginPath();
-    ctx.ellipse(0, h + 1 * scale, botW * 0.44, 2.2 * scale, 0, 0, Math.PI);
-    ctx.strokeStyle = lightFactor > 0.05
-      ? `rgba(255, 232, 185, ${0.4 + lightFactor * 0.5})`
-      : 'rgba(196, 181, 253, 0.16)';
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
-
-    ctx.restore();
-
-    // Bottom center of shade in world coordinates
-    const shadeTip = {
-      x: lampX - sinA * (shadeHeight + 2 * scale),
-      y: lampY + cosA * (shadeHeight + 2 * scale)
-    };
-
-    // Pull cord hangs from shadeTip and stretches/bends naturally when pulled
-    const effectivePullLen = pullRopeLen + cordPullOffset;
-    const knobX = shadeTip.x + sinA * (pullRopeLen * 0.35) + cordBendX;
-    const knobY = shadeTip.y + cosA * effectivePullLen;
-
-    const ctrlX = lerp(shadeTip.x, knobX, 0.55) + cordBendX * 0.35;
-    const ctrlY = lerp(shadeTip.y, knobY, 0.55);
-
-    ctx.strokeStyle = lightMode ? 'rgba(42, 35, 68, 0.85)' : 'rgba(232, 226, 255, 0.72)';
-    ctx.lineWidth = Math.max(1.3, 1.7 * scale);
-    ctx.beginPath();
-    ctx.moveTo(shadeTip.x, shadeTip.y);
-    ctx.quadraticCurveTo(ctrlX, ctrlY, knobX, knobY);
-    ctx.stroke();
-
-    // Metallic pull knob attached directly to cord end
-    const knobR = Math.max(5, 6.4 * scale);
-    const knobGrad = ctx.createRadialGradient(
-      knobX - knobR * 0.35,
-      knobY - knobR * 0.35,
-      knobR * 0.1,
-      knobX,
-      knobY,
-      knobR
-    );
-    if (lightMode) {
-      knobGrad.addColorStop(0, '#ffffff');
-      knobGrad.addColorStop(0.55, '#a78bfa');
-      knobGrad.addColorStop(1, '#4c1d95');
-    } else {
-      knobGrad.addColorStop(0, '#f5f3ff');
-      knobGrad.addColorStop(0.45, '#c4b5fd');
-      knobGrad.addColorStop(1, '#5b21b6');
-    }
-
-    ctx.fillStyle = knobGrad;
-    ctx.beginPath();
-    ctx.arc(knobX, knobY, knobR, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = lightMode ? 'rgba(30, 24, 54, 0.4)' : 'rgba(255, 255, 255, 0.45)';
+    ctx.strokeStyle = light ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.3)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
     ctx.restore();
 
     return {
-      knobPos: { x: knobX, y: knobY },
-      shadeTip
+      gripPos: { x: tipX, y: tipY + gh * 0.45 }
     };
   }
 
-  // Realistic human male proportions & IK reach/pull toward knobPos
-  function drawHumanCharacter(layout, knobPos, animState, lightFactor) {
+  // Lifelike human gait, torso counter-rotation, weight shift & rope pull
+  function drawHuman(layout, gripPos, motion) {
+    const light = isLight();
     const { floorY, scale } = layout;
-    const { hipX, walkPhase, reachBlend, pullAmount, walkBlend } = animState;
-    const lightMode = isLightTheme();
+    const { hipX, walkBlend, walkPhase, reachBlend, pullBlend } = motion;
 
-    // Anatomical segment lengths scaled cleanly
-    const legUpper = 44 * scale;
-    const legLower = 43 * scale;
-    const torsoLen = 58 * scale;
+    const thighLen = 46 * scale;
+    const shinLen = 45 * scale;
+    const torsoLen = 60 * scale;
     const neckLen = 11 * scale;
-    const headR = 15.5 * scale;
-    const armUpper = 37 * scale;
-    const armLower = 34 * scale;
+    const headR = 16 * scale;
+    const upperArmLen = 38 * scale;
+    const foreArmLen = 35 * scale;
 
-    // Body bounce during walking, subtle settle during reach/pull
-    const strideSin = Math.sin(walkPhase);
-    const strideCos = Math.cos(walkPhase);
-    const bodyBounce = walkBlend * Math.abs(strideSin) * (4.2 * scale);
-    const pullDip = pullAmount * (5.5 * scale);
+    // Realistic double-frequency vertical oscillation (2 steps per full walk cycle)
+    const stepWave = Math.sin(walkPhase);
+    const bounceWave = Math.abs(Math.cos(walkPhase));
+    const walkBounce = walkBlend * (1 - bounceWave) * (4.2 * scale);
+    const pullWeightShift = pullBlend * (7.5 * scale);
 
-    // Ankle height above floor
-    const ankleBaseY = floorY - 6 * scale;
-    const hipY = ankleBaseY - (legUpper + legLower) + bodyBounce + pullDip;
+    const ankleY = floorY - 6 * scale;
+    const hipY = ankleY - (thighLen + shinLen) + walkBounce + pullWeightShift;
 
-    // Slight forward lean when walking or pulling
-    const torsoLean = walkBlend * 0.075 + pullAmount * 0.06;
-    const shoulderX = hipX + Math.sin(torsoLean) * torsoLen;
-    const shoulderY = hipY - Math.cos(torsoLean) * torsoLen;
+    // Forward posture shifts smoothly from walk to braced pull
+    const leanAngle = walkBlend * 0.065 + pullBlend * 0.085;
+    const shoulderX = hipX + Math.sin(leanAngle) * torsoLen;
+    const shoulderY = hipY - Math.cos(leanAngle) * torsoLen;
 
-    // Ground shadow under character
-    const shadowW = (46 + Math.abs(strideSin) * 10) * scale;
-    const shadowGrad = ctx.createRadialGradient(hipX, floorY + 2, 2, hipX, floorY + 2, shadowW);
-    shadowGrad.addColorStop(0, lightMode ? 'rgba(18, 16, 38, 0.24)' : 'rgba(0, 0, 0, 0.52)');
-    shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = shadowGrad;
+    // Ground shadow
+    const shRadiusX = (46 + Math.abs(stepWave) * 10) * scale;
+    const shGrad = ctx.createRadialGradient(hipX, floorY + 2, 2, hipX, floorY + 2, shRadiusX);
+    shGrad.addColorStop(0, light ? 'rgba(20, 15, 38, 0.24)' : 'rgba(0, 0, 0, 0.56)');
+    shGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = shGrad;
     ctx.beginPath();
-    ctx.ellipse(hipX, floorY + 2, shadowW, 6.5 * scale, 0, 0, Math.PI * 2);
+    ctx.ellipse(hipX, floorY + 2, shRadiusX, 6.5 * scale, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Palette (tailored to dark & light modes without cheap cartoon outlines)
-    const trouserColor = lightMode ? '#27233d' : '#1b172c';
-    const trouserShade = lightMode ? '#181529' : '#120f1e';
-    const jacketColor = lightMode ? '#332c52' : '#251f3d';
-    const jacketHighlight = lightMode
-      ? `rgba(139, 92, 246, ${0.18 + lightFactor * 0.14})`
-      : `rgba(255, 224, 175, ${0.08 + lightFactor * 0.22})`;
-    const skinColor = lightMode ? '#d49a74' : '#c68b65';
-    const skinShadow = lightMode ? '#b37752' : '#9b6444';
-    const hairColor = lightMode ? '#1e192d' : '#141021';
+    const skinLit = light ? '#dca37d' : '#cf946d';
+    const skinMid = light ? '#c2835c' : '#b27550';
+    const skinDark = light ? '#9a5f3d' : '#855033';
+    const hairCol = light ? '#1c172c' : '#110d1c';
+    const trouserFront = light ? '#26213b' : '#1b172c';
+    const trouserBack = light ? '#191529' : '#120f1e';
 
     ctx.save();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    function drawLeg(phaseOffset, isBack) {
-      const p = walkPhase + phaseOffset;
-      const swing = walkBlend * Math.sin(p) * 0.44;
-      const lift = walkBlend * Math.max(0, Math.cos(p)) * (11 * scale);
+    // Stance widens slightly when pulling rope for realistic leverage
+    const stanceSpread = pullBlend * (8 * scale);
 
-      const footX = hipX + Math.sin(swing) * (legUpper + legLower) * 0.85;
-      const footY = ankleBaseY - lift;
+    function drawLeg(offset, isBack) {
+      const p = walkPhase + offset;
+      const strideAngle = walkBlend * Math.sin(p) * 0.44 + (isBack ? -stanceSpread * 0.015 : stanceSpread * 0.015);
+      const liftHeight = walkBlend * Math.max(0, Math.sin(p - Math.PI * 0.25)) * (12 * scale);
 
-      const ik = solveTwoBoneIK(
-        { x: hipX, y: hipY },
-        { x: footX, y: footY },
-        legUpper,
-        legLower,
-        1
-      );
+      const footX = hipX + Math.sin(strideAngle) * (thighLen + shinLen) * 0.84 + (isBack ? -stanceSpread * 0.4 : stanceSpread * 0.4);
+      const footY = ankleY - liftHeight;
+
+      const ik = solveTwoBone({ x: hipX, y: hipY }, { x: footX, y: footY }, thighLen, shinLen, 1);
 
       // Thigh
-      ctx.strokeStyle = isBack ? trouserShade : trouserColor;
-      ctx.lineWidth = 13.5 * scale;
+      ctx.strokeStyle = isBack ? trouserBack : trouserFront;
+      ctx.lineWidth = 14 * scale;
       ctx.beginPath();
       ctx.moveTo(hipX, hipY);
-      ctx.lineTo(ik.elbow.x, ik.elbow.y);
+      ctx.lineTo(ik.joint.x, ik.joint.y);
       ctx.stroke();
 
       // Calf
-      ctx.strokeStyle = isBack ? trouserShade : trouserColor;
-      ctx.lineWidth = 10.5 * scale;
+      ctx.strokeStyle = isBack ? trouserBack : trouserFront;
+      ctx.lineWidth = 10.8 * scale;
       ctx.beginPath();
-      ctx.moveTo(ik.elbow.x, ik.elbow.y);
-      ctx.lineTo(ik.hand.x, ik.hand.y);
+      ctx.moveTo(ik.joint.x, ik.joint.y);
+      ctx.lineTo(ik.end.x, ik.end.y);
       ctx.stroke();
 
-      // Shoe / foot
-      ctx.fillStyle = lightMode ? '#161324' : '#0d0a17';
+      // Shoe with subtle heel/toe pitch
+      const shoePitch = walkBlend * Math.cos(p) * 0.16;
+      ctx.save();
+      ctx.translate(ik.end.x + 5 * scale, ik.end.y + 3 * scale);
+      ctx.rotate(shoePitch);
+      ctx.fillStyle = light ? '#141122' : '#0b0814';
       ctx.beginPath();
-      ctx.ellipse(ik.hand.x + 5 * scale, ik.hand.y + 3 * scale, 10.5 * scale, 4.2 * scale, -swing * 0.25, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 11 * scale, 4.2 * scale, 0, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
     }
 
-    // Back leg, then far arm (relaxed natural swing)
+    // Back leg
     drawLeg(Math.PI, true);
 
-    const farArmSwing = walkBlend * Math.sin(walkPhase) * 0.36;
-    const farHandTarget = {
-      x: shoulderX + Math.sin(farArmSwing) * (armUpper + armLower) * 0.72,
-      y: shoulderY + Math.cos(farArmSwing) * (armUpper + armLower) * 0.88
+    // Opposite arm swings naturally against front leg during walk, then braces smoothly
+    const oppArmAngle = walkBlend * (-Math.sin(walkPhase) * 0.38) + pullBlend * 0.22;
+    const oppHandTarget = {
+      x: shoulderX + Math.sin(oppArmAngle) * (upperArmLen + foreArmLen) * 0.72,
+      y: shoulderY + Math.cos(oppArmAngle) * (upperArmLen + foreArmLen) * 0.88
     };
-    const farArmIK = solveTwoBoneIK(
+    const oppArmIK = solveTwoBone(
       { x: shoulderX, y: shoulderY + 4 * scale },
-      farHandTarget,
-      armUpper,
-      armLower,
+      oppHandTarget,
+      upperArmLen,
+      foreArmLen,
       -1
     );
 
-    ctx.strokeStyle = lightMode ? '#26213d' : '#1b162e';
-    ctx.lineWidth = 9.5 * scale;
+    ctx.strokeStyle = light ? '#241f3a' : '#19152b';
+    ctx.lineWidth = 9.6 * scale;
     ctx.beginPath();
     ctx.moveTo(shoulderX, shoulderY + 4 * scale);
-    ctx.lineTo(farArmIK.elbow.x, farArmIK.elbow.y);
-    ctx.lineTo(farArmIK.hand.x, farArmIK.hand.y);
+    ctx.lineTo(oppArmIK.joint.x, oppArmIK.joint.y);
+    ctx.lineTo(oppArmIK.end.x, oppArmIK.end.y);
     ctx.stroke();
 
-    ctx.fillStyle = skinShadow;
+    ctx.fillStyle = skinDark;
     ctx.beginPath();
-    ctx.arc(farArmIK.hand.x, farArmIK.hand.y, 4.5 * scale, 0, Math.PI * 2);
+    ctx.arc(oppArmIK.end.x, oppArmIK.end.y, 4.5 * scale, 0, Math.PI * 2);
     ctx.fill();
 
     // Front leg
     drawLeg(0, false);
 
-    // Torso (tailored jacket / structured shoulders)
+    // Torso
     ctx.save();
     ctx.translate(hipX, hipY);
-    ctx.rotate(torsoLean);
+    ctx.rotate(leanAngle);
 
-    const torsoGrad = ctx.createLinearGradient(-16 * scale, 0, 18 * scale, -torsoLen);
-    torsoGrad.addColorStop(0, jacketColor);
-    torsoGrad.addColorStop(1, lightMode ? '#43396b' : '#312952');
+    const jacketGrad = ctx.createLinearGradient(-18 * scale, -torsoLen, 18 * scale, 4 * scale);
+    if (light) {
+      jacketGrad.addColorStop(0, '#493f75');
+      jacketGrad.addColorStop(0.55, '#312a4f');
+      jacketGrad.addColorStop(1, '#221c38');
+    } else {
+      jacketGrad.addColorStop(0, '#362d59');
+      jacketGrad.addColorStop(0.55, '#231d3b');
+      jacketGrad.addColorStop(1, '#161226');
+    }
 
-    ctx.fillStyle = torsoGrad;
+    ctx.fillStyle = jacketGrad;
     ctx.beginPath();
-    ctx.moveTo(-11 * scale, 3 * scale);
-    ctx.lineTo(-16 * scale, -torsoLen + 4 * scale);
-    ctx.quadraticCurveTo(0, -torsoLen - 4 * scale, 16 * scale, -torsoLen + 4 * scale);
-    ctx.lineTo(11 * scale, 3 * scale);
+    ctx.moveTo(-11.5 * scale, 3 * scale);
+    ctx.lineTo(-16.5 * scale, -torsoLen + 4 * scale);
+    ctx.quadraticCurveTo(0, -torsoLen - 4.5 * scale, 16.5 * scale, -torsoLen + 4 * scale);
+    ctx.lineTo(11.5 * scale, 3 * scale);
     ctx.closePath();
     ctx.fill();
 
-    // Rim light on torso from lamp
-    ctx.strokeStyle = jacketHighlight;
-    ctx.lineWidth = 1.4 * scale;
+    ctx.strokeStyle = light ? 'rgba(255, 255, 255, 0.34)' : 'rgba(196, 181, 253, 0.22)';
+    ctx.lineWidth = 1.25 * scale;
     ctx.stroke();
 
     ctx.restore();
 
-    // Head & neck (turns smoothly upward toward pull knob when reaching)
-    const headBaseX = shoulderX + Math.sin(torsoLean) * neckLen;
-    const headBaseY = shoulderY - Math.cos(torsoLean) * neckLen - headR * 0.72;
-    const angleToKnob = Math.atan2(knobPos.y - headBaseY, knobPos.x - headBaseY);
-    const lookAngle = lerp(0, clamp(angleToKnob * 0.35, -0.55, 0.25), reachBlend);
+    // Head & neck looking toward rope grip
+    const neckTopX = shoulderX + Math.sin(leanAngle) * neckLen;
+    const neckTopY = shoulderY - Math.cos(leanAngle) * neckLen;
+    const headX = neckTopX + Math.sin(leanAngle) * (headR * 0.32);
+    const headY = neckTopY - headR * 0.55;
 
-    // Neck
-    ctx.strokeStyle = skinColor;
-    ctx.lineWidth = 7.5 * scale;
+    const toGrip = Math.atan2(gripPos.y - headY, gripPos.x - headX);
+    const headTilt = lerp(
+      walkBlend * Math.sin(walkPhase) * 0.04,
+      clamp(toGrip * 0.36, -0.58, 0.22),
+      reachBlend
+    );
+
+    ctx.strokeStyle = skinMid;
+    ctx.lineWidth = 8 * scale;
     ctx.beginPath();
-    ctx.moveTo(shoulderX, shoulderY);
-    ctx.lineTo(headBaseX, headBaseY + headR * 0.45);
+    ctx.moveTo(shoulderX, shoulderY + 1 * scale);
+    ctx.lineTo(neckTopX, neckTopY);
     ctx.stroke();
 
-    // Head profile
     ctx.save();
-    ctx.translate(headBaseX, headBaseY);
-    ctx.rotate(lookAngle);
+    ctx.translate(headX, headY);
+    ctx.rotate(headTilt);
 
-    ctx.fillStyle = skinColor;
+    const headGrad = ctx.createRadialGradient(-headR * 0.25, -headR * 0.35, headR * 0.15, 0, 0, headR * 1.05);
+    headGrad.addColorStop(0, skinLit);
+    headGrad.addColorStop(0.65, skinMid);
+    headGrad.addColorStop(1, skinDark);
+
+    ctx.fillStyle = headGrad;
     ctx.beginPath();
     ctx.ellipse(0, 0, headR * 0.88, headR, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Subtle ear & nose profile facing right (+X)
-    ctx.fillStyle = skinShadow;
+    ctx.fillStyle = skinLit;
     ctx.beginPath();
-    ctx.ellipse(-headR * 0.25, headR * 0.08, headR * 0.16, headR * 0.26, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = skinColor;
-    ctx.beginPath();
-    ctx.moveTo(headR * 0.82, -1 * scale);
-    ctx.lineTo(headR * 1.12, 3.5 * scale);
-    ctx.lineTo(headR * 0.82, 5.5 * scale);
+    ctx.moveTo(headR * 0.82, -1.5 * scale);
+    ctx.lineTo(headR * 1.15, 3.2 * scale);
+    ctx.lineTo(headR * 0.82, 5.2 * scale);
     ctx.closePath();
     ctx.fill();
 
-    // Short layered hair
-    ctx.fillStyle = hairColor;
+    ctx.fillStyle = skinDark;
     ctx.beginPath();
-    ctx.arc(-1 * scale, -2.5 * scale, headR * 0.94, Math.PI * 0.88, Math.PI * 2.04);
-    ctx.quadraticCurveTo(headR * 0.65, -headR * 0.55, headR * 0.72, -headR * 0.25);
-    ctx.quadraticCurveTo(0, -headR * 0.68, -headR * 0.86, -headR * 0.15);
+    ctx.ellipse(-headR * 0.24, headR * 0.08, headR * 0.16, headR * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = hairCol;
+    ctx.beginPath();
+    ctx.arc(-1 * scale, -2.5 * scale, headR * 0.95, Math.PI * 0.86, Math.PI * 2.05);
+    ctx.quadraticCurveTo(headR * 0.68, -headR * 0.56, headR * 0.74, -headR * 0.24);
+    ctx.quadraticCurveTo(0, -headR * 0.68, -headR * 0.88, -headR * 0.12);
     ctx.closePath();
     ctx.fill();
 
     ctx.restore();
 
-    // Reaching / pulling right arm using exact IK to knobPos
+    // Right arm reaching & pulling gripPos via IK
     const shoulderPivot = {
       x: shoulderX + 5 * scale,
       y: shoulderY + 3 * scale
     };
 
     const restHand = {
-      x: shoulderPivot.x - Math.sin(walkPhase) * 14 * scale * walkBlend,
-      y: shoulderPivot.y + (armUpper + armLower) * 0.86
+      x: shoulderPivot.x + Math.sin(walkPhase) * 14 * scale * walkBlend,
+      y: shoulderPivot.y + (upperArmLen + foreArmLen) * 0.86
     };
 
-    // Hand locks directly onto knobPos as reachBlend approaches 1
-    const handTarget = {
-      x: lerp(restHand.x, knobPos.x, reachBlend),
-      y: lerp(restHand.y, knobPos.y, reachBlend)
+    const handGoal = {
+      x: lerp(restHand.x, gripPos.x, reachBlend),
+      y: lerp(restHand.y, gripPos.y, reachBlend)
     };
 
-    const reachArmIK = solveTwoBoneIK(
-      shoulderPivot,
-      handTarget,
-      armUpper,
-      armLower,
-      -1
-    );
+    const reachIK = solveTwoBone(shoulderPivot, handGoal, upperArmLen, foreArmLen, -1);
 
-    // Upper arm
-    ctx.strokeStyle = jacketColor;
-    ctx.lineWidth = 10.5 * scale;
+    ctx.strokeStyle = light ? '#39305c' : '#282142';
+    ctx.lineWidth = 10.6 * scale;
     ctx.beginPath();
     ctx.moveTo(shoulderPivot.x, shoulderPivot.y);
-    ctx.lineTo(reachArmIK.elbow.x, reachArmIK.elbow.y);
+    ctx.lineTo(reachIK.joint.x, reachIK.joint.y);
     ctx.stroke();
 
-    // Forearm / sleeve + cuff
-    ctx.strokeStyle = skinColor;
+    ctx.strokeStyle = skinLit;
     ctx.lineWidth = 8.4 * scale;
     ctx.beginPath();
-    ctx.moveTo(reachArmIK.elbow.x, reachArmIK.elbow.y);
-    ctx.lineTo(reachArmIK.hand.x, reachArmIK.hand.y);
+    ctx.moveTo(reachIK.joint.x, reachIK.joint.y);
+    ctx.lineTo(reachIK.end.x, reachIK.end.y);
     ctx.stroke();
 
-    // Hand wrapping/touching knob
-    ctx.fillStyle = skinColor;
+    ctx.fillStyle = skinLit;
     ctx.beginPath();
-    ctx.arc(reachArmIK.hand.x, reachArmIK.hand.y, 5.2 * scale, 0, Math.PI * 2);
+    ctx.arc(reachIK.end.x, reachIK.end.y, 5.4 * scale, 0, Math.PI * 2);
     ctx.fill();
 
-    // Fingers gripping around pull knob when engaged
-    if (reachBlend > 0.55) {
-      const gripAlpha = clamp((reachBlend - 0.55) / 0.45, 0, 1);
-      ctx.strokeStyle = `rgba(155, 100, 68, ${gripAlpha})`;
-      ctx.lineWidth = 2.2 * scale;
+    if (reachBlend > 0.5) {
+      const alpha = clamp((reachBlend - 0.5) / 0.5, 0, 1);
+      ctx.strokeStyle = `rgba(133, 80, 51, ${alpha * 0.85})`;
+      ctx.lineWidth = 2.1 * scale;
       ctx.beginPath();
-      ctx.arc(knobPos.x, knobPos.y, 7.2 * scale, -0.4, 1.5);
+      ctx.arc(gripPos.x, gripPos.y, 7.2 * scale, -0.35, 1.55);
       ctx.stroke();
     }
 
     ctx.restore();
   }
 
-  function drawMotes(now, lightFactor) {
-    if (!motes.length) return;
-    const lightMode = isLightTheme();
-    ctx.save();
-    for (let i = 0; i < motes.length; i++) {
-      const m = motes[i];
-      m.x += m.vx + Math.sin(now * 0.0007 + m.phase) * 0.08;
-      m.y += m.vy;
-      if (m.y < -12) m.y = height + 12;
-      if (m.x < -12) m.x = width + 12;
-      if (m.x > width + 12) m.x = -12;
-
-      const pulse = 0.7 + 0.3 * Math.sin(now * 0.002 + m.phase);
-      const a = clamp(m.alpha * pulse * (1 + lightFactor * 0.45), 0, 0.55);
-      ctx.fillStyle = lightMode
-        ? `rgba(122, 47, 224, ${a * 0.7})`
-        : `rgba(233, 213, 255, ${a})`;
-      ctx.beginPath();
-      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
   function updateBranding(now) {
-    const dur = prefersReduced ? 1 : 950;
-    const t = clamp((now - startTime) / dur, 0, 1);
+    const t = clamp((now - startTime) / (prefersReduced ? 1 : 850), 0, 1);
     const e = easeOutCubic(t);
 
     if (brandEl) {
       brandEl.style.opacity = String(e);
-      brandEl.style.transform = `translateY(${(1 - e) * 16}px) scale(${0.96 + e * 0.04})`;
+      brandEl.style.transform = `translateY(${(1 - e) * 14}px) scale(${0.96 + e * 0.04})`;
       brandEl.style.filter = `blur(${(1 - e) * 8}px)`;
     }
 
     letters.forEach((span, idx) => {
-      const delay = prefersReduced ? 0 : 140 + idx * 32;
-      const lt = clamp((now - startTime - delay) / (prefersReduced ? 1 : 460), 0, 1);
+      const lt = clamp((now - startTime - (prefersReduced ? 0 : 120 + idx * 28)) / (prefersReduced ? 1 : 420), 0, 1);
       const le = easeOutCubic(lt);
       span.style.opacity = String(le);
-      span.style.transform = `translateY(${(1 - le) * 14}px)`;
+      span.style.transform = `translateY(${(1 - le) * 12}px)`;
       span.style.filter = `blur(${(1 - le) * 5}px)`;
     });
 
-    const tagT = clamp((now - startTime - (prefersReduced ? 0 : 420)) / (prefersReduced ? 1 : 450), 0, 1);
-    if (tagEl) {
-      tagEl.style.opacity = String(easeOutCubic(tagT));
-      tagEl.style.transform = `translateY(${(1 - easeOutCubic(tagT)) * 8}px)`;
+    const subT = clamp((now - startTime - (prefersReduced ? 0 : 360)) / (prefersReduced ? 1 : 400), 0, 1);
+    if (subEl) {
+      subEl.style.opacity = String(easeOutCubic(subT));
+      subEl.style.transform = `translateY(${(1 - easeOutCubic(subT)) * 8}px)`;
     }
 
-    const progT = clamp((now - startTime - (prefersReduced ? 0 : 580)) / (prefersReduced ? 1 : 420), 0, 1);
+    const progT = clamp((now - startTime - (prefersReduced ? 0 : 500)) / (prefersReduced ? 1 : 380), 0, 1);
     if (progressEl) {
       progressEl.style.opacity = String(easeOutCubic(progT));
       progressEl.style.transform = `translateY(${(1 - easeOutCubic(progT)) * 8}px)`;
     }
-
-    if (sheenEl && !prefersReduced) {
-      const period = 2800;
-      const p = ((now - startTime) % period) / period;
-      const active = p > 0.12 && p < 0.62;
-      sheenEl.style.opacity = active ? '1' : '0';
-      sheenEl.style.transform = `translateX(${-150 + p * 300}%) skewX(-18deg)`;
-    }
-
-    if (auraEl) {
-      const pulse = 1 + lightIntensity * 0.35 + (prefersReduced ? 0 : Math.sin(now * 0.002) * 0.05);
-      auraEl.style.transform = `scale(${pulse})`;
-      auraEl.style.opacity = String(clamp(0.7 + lightIntensity * 0.25, 0, 1));
-    }
   }
 
-  function setProgressUI(pctValue) {
-    const pct = Math.round(clamp(pctValue, 0, 100));
+  function setProgressUI(val) {
+    const pct = Math.round(clamp(val, 0, 100));
     if (fillEl) fillEl.style.width = pct + '%';
     if (pctEl) pctEl.textContent = pct + '%';
     if (srEl) srEl.textContent = `Loading ThemeHaven ${pct} percent`;
-    if (statusEl) {
-      if (lightOn) statusEl.textContent = 'Illuminated';
-      else if (pct >= 88) statusEl.textContent = 'Ready';
-      else statusEl.textContent = 'Loading';
+    if (stateEl) {
+      if (curtainStarted) stateEl.textContent = 'Opening';
+      else if (pct >= 90) stateEl.textContent = 'Pulling Rope';
+      else stateEl.textContent = 'Loading';
     }
   }
 
-  function triggerExit(now) {
-    if (exitStarted) return;
-    exitStarted = true;
-    exitStartAt = now;
-    sessionStorage.setItem('th-loader-seen', '1');
-  }
-
-  function applyExitTransition(now) {
-    const dur = prefersReduced ? 180 : 950;
-    const t = clamp((now - exitStartAt) / dur, 0, 1);
-    const e = easeInOutCubic(t);
-
-    if (centerEl) {
-      centerEl.style.opacity = String(1 - e);
-      centerEl.style.transform = `translateY(${-28 - e * 16}px) scale(${1 + e * 0.025})`;
-      centerEl.style.filter = `blur(${e * 8}px)`;
-    }
-
-    // Cinematic light flash peaks early then dissolves smoothly to reveal the page
-    if (flashEl) {
-      const flashCurve = t < 0.35 ? t / 0.35 : 1 - (t - 0.35) / 0.65;
-      flashEl.style.opacity = String(clamp(flashCurve * (prefersReduced ? 0.35 : 0.78), 0, 0.85));
-    }
-
-    loader.style.opacity = String(1 - e);
-
-    if (t >= 1) {
-      cleanupAndRemove();
-    }
-  }
-
-  function cleanupAndRemove() {
-    if (disposed) return;
-    disposed = true;
-    if (rafId) cancelAnimationFrame(rafId);
-    window.removeEventListener('resize', resizeCanvas);
-    window.removeEventListener('load', markPageLoaded);
-    window.removeEventListener('pageshow', handlePageShow);
-    loader.classList.add('is-hidden');
-    root.classList.remove('th-loader-active');
-    setTimeout(() => {
-      if (loader && loader.parentNode) loader.remove();
-    }, 60);
-  }
-
-  function markPageLoaded() {
-    pageLoaded = true;
-  }
-
-  function handlePageShow(event) {
-    if (event.persisted) cleanupAndRemove();
-  }
-
-  // Choreographed timeline (ms from startTime):
-  // 0..1550ms: Character enters from left, walks toward lamp, stops at standX
-  // 1550..2150ms: Character turns/looks toward pull knob and raises arm via IK to touch knob
-  // 2150..2550ms: Character pulls cord downward & slightly left; cord bends, knob moves with cord
-  // 2550ms+: Light switches on, lamp swings naturally, bloom illuminates scene, then exits once ready
-  function computeChoreography(now, layout) {
+  function computeMotion(now, layout) {
     const elapsed = now - startTime;
     const { standX, scale } = layout;
 
-    const startX = -75 * scale;
-    const walkDuration = prefersReduced ? 1 : 1500;
-    const reachStart = walkDuration;
-    const reachDuration = prefersReduced ? 1 : 600;
-    const pullStart = reachStart + reachDuration;
-    const pullDuration = prefersReduced ? 1 : 380;
-    const switchAt = pullStart + pullDuration;
+    const startX = -78 * scale;
+    const walkMs = prefersReduced ? 1 : 1500;
+    const reachStart = walkMs;
+    const reachMs = prefersReduced ? 1 : 550;
+    const pullStart = reachStart + reachMs;
+    const pullMs = prefersReduced ? 1 : 500;
+    const pullDoneAt = pullStart + pullMs;
 
     let hipX = standX;
     let walkBlend = 0;
     let walkPhase = 0;
     let reachBlend = 0;
-    let pullAmount = 0;
+    let pullBlend = 0;
 
-    if (elapsed < walkDuration) {
-      const wt = clamp(elapsed / walkDuration, 0, 1);
-      const easedWalk = easeInOutCubic(wt);
-      hipX = lerp(startX, standX, easedWalk);
-      walkBlend = 1 - Math.pow(wt, 4);
+    if (elapsed < walkMs) {
+      const t = clamp(elapsed / walkMs, 0, 1);
+      hipX = lerp(startX, standX, easeInOutCubic(t));
+      walkBlend = 1 - Math.pow(t, 4);
       walkPhase = elapsed * 0.0115;
     } else if (elapsed < pullStart) {
       hipX = standX;
       walkBlend = 0;
-      const rt = clamp((elapsed - reachStart) / reachDuration, 0, 1);
-      reachBlend = easeOutCubic(rt);
-    } else if (elapsed < switchAt) {
+      const t = clamp((elapsed - reachStart) / reachMs, 0, 1);
+      reachBlend = easeOutCubic(t);
+    } else if (elapsed < pullDoneAt) {
       hipX = standX;
       walkBlend = 0;
       reachBlend = 1;
-      const pt = clamp((elapsed - pullStart) / pullDuration, 0, 1);
-      pullAmount = easeInOutCubic(pt);
+      const t = clamp((elapsed - pullStart) / pullMs, 0, 1);
+      pullBlend = easeInOutCubic(t);
     } else {
       hipX = standX;
       walkBlend = 0;
-      const releaseT = clamp((elapsed - switchAt) / 320, 0, 1);
-      reachBlend = 1 - easeOutCubic(releaseT) * 0.75;
-      pullAmount = Math.max(0, 1 - releaseT * 1.4);
-
-      if (!lightOn) {
-        lightOn = true;
-        lightTriggeredAt = now;
-        // Kick pendulum & cord recoil
-        lampAngularVel = -1.65;
-        lampAngle = -0.065;
-      }
+      reachBlend = 1;
+      pullBlend = 1;
     }
 
-    // Pull cord extension & horizontal tug when hand pulls down
-    const maxPullPx = 22 * scale;
-    cordPullOffset = pullAmount * maxPullPx;
-    cordBendX = -pullAmount * (9 * scale);
+    ropePullDown = pullBlend * (42 * scale);
+    ropePullLeft = -pullBlend * (8 * scale);
 
-    return { hipX, walkPhase, reachBlend, pullAmount, walkBlend, switchAt };
+    return {
+      hipX,
+      walkBlend,
+      walkPhase,
+      reachBlend,
+      pullBlend,
+      pullDone: elapsed >= pullDoneAt
+    };
   }
 
-  function renderFrame(now) {
-    if (disposed) return;
-    if (!lastTime) lastTime = now;
-    const dtMs = Math.min(48, now - lastTime);
-    const dtSec = dtMs / 1000;
-    lastTime = now;
+  function startCurtain(now) {
+    if (curtainStarted) return;
+    curtainStarted = true;
+    curtainStartAt = now;
+    sessionStorage.setItem('th-loader-seen', '1');
+  }
 
-    const layout = getSceneLayout();
-    const animState = computeChoreography(now, layout);
+  function applyCurtain(now) {
+    const dur = prefersReduced ? 260 : 1100;
+    const t = clamp((now - curtainStartAt) / dur, 0, 1);
+    const e = easeInOutQuint(t);
 
-    updateLampPhysics(dtSec, now);
-    updateBranding(now);
-
-    if (lightOn) {
-      const sinceSwitch = Math.max(0, now - lightTriggeredAt);
-      const targetLight = clamp(easeOutCubic(sinceSwitch / (prefersReduced ? 80 : 420)), 0, 1);
-      lightIntensity = lerp(lightIntensity, targetLight, prefersReduced ? 1 : 0.16);
+    if (drapeLeft) {
+      drapeLeft.style.transform = `translate3d(${(-e * 100).toFixed(2)}%, 0, 0)`;
+    }
+    if (drapeRight) {
+      drapeRight.style.transform = `translate3d(${(e * 100).toFixed(2)}%, 0, 0)`;
     }
 
-    // Progress advances smoothly and reaches 100 once page is loaded and lamp pull is complete
-    const elapsed = now - startTime;
-    const timeCap = pageLoaded ? 100 : 88;
-    const pacedProgress = Math.min(timeCap, (elapsed / (prefersReduced ? 220 : 2650)) * 92);
-    targetProgress = Math.max(targetProgress, pacedProgress);
-    if (pageLoaded && lightOn) targetProgress = 100;
+    const fade = clamp(1 - t * 1.4, 0, 1);
+    if (heroEl) {
+      heroEl.style.opacity = String(fade);
+      heroEl.style.transform = `translateY(${(-24 - e * 14).toFixed(1)}px) scale(${(1 - e * 0.03).toFixed(3)})`;
+      heroEl.style.filter = `blur(${(e * 6).toFixed(1)}px)`;
+    }
+    if (canvas) {
+      canvas.style.opacity = String(fade);
+    }
 
-    visualProgress += (targetProgress - visualProgress) * (prefersReduced ? 1 : 0.09);
-    if (pageLoaded && lightOn && 100 - visualProgress < 0.35) {
+    if (t >= 1) {
+      destroyLoader();
+    }
+  }
+
+  function destroyLoader() {
+    if (disposed) return;
+    disposed = true;
+    if (rafId) cancelAnimationFrame(rafId);
+    window.removeEventListener('resize', resize);
+    window.removeEventListener('load', onReady);
+    window.removeEventListener('pageshow', onShow);
+    loader.classList.add('is-done');
+    root.classList.remove('th-loader-active');
+    setTimeout(() => {
+      if (loader && loader.parentNode) loader.remove();
+    }, 50);
+  }
+
+  function onReady() {
+    pageLoaded = true;
+  }
+
+  function onShow(e) {
+    if (e.persisted) destroyLoader();
+  }
+
+  function loop(now) {
+    if (disposed) return;
+
+    const layout = getLayout();
+    const motion = computeMotion(now, layout);
+
+    updateBranding(now);
+
+    const elapsed = now - startTime;
+    const cap = pageLoaded ? 100 : 88;
+    const paced = Math.min(cap, (elapsed / (prefersReduced ? 200 : 2450)) * 94);
+    targetProgress = Math.max(targetProgress, paced);
+    if (pageLoaded && motion.pullDone) targetProgress = 100;
+
+    visualProgress += (targetProgress - visualProgress) * (prefersReduced ? 1 : 0.1);
+    if (pageLoaded && motion.pullDone && 100 - visualProgress < 0.35) {
       visualProgress = 100;
     }
     setProgressUI(visualProgress);
 
-    // Draw canvas layers
     if (ctx) {
       ctx.clearRect(0, 0, width, height);
-
-      // Compute lamp anchor & shade tip first for lighting cones
-      const sinA = Math.sin(lampAngle);
-      const cosA = Math.cos(lampAngle);
-      const lampBodyX = layout.lampAnchorX + sinA * layout.cordBaseLen;
-      const lampBodyY = layout.ceilingY + cosA * layout.cordBaseLen;
-      const shadeTip = {
-        x: lampBodyX - sinA * (layout.shadeHeight + 2 * layout.scale),
-        y: lampBodyY + cosA * (layout.shadeHeight + 2 * layout.scale)
-      };
-
-      if (flashEl) {
-        const lxPct = ((lampBodyX / Math.max(1, width)) * 100).toFixed(1) + '%';
-        const lyPct = ((shadeTip.y / Math.max(1, height)) * 100).toFixed(1) + '%';
-        flashEl.style.setProperty('--lamp-x', lxPct);
-        flashEl.style.setProperty('--lamp-y', lyPct);
-      }
-
-      drawVolumetricLight({ x: lampBodyX, y: lampBodyY }, shadeTip, lightIntensity);
-      drawFloor(layout, lightIntensity);
-      drawMotes(now, lightIntensity);
-
-      // Draw lamp + cord first so we get exact knobPos for human IK hand alignment
-      const { knobPos } = drawLampAndCord(layout, lightIntensity);
-
-      // Draw human character reaching & pulling the exact knobPos
-      drawHumanCharacter(layout, knobPos, animState, lightIntensity);
+      drawFloor(layout);
+      const { gripPos } = drawRope(layout, now);
+      drawHuman(layout, gripPos, motion);
     }
 
-    // Begin exit transition once page is loaded, progress is complete, and light has switched on
-    const canExit = pageLoaded && visualProgress >= 99.6 && lightOn && (now - lightTriggeredAt) > (prefersReduced ? 80 : 380);
-    if (!exitStarted && canExit) {
-      triggerExit(now);
+    if (!curtainStarted && pageLoaded && motion.pullDone && visualProgress >= 99.6) {
+      startCurtain(now);
     }
 
-    if (exitStarted) {
-      applyExitTransition(now);
+    if (curtainStarted) {
+      applyCurtain(now);
     }
 
-    rafId = requestAnimationFrame(renderFrame);
+    rafId = requestAnimationFrame(loop);
   }
 
-  window.addEventListener('resize', resizeCanvas, { passive: true });
-  window.addEventListener('pageshow', handlePageShow);
+  window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('pageshow', onShow);
 
   if (document.readyState === 'complete') {
     pageLoaded = true;
   } else {
-    window.addEventListener('load', markPageLoaded, { once: true });
+    window.addEventListener('load', onReady, { once: true });
   }
 
-  resizeCanvas();
+  resize();
   setProgressUI(0);
   startTime = performance.now();
-  lastTime = startTime;
 
   if (prefersReduced) {
     if (brandEl) {
@@ -1349,9 +1059,9 @@
       el.style.transform = 'none';
       el.style.filter = 'none';
     });
-    if (tagEl) {
-      tagEl.style.opacity = '1';
-      tagEl.style.transform = 'none';
+    if (subEl) {
+      subEl.style.opacity = '1';
+      subEl.style.transform = 'none';
     }
     if (progressEl) {
       progressEl.style.opacity = '1';
@@ -1359,17 +1069,12 @@
     }
   }
 
-  rafId = requestAnimationFrame(renderFrame);
+  rafId = requestAnimationFrame(loop);
 
-  // Safety guard so the loader never blocks the site indefinitely
   setTimeout(() => {
     pageLoaded = true;
-    if (!lightOn) {
-      lightOn = true;
-      lightTriggeredAt = performance.now();
-    }
-    if (!exitStarted) {
-      triggerExit(performance.now());
+    if (!curtainStarted) {
+      startCurtain(performance.now());
     }
   }, 5500);
 })();
