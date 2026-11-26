@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core.apps.CoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -125,8 +126,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Optional footer URLs. Only non-empty, valid HTTP(S) URLs are rendered.
 SOCIAL_LINKS = {
+    'whatsapp': os.environ.get('THEMEHAVEN_WHATSAPP_URL', '').strip(),
     'instagram': os.environ.get('THEMEHAVEN_INSTAGRAM_URL', '').strip(),
-    'facebook': os.environ.get('THEMEHAVEN_FACEBOOK_URL', '').strip(),
     'x': os.environ.get('THEMEHAVEN_X_URL', '').strip(),
     'linkedin': os.environ.get('THEMEHAVEN_LINKEDIN_URL', '').strip(),
 }

@@ -22,4 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('support/', views.support, name='support'),
+    path('privacy-policy/', views.policy, {'slug': 'privacy-policy'}, name='privacy_policy'),
+    path('terms-conditions/', views.policy, {'slug': 'terms-conditions'}, name='terms_conditions'),
+    path('refund-cancellation-policy/', views.policy, {'slug': 'refund-cancellation-policy'}, name='refund_cancellation_policy'),
+    path('shipping-delivery-policy/', views.policy, {'slug': 'shipping-delivery-policy'}, name='shipping_delivery_policy'),
 ]

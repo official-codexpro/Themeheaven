@@ -1,61 +1,71 @@
 {% load static %}
 <footer class="mt-12 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/75">
-  <div class="mx-auto max-w-[1432px] px-5 pb-7 pt-11 sm:px-8 xl:px-0 xl:pt-14">
-    <div class="grid grid-cols-2 gap-x-8 gap-y-9 lg:grid-cols-[1.55fr_1fr_1fr_1fr] lg:gap-10">
-      <div class="col-span-2 max-w-sm lg:col-span-1">
+  <div class="mx-auto max-w-[1432px] px-5 pb-8 pt-11 sm:px-8 xl:px-0 xl:pt-14">
+    <div class="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-[1.55fr_1.1fr_1.15fr_1.05fr] lg:gap-10">
+      <div>
         <a href="{% url 'home' %}" aria-label="ThemeHaven home" class="inline-flex items-center gap-2.5">
           <img src="{% static 'img/logo.png' %}" alt="" class="h-8 w-[54px] shrink-0 object-contain" />
           <span class="text-[19px] font-extrabold tracking-[-0.7px] text-[var(--text-primary)]">ThemeHaven</span>
         </a>
-        <p class="mt-4 max-w-[310px] text-[13px] leading-6 text-[var(--text-secondary)]">Premium website themes and templates to bring your ideas to life.</p>
-        {% if social_links %}
-        <div class="mt-5 flex items-center gap-2.5" aria-label="Social media">
-          {% for name, url in social_links.items %}
-          <a href="{{ url }}" target="_blank" rel="noopener noreferrer" aria-label="ThemeHaven on {{ name }}" class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--accent)] focus-visible:outline-offset-2">
-            {% if name == 'instagram' %}<svg class="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>
-            {% elif name == 'facebook' %}<svg class="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.4 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.2v2.3H7.6V13h2.7v8h3.1Z"/></svg>
-            {% elif name == 'x' %}<svg class="h-[16px] w-[16px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 14.6 5.6 22H2.5l7.3-8.4L1.8 2h6.5l4.4 6.9L18.9 2Zm-1.1 18h1.7L7.3 3.9H5.5L17.8 20Z"/></svg>
-            {% elif name == 'linkedin' %}<svg class="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.2 3.5a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6ZM3.7 9h3v11.5h-3V9Zm5 0h2.9v1.6h.1c.4-.8 1.5-2 3.2-2 3.4 0 4 2.2 4 5v6.9h-3v-6.1c0-1.5 0-3.3-2-3.3s-2.3 1.6-2.3 3.2v6.2h-3V9Z"/></svg>{% endif %}
+        <p class="mt-4 max-w-[320px] text-[13px] leading-6 text-[var(--text-secondary)]">{{ footer.brand_description }}</p>
+      </div>
+
+      <div>
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--text-primary)]">{{ footer.help_heading }}</h2>
+        <p class="mt-4 max-w-[240px] text-[13px] leading-6 text-[var(--text-secondary)]">{{ footer.help_intro }}</p>
+        {% if footer.support_url %}<a href="{{ footer.support_url }}" class="mt-4 inline-flex rounded-full border border-[var(--border-color)] px-4 py-2 text-[13px] font-semibold text-[var(--accent)] transition-colors duration-200 hover:border-[var(--border-hover)] focus-visible:outline-offset-2">{{ footer.support_button_label }}</a>{% endif %}
+      </div>
+
+      <div>
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--text-primary)]">{{ footer.policies_heading }}</h2>
+        <ul class="mt-4 space-y-2.5 text-[13px] leading-6 text-[var(--text-secondary)]">
+          <li><a href="{{ footer.privacy_url }}" class="group flex items-start justify-between gap-3 transition-colors duration-200 hover:text-[var(--accent)]"><span class="min-w-0">{{ footer.privacy_label }}</span><span class="mt-[3px] shrink-0 text-[var(--accent)] opacity-0 transition-opacity duration-200 group-hover:opacity-100" aria-hidden="true">→</span></a></li>
+          <li><a href="{{ footer.terms_url }}" class="group flex items-start justify-between gap-3 transition-colors duration-200 hover:text-[var(--accent)]"><span class="min-w-0">{{ footer.terms_label }}</span><span class="mt-[3px] shrink-0 text-[var(--accent)] opacity-0 transition-opacity duration-200 group-hover:opacity-100" aria-hidden="true">→</span></a></li>
+          <li><a href="{{ footer.refund_url }}" class="group flex items-start justify-between gap-3 transition-colors duration-200 hover:text-[var(--accent)]"><span class="min-w-0">{{ footer.refund_label }}</span><span class="mt-[3px] shrink-0 text-[var(--accent)] opacity-0 transition-opacity duration-200 group-hover:opacity-100" aria-hidden="true">→</span></a></li>
+          <li><a href="{{ footer.agreement_url }}" class="group flex items-start justify-between gap-3 transition-colors duration-200 hover:text-[var(--accent)]"><span class="min-w-0">{{ footer.agreement_label }}</span><span class="mt-[3px] shrink-0 text-[var(--accent)] opacity-0 transition-opacity duration-200 group-hover:opacity-100" aria-hidden="true">→</span></a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--text-primary)]">{{ footer.contact_heading }}</h2>
+        <ul class="mt-4 space-y-2.5 text-[13px] leading-6 text-[var(--text-secondary)]">
+          {% if footer.contact_email %}
+          <li><a href="mailto:{{ footer.contact_email }}" class="inline-flex max-w-full items-center gap-2 break-all transition-colors duration-200 hover:text-[var(--accent)]"><svg class="h-[15px] w-[15px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span class="min-w-0">{{ footer.contact_email }}</span></a></li>
+          {% endif %}
+          {% if footer.contact_phone %}
+          <li><a href="tel:{{ footer.contact_phone_href }}" class="inline-flex items-center gap-2 transition-colors duration-200 hover:text-[var(--accent)]"><svg class="h-[15px] w-[15px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h3l2 5-2.5 1.5a13 13 0 0 0 6 6L16 13l5 2v3c0 1.7-1.4 3-3 3A16 16 0 0 1 3 6c0-1.6 1.4-3 3-3Z"/></svg><span>{{ footer.contact_phone }}</span></a></li>
+          {% endif %}
+          {% if not footer.contact_email and not footer.contact_phone %}
+          <li>{{ footer.contact_message }}</li>
+          {% endif %}
+        </ul>
+        <nav class="mt-5 flex flex-wrap items-center gap-2.5" aria-label="Connect with ThemeHaven">
+          {% if footer.social_links.whatsapp %}
+          <a href="{{ footer.social_links.whatsapp }}" target="_blank" rel="noopener noreferrer" aria-label="ThemeHaven on WhatsApp" title="WhatsApp" class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--border-hover)] hover:text-[var(--accent)] focus-visible:outline-offset-2">
+            <svg class="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5.1 5.2-1.4A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3a8.2 8.2 0 1 1 7 4Zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.3-.4 0-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.9.8-.9 2s.9 2.3 1 2.4c.1.2 1.8 2.7 4.3 3.7 2.1.9 2.7.7 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.2-.4-.3Z"/></svg>
           </a>
-          {% endfor %}
-        </div>
-        {% endif %}
-      </div>
-
-      <div>
-        <h2 class="text-[13px] font-bold text-[var(--text-primary)]">Explore</h2>
-        <ul class="mt-4 space-y-2.5 text-[13px] text-[var(--text-secondary)]">
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}">Home</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#trending-title">Browse Themes</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#industries-title">Templates</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#trending-title">Trending Themes</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h2 class="text-[13px] font-bold text-[var(--text-primary)]">Platforms</h2>
-        <ul class="mt-4 space-y-2.5 text-[13px] text-[var(--text-secondary)]">
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">WordPress</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">Elementor</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">Excel</a></li>
-          <li><a class="transition hover:text-[var(--accent)]" href="{% url 'home' %}#platform-title">Microsoft Word</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h2 class="text-[13px] font-bold text-[var(--text-primary)]">Help &amp; Support</h2>
-        <p class="mt-4 max-w-[230px] text-[13px] leading-6 text-[var(--text-secondary)]">Need a hand finding the right theme or template?</p>
-        <a href="{% url 'support' %}" class="mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-[var(--accent)] transition hover:gap-3">Visit Support <span aria-hidden="true">→</span></a>
+          {% endif %}
+          {% if footer.social_links.instagram %}
+          <a href="{{ footer.social_links.instagram }}" target="_blank" rel="noopener noreferrer" aria-label="ThemeHaven on Instagram" title="Instagram" class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--border-hover)] hover:text-[var(--accent)] focus-visible:outline-offset-2">
+            <svg class="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg>
+          </a>
+          {% endif %}
+          {% if footer.social_links.x %}
+          <a href="{{ footer.social_links.x }}" target="_blank" rel="noopener noreferrer" aria-label="ThemeHaven on X" title="X (Twitter)" class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--border-hover)] hover:text-[var(--accent)] focus-visible:outline-offset-2">
+            <svg class="h-[16px] w-[16px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 14.6 5.6 22H2.5l7.3-8.4L1.8 2h6.5l4.4 6.9L18.9 2Zm-1.1 18h1.7L7.3 3.9H5.5L17.8 20Z"/></svg>
+          </a>
+          {% endif %}
+          {% if footer.social_links.linkedin %}
+          <a href="{{ footer.social_links.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="ThemeHaven on LinkedIn" title="LinkedIn" class="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--border-hover)] hover:text-[var(--accent)] focus-visible:outline-offset-2">
+            <svg class="h-[17px] w-[17px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5.2 3.5a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6ZM3.7 9h3v11.5H3.7V9Zm5 0h2.9v1.6h.1c.4-.8 1.5-2 3.2-2 3.4 0 4 2.2 4 5v6.9h-3v-6.1c0-1.5 0-3.3-2-3.3s-2.3 1.6-2.3 3.2v6.2H8.7V9Z"/></svg>
+          </a>
+          {% endif %}
+        </nav>
       </div>
     </div>
 
-    <div class="mt-9 flex flex-col gap-3 border-t border-[var(--border-color)] pt-5 text-[11px] text-[var(--text-muted)] sm:flex-row sm:items-center sm:justify-between">
-      <p>© {% now "Y" %} ThemeHaven. All rights reserved.</p>
-      {% if legal_links %}
-      <nav aria-label="Legal policies" class="flex flex-wrap gap-x-4 gap-y-2">
-        {% for name, url in legal_links.items %}<a href="{{ url }}" class="transition hover:text-[var(--accent)]">{{ name }}</a>{% endfor %}
-      </nav>
-      {% endif %}
+    <div class="mt-10 border-t border-[var(--border-color)] pt-5 text-center">
+      <p class="text-[11px] text-[var(--text-muted)]">{{ footer.copyright_text }}</p>
     </div>
   </div>
 </footer>
