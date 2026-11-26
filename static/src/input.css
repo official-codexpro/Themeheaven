@@ -408,6 +408,15 @@ body.nav-menu-open { overflow: hidden; }
   .showcase-set:not([aria-hidden="true"]) { width: 100%; flex-wrap: wrap; justify-content: center; }
 }
 
+.product-preview-trigger { transition: opacity 200ms ease, transform 200ms ease, background-color 200ms ease; }
+.preview-modal[hidden] { display: none !important; }
+
+@media (min-width: 768px) {
+  .product-card .product-preview-trigger { opacity: 0; pointer-events: none; transform: translate(-50%, 8px); }
+  .product-card:hover .product-preview-trigger,
+  .product-card:focus-within .product-preview-trigger { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+}
+
 @media (max-width: 768px) {
   :root { --container-padding: 18px; }
   .section { padding-block: 48px; }

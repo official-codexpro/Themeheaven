@@ -1,12 +1,12 @@
 {% extends "base/base.html" %}
 {% load static %}
 
-{% block title %}ThemeHaven — Premium Themes & Templates{% endblock %}
-{% block meta_description %}Discover premium website themes and templates to create stunning websites, grow your brand and boost your business.{% endblock %}
+{% block title %}ThemeHaven — Premium Themes &amp; Templates{% endblock %}
+{% block meta_description %}Discover premium WordPress themes and professional Excel dashboards built for modern websites, growing businesses, and smarter work.{% endblock %}
 
 {% block content %}
 <div class="mx-auto max-w-[1432px] px-4 sm:px-8 xl:px-0">
-<section aria-labelledby="hero-title" class="mx-auto mt-4 grid w-full items-center gap-1 pt-1 sm:mt-5 sm:pt-2 lg:mt-6 lg:max-w-[1376px] lg:min-h-[398px] lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-3 lg:pt-3">
+  <section aria-labelledby="hero-title" class="mt-4 grid items-center gap-1 pt-1 sm:mt-5 sm:pt-2 lg:mt-6 lg:min-h-[398px] lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-3 lg:pt-3">
     <div class="relative z-10 py-4 sm:py-5 lg:self-start lg:py-0">
       <p class="hero-enter [--hero-delay:0ms] inline-flex items-center gap-2 rounded-full border border-[rgba(142,67,255,0.18)] bg-[rgba(130,55,235,0.12)] px-3 py-1.5 text-[11px] font-semibold text-[var(--accent)] sm:px-3.5 sm:text-[13px]">
         <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20" aria-hidden="true"><path d="M11.7 1.5 4.9 10h4.2l-.8 8.5 6.8-9h-4.2l.8-8Z"/></svg>
@@ -17,12 +17,12 @@
         <span class="mt-0.5 block bg-[image:var(--accent-gradient)] bg-clip-text text-transparent sm:mt-1">Extraordinary</span>
       </h1>
       <p class="hero-enter [--hero-delay:120ms] mt-3 max-w-[570px] text-[14px] leading-[1.55] text-[var(--text-secondary)] sm:mt-5 sm:text-[16px] lg:text-[18px] lg:leading-[1.5]">
-        Discover premium website themes &amp; templates to create stunning websites, grow your brand and boost your business.
+        Discover premium WordPress themes and professional Excel dashboards to create stunning websites, grow your brand, and work with confidence.
       </p>
       <form action="{% url 'home' %}" method="get" role="search" class="hero-enter [--hero-delay:180ms] mt-4 flex h-[48px] max-w-[590px] items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] p-[4px] pl-3 shadow-[var(--shadow-card)] backdrop-blur-md focus-within:border-[var(--border-hover)] sm:mt-5 sm:h-[52px] sm:gap-3 sm:pl-4">
         <svg class="h-[18px] w-[18px] shrink-0 text-[var(--text-secondary)] sm:h-[20px] sm:w-[20px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-        <label class="sr-only" for="home-search">Search themes</label>
-        <input id="home-search" type="search" name="q" placeholder="Search themes and templates..." class="min-w-0 flex-1 bg-transparent text-[12px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:text-[13px] lg:text-[14px]" />
+        <label class="sr-only" for="home-search">Search themes and dashboards</label>
+        <input id="home-search" type="search" name="q" value="{{ search_query }}" placeholder="Search themes and dashboards..." class="min-w-0 flex-1 bg-transparent text-[12px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:text-[13px] lg:text-[14px]" />
         <button type="submit" class="h-[40px] shrink-0 rounded-full bg-[image:var(--accent-gradient)] px-4 text-[12px] font-semibold text-white shadow-[0_4px_16px_rgba(125,30,237,0.32)] transition hover:brightness-110 focus-visible:outline-offset-2 sm:h-[42px] sm:px-6 sm:text-[13px] lg:px-8">Search</button>
       </form>
       <ul class="hero-enter [--hero-delay:240ms] mt-3 flex flex-wrap gap-x-3 gap-y-2 text-[11px] font-medium text-[var(--text-secondary)] sm:gap-x-5 sm:text-[13px]">
@@ -37,7 +37,7 @@
     </div>
   </section>
 
-  <section aria-label="ThemeHaven benefits" class="mx-auto mt-5 grid w-full grid-cols-2 overflow-hidden rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-2 shadow-[var(--shadow-card)] backdrop-blur-lg lg:mt-3 lg:max-w-[1376px] lg:grid-cols-4 lg:px-4">
+  <section aria-label="ThemeHaven benefits" class="mt-5 grid grid-cols-2 overflow-hidden rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-2 shadow-[var(--shadow-card)] backdrop-blur-lg lg:mt-3 lg:grid-cols-4 lg:px-4">
     <div class="flex min-h-[60px] items-center justify-center gap-3 border-b border-[var(--border-color)] px-2 py-2 sm:gap-4 lg:border-b-0 lg:border-r lg:px-4">
       <svg class="h-8 w-8 shrink-0 text-[var(--accent)] sm:h-9 sm:w-9" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="m12 4 12 0 9 11-15 17L3 15 12 4Z"/><path d="m3 15 30 0M12 4l6 28 6-28M12 4l-9 11m21-11 9 11"/></svg>
       <div><h2 class="text-[12px] font-bold tracking-[-0.02em] sm:text-[14px]">Premium Quality</h2><p class="mt-0.5 text-[11px] leading-tight text-[var(--text-secondary)] sm:text-[12px]">Curated Themes</p></div>
@@ -56,31 +56,31 @@
     </div>
   </section>
 
-  <section aria-labelledby="platform-title" class="mt-7 grid gap-5 lg:mt-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-center lg:gap-7">
+  <section aria-labelledby="platform-title" class="mt-8 grid gap-5 lg:mt-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-center lg:gap-7">
     <div class="relative flex items-center justify-between lg:block">
       <div>
         <h2 id="platform-title" class="text-[29px] font-extrabold leading-[0.98] tracking-[-0.05em] sm:text-[34px]">Browse by<br /><span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Platform</span></h2>
-        <p class="mt-3 max-w-[190px] text-[13px] leading-[1.45] text-[var(--text-secondary)] sm:text-[14px]">Find the perfect theme for your project.</p>
+        <p class="mt-3 max-w-[190px] text-[13px] leading-[1.45] text-[var(--text-secondary)] sm:text-[14px]">Find the perfect start for your next project.</p>
       </div>
       <svg class="mr-2 h-10 w-20 text-[var(--accent)] lg:absolute lg:right-[-10px] lg:top-[46px] lg:mr-0 lg:rotate-[-9deg]" viewBox="0 0 88 36" fill="none" aria-hidden="true"><path d="M2 27c23 6 43-19 75-14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="2 3"/><path d="m68 7 13 5-10 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-      <a href="{% url 'home' %}#platform-title" class="platform-card platform-wordpress group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+      <a href="{% url 'home' %}#wordpress-themes" class="platform-card platform-wordpress group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
         <svg class="h-12 w-12" viewBox="0 0 48 48" role="img" aria-label="WordPress"><circle cx="24" cy="24" r="22" fill="#21759B"/><path fill="#fff" d="M24 5.5A18.5 18.5 0 1 0 24 42.5 18.5 18.5 0 0 0 24 5.5Zm-15.73 18.5c0-2.28.49-4.44 1.37-6.39l7.55 20.68A15.75 15.75 0 0 1 8.27 24Zm15.73 15.73c-1.55 0-3.05-.23-4.46-.65l4.74-13.78 4.86 13.31c.03.08.07.15.11.22a15.64 15.64 0 0 1-5.25.9Zm2.17-23.1c.95-.05 1.81-.15 1.81-.15.85-.1.75-1.35-.1-1.3 0 0-2.56.2-4.21.2-1.55 0-4.16-.2-4.16-.2-.85-.05-.95 1.25-.1 1.3 0 0 .81.1 1.66.15l2.46 6.74-3.46 10.38-5.76-17.12c.95-.05 1.81-.15 1.81-.15.85-.1.75-1.35-.1-1.3 0 0-2.56.2-4.21.2-.3 0-.65-.01-1.02-.02A15.72 15.72 0 0 1 24 8.27c3.9 0 7.45 1.49 10.11 3.93-.06 0-.13-.01-.2-.01-1.55 0-2.65 1.35-2.65 2.8 0 1.3.75 2.4 1.55 3.7.6 1.05 1.3 2.4 1.3 4.35 0 1.35-.52 2.92-1.2 5.11l-1.58 5.27-5.16-15.36Zm8.2-1.33A15.68 15.68 0 0 1 39.73 24c0 4.16-2.25 7.79-5.6 9.75l4.85-14.02c.91-2.27 1.21-4.08 1.21-5.7 0-.59-.04-1.13-.11-1.63Z"/></svg>
-        <span class="mt-2 text-[14px] font-bold">WordPress</span><span class="text-[11px] text-[var(--text-secondary)]">1,200+ Themes</span>
+        <span class="mt-2 text-[14px] font-bold">WordPress</span><span class="text-[11px] text-[var(--text-secondary)]">Premium Themes</span>
         <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
       </a>
-      <a href="{% url 'home' %}#platform-title" class="platform-card platform-elementor group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+      <a href="{% url 'home' %}#wordpress-themes" class="platform-card platform-elementor group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
         <svg class="h-12 w-12" viewBox="0 0 48 48" aria-label="Elementor"><rect x="4" y="4" width="40" height="40" rx="9" fill="#92003b"/><path d="M16 15h3v18h-3zm8 0h11v3H24zm0 7h11v3H24zm0 8h11v3H24z" fill="white"/></svg>
-        <span class="mt-2 text-[14px] font-bold">Elementor</span><span class="text-[11px] text-[var(--text-secondary)]">800+ Templates</span>
+        <span class="mt-2 text-[14px] font-bold">Elementor</span><span class="text-[11px] text-[var(--text-secondary)]">Builder Ready</span>
         <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
       </a>
-      <a href="{% url 'home' %}#platform-title" class="platform-card platform-excel group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+      <a href="{% url 'home' %}#excel-dashboards" class="platform-card platform-excel group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
         <svg class="h-12 w-12" viewBox="0 0 48 48" role="img" aria-label="Microsoft Excel"><path d="M18 4h24a3 3 0 0 1 3 3v34a3 3 0 0 1-3 3H18z" fill="#21a366"/><path d="M24 10h18v7H24zm0 10h18v7H24zm0 10h18v7H24z" fill="#107c41"/><path d="M7 12.5 25 9v30L7 35.5z" fill="#185c37"/><path d="m12 17 3.4-.2 2.5 4.5 2.6-5.5 3.5-.2-4.3 8 4.5 7.8-3.6-.2-2.8-5-2.7 4.4-3.5-.2 4.4-6.6z" fill="#fff"/></svg>
-        <span class="mt-2 text-[14px] font-bold">Excel</span><span class="text-[11px] text-[var(--text-secondary)]">Spreadsheet Templates</span>
+        <span class="mt-2 text-[14px] font-bold">Excel</span><span class="text-[11px] text-[var(--text-secondary)]">Smart Dashboards</span>
         <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
       </a>
-      <a href="{% url 'home' %}#platform-title" class="platform-card platform-word group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
+      <a href="{% url 'home' %}#wordpress-themes" class="platform-card platform-word group relative flex h-[132px] flex-col items-center justify-center rounded-[16px] border border-[var(--border-color)] bg-[var(--platform-bg)] px-3 py-3 text-center shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
         <svg class="h-12 w-12" viewBox="0 0 48 48" role="img" aria-label="Microsoft Word"><path d="M14 5h25a3 3 0 0 1 3 3v32a3 3 0 0 1-3 3H14z" fill="#2b579a"/><path d="M22 10h16v6H22zm0 9h16v6H22zm0 9h16v6H22z" fill="#41a5ee"/><path d="M5 13.5 25 10v28L5 34.5z" fill="#185abd"/><path d="m9.5 18 3.4-.2 1.6 9.1 2.1-9.7 3.3-.2 2.1 9.9 1.7-10.3 3.4-.2-3.6 15-3.6-.2-1.9-8.8-2 8.4-3.5-.2z" fill="#fff"/></svg>
         <span class="mt-2 text-[14px] font-bold">Microsoft Word</span><span class="text-[11px] text-[var(--text-secondary)]">Document Templates</span>
         <span class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-primary)] transition group-hover:border-[var(--border-hover)] group-hover:text-[var(--accent)]" aria-hidden="true">→</span>
@@ -88,102 +88,242 @@
     </div>
   </section>
 
-  <section aria-labelledby="trending-title" class="mt-8 pb-12 lg:mt-9">
-    <div class="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
-      <div class="flex flex-col">
-        <h2 id="trending-title" class="flex items-center gap-2 text-[27px] font-extrabold tracking-[-0.05em] sm:text-[30px]">
-          <svg class="h-7 w-7 shrink-0 text-[var(--accent)] sm:h-8 sm:w-8" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M17.8 1.8c.8 5.4-3.3 7-2.3 11.1.5 1.9 2.3 2.8 3.5 1.4 1.1-1.2.9-3.3.6-4.3 5 3.1 8 7.2 7.1 12.3-.9 5.2-5.2 8.1-10.9 8.1C8.6 30.4 4 26.5 4 20.9c0-4.1 2.2-7.1 6.4-10.7-.4 3.5.6 5.4 2.1 5.3 1.3-.1 1.6-1.6 1.3-3.1-.6-3.3-.1-7.2 4-10.6Z"/><path d="M16.2 21c1.8 1.8 2.7 2.8 2.7 4.5 0 1.8-1.2 3-2.9 3s-3-1.2-3-3c0-1.7 1.3-3 3.2-4.5Z" fill="var(--bg-primary)"/></svg>
-          <span>Trending <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Themes</span></span>
-        </h2>
-        <p class="mt-1 text-[13px] leading-relaxed text-[var(--text-secondary)] sm:text-[14px]">Loved by creators. Trusted by businesses.</p>
+  <section id="wordpress-themes" aria-labelledby="wordpress-themes-title" data-product-section="wordpress" data-next-url="{% url 'products:wordpress_more' %}" data-next-offset="{{ wordpress_products|length }}" data-has-more="{% if wordpress_total > wordpress_products|length %}true{% else %}false{% endif %}" class="scroll-mt-24 mt-12 sm:mt-14">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Built for WordPress</p>
+        <h2 id="wordpress-themes-title" class="mt-2 text-[29px] font-extrabold tracking-[-0.055em] sm:text-[36px]">WordPress <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Themes</span></h2>
+        <p class="mt-2 max-w-2xl text-[13px] leading-6 text-[var(--text-secondary)] sm:text-[14px]">Polished, responsive themes ready to shape into your next website.</p>
       </div>
-      <div class="min-w-0">
-        <div class="mb-2 flex justify-end"><a href="{% url 'home' %}#trending-title" class="inline-flex items-center gap-2 text-[12px] font-semibold text-[var(--accent)] transition hover:gap-3 sm:text-[13px]">View All Themes <span aria-hidden="true">→</span></a></div>
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          <a href="{% url 'home' %}#trending-title" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
-            <img src="{% static 'img/theme-astra.webp' %}" alt="Astra WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-astra-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
-            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">Astra</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Build Faster. Grow Bigger.</p></div>
-          </a>
-          <a href="{% url 'home' %}#trending-title" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
-            <img src="{% static 'img/theme-neve.webp' %}" alt="Neve WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-neve-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
-            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">Neve</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Create. Innovate. Grow.</p></div>
-          </a>
-          <a href="{% url 'home' %}#trending-title" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
-            <img src="{% static 'img/theme-oceanwp.webp' %}" alt="OceanWP WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-oceanwp-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
-            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">OceanWP</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Build Beautiful Websites.</p></div>
-          </a>
-          <a href="{% url 'home' %}#trending-title" class="group overflow-hidden rounded-[14px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition hover:-translate-y-1 hover:border-[var(--border-hover)]">
-            <img src="{% static 'img/theme-kadence.webp' %}" alt="Kadence WordPress theme preview" class="theme-dark-only h-[145px] w-full object-fill object-top sm:h-[160px]" /><img src="{% static 'img/theme-kadence-light.webp' %}" alt="" class="theme-light-only h-[145px] w-full object-fill object-top sm:h-[160px]" />
-            <div class="border-t border-[var(--border-color)] p-3"><h3 class="text-[14px] font-bold">Kadence</h3><p class="mt-1 text-[11px] text-[var(--text-secondary)]">Your Vision. Our Design.</p></div>
-          </a>
-        </div>
-      </div>
+      <p class="text-[12px] font-semibold text-[var(--text-muted)]">{{ wordpress_total }} theme{{ wordpress_total|pluralize }}</p>
+    </div>
+    <div data-product-grid="wordpress" class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      {% for product in wordpress_products %}{% include "products/partials/card.html" with product=product kind='wordpress' %}{% empty %}
+        <div data-empty-state class="col-span-full rounded-[18px] border border-dashed border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-12 text-center"><p class="text-sm font-semibold text-[var(--text-primary)]">No WordPress themes are published yet.</p><p class="mt-1 text-[12px] text-[var(--text-secondary)]">Add one from Django Admin to populate this section.</p></div>
+      {% endfor %}
+    </div>
+    <p data-product-status class="sr-only" aria-live="polite"></p>
+    <div class="mt-6 flex justify-center" data-show-more-wrapper {% if wordpress_total <= wordpress_products|length %}hidden{% endif %}>
+      <button type="button" data-show-more="wordpress" class="inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-3 text-[13px] font-bold text-[var(--text-primary)] shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:border-[var(--border-hover)] hover:text-[var(--accent)]">Show More WordPress Themes <span aria-hidden="true">↓</span></button>
     </div>
   </section>
 
-  <section aria-labelledby="about-marketplace-title" class="relative isolate mt-6 overflow-hidden rounded-[28px] border border-[var(--border-color)] bg-[var(--bg-card)] px-5 py-8 shadow-[var(--shadow-card)] sm:px-8 sm:py-10 lg:mt-10 lg:grid lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-10 lg:px-12 lg:py-12">
+  <section id="excel-dashboards" aria-labelledby="excel-dashboards-title" data-product-section="excel" data-next-url="{% url 'products:excel_more' %}" data-next-offset="{{ excel_products|length }}" data-has-more="{% if excel_total > excel_products|length %}true{% else %}false{% endif %}" class="scroll-mt-24 mt-12 sm:mt-14">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Built for better decisions</p>
+        <h2 id="excel-dashboards-title" class="mt-2 text-[29px] font-extrabold tracking-[-0.055em] sm:text-[36px]">Excel <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Dashboards</span></h2>
+        <p class="mt-2 max-w-2xl text-[13px] leading-6 text-[var(--text-secondary)] sm:text-[14px]">Clear, practical workbooks that turn everyday data into useful insight.</p>
+      </div>
+      <p class="text-[12px] font-semibold text-[var(--text-muted)]">{{ excel_total }} dashboard{{ excel_total|pluralize }}</p>
+    </div>
+    <div data-product-grid="excel" class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      {% for product in excel_products %}{% include "products/partials/card.html" with product=product kind='excel' %}{% empty %}
+        <div data-empty-state class="col-span-full rounded-[18px] border border-dashed border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-12 text-center"><p class="text-sm font-semibold text-[var(--text-primary)]">No Excel dashboards are published yet.</p><p class="mt-1 text-[12px] text-[var(--text-secondary)]">Add one from Django Admin to populate this section.</p></div>
+      {% endfor %}
+    </div>
+    <p data-product-status class="sr-only" aria-live="polite"></p>
+    <div class="mt-6 flex justify-center" data-show-more-wrapper {% if excel_total <= excel_products|length %}hidden{% endif %}>
+      <button type="button" data-show-more="excel" class="inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-3 text-[13px] font-bold text-[var(--text-primary)] shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:border-[var(--border-hover)] hover:text-[var(--accent)]">Show More Excel Dashboards <span aria-hidden="true">↓</span></button>
+    </div>
+  </section>
+
+  <section aria-labelledby="about-marketplace-title" class="relative isolate mt-12 overflow-hidden rounded-[28px] border border-[var(--border-color)] bg-[var(--bg-card)] px-5 py-8 shadow-[var(--shadow-card)] sm:px-8 sm:py-10 lg:mt-14 lg:grid lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-10 lg:px-12 lg:py-12">
     <div class="pointer-events-none absolute -right-24 -top-28 -z-10 h-72 w-72 rounded-full bg-[var(--glow-purple)] blur-3xl"></div>
     <div>
       <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">A marketplace for what’s next</p>
       <h2 id="about-marketplace-title" class="mt-3 max-w-xl text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] sm:text-4xl">A Universe of Designs,<br /><span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Templates for Every Business</span></h2>
-      <p class="mt-4 max-w-xl text-sm leading-7 text-[var(--text-secondary)] sm:text-base">Discover thoughtfully designed WordPress themes, Excel dashboards, ecommerce storefronts, website layouts, and productivity resources—all in one place to help bring your next idea to life.</p>
-      <a href="{% url 'home' %}#trending-title" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-5 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-offset-4">Explore Collection <span aria-hidden="true">→</span></a>
+      <p class="mt-4 max-w-xl text-sm leading-7 text-[var(--text-secondary)] sm:text-base">Discover thoughtfully designed WordPress themes and Excel dashboards in one place to help bring your next idea to life.</p>
+      <a href="{% url 'home' %}#wordpress-themes" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-5 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-offset-4">Explore Collection <span aria-hidden="true">→</span></a>
     </div>
     <div class="relative mx-auto mt-8 grid w-full max-w-[690px] grid-cols-2 gap-3 lg:mt-0 lg:grid-cols-6 lg:gap-3" aria-label="Different types of ThemeHaven digital template previews">
-      <a href="{% url 'home' %}#platform-title" class="about-preview group col-span-2 lg:col-span-3"><img src="{% static 'img/about/excel-dashboard.svg' %}" alt="Spreadsheet dashboard preview with revenue KPIs, sales analytics, and charts" loading="lazy" /><span><strong>Excel Dashboards</strong><small>Clear insights for your work</small></span></a>
-      <a href="{% url 'home' %}#trending-title" class="about-preview group col-span-2 lg:col-span-3"><img src="{% static 'img/about/wordpress-theme.svg' %}" alt="WordPress theme preview with studio navigation, editorial hero, and call to action" loading="lazy" /><span><strong>WordPress Themes</strong><small>Beautiful sites, ready to shape</small></span></a>
-      <a href="{% url 'home' %}#trending-title" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/website-collection.svg' %}" alt="Three distinct website template layouts for creative and business websites" loading="lazy" /><span><strong>Website Templates</strong><small>SaaS, agency, and portfolio layouts</small></span></a>
-      <a href="{% url 'home' %}#industries-title" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/ecommerce-store.svg' %}" alt="Ecommerce storefront preview with a navigation bar and product cards" loading="lazy" /><span><strong>Ecommerce Stores</strong><small>Storefronts with polished product grids</small></span></a>
-      <a href="{% url 'home' %}#platform-title" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/productivity-planner.svg' %}" alt="Productivity workspace preview with a project timeline, weekly tasks, and progress charts" loading="lazy" /><span><strong>Business &amp; Productivity</strong><small>Planners and useful work tools</small></span></a>
+      <a href="{% url 'home' %}#excel-dashboards" class="about-preview group col-span-2 lg:col-span-3"><img src="{% static 'img/about/excel-dashboard.svg' %}" alt="Spreadsheet dashboard preview with revenue KPIs, sales analytics, and charts" loading="lazy" /><span><strong>Excel Dashboards</strong><small>Clear insights for your work</small></span></a>
+      <a href="{% url 'home' %}#wordpress-themes" class="about-preview group col-span-2 lg:col-span-3"><img src="{% static 'img/about/wordpress-theme.svg' %}" alt="WordPress theme preview with studio navigation, editorial hero, and call to action" loading="lazy" /><span><strong>WordPress Themes</strong><small>Beautiful sites, ready to shape</small></span></a>
+      <a href="{% url 'home' %}#wordpress-themes" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/website-collection.svg' %}" alt="Three distinct website template layouts for creative and business websites" loading="lazy" /><span><strong>Website Templates</strong><small>Theme layouts for every niche</small></span></a>
+      <a href="{% url 'home' %}#wordpress-themes" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/ecommerce-store.svg' %}" alt="Ecommerce storefront preview with a navigation bar and product cards" loading="lazy" /><span><strong>Ecommerce Stores</strong><small>Storefronts with polished product grids</small></span></a>
+      <a href="{% url 'home' %}#excel-dashboards" class="about-preview group lg:col-span-2"><img src="{% static 'img/about/productivity-planner.svg' %}" alt="Productivity workspace preview with a project timeline, weekly tasks, and progress charts" loading="lazy" /><span><strong>Business &amp; Productivity</strong><small>Workbooks for useful reporting</small></span></a>
     </div>
   </section>
 
-  <section aria-labelledby="showcase-title" class="relative mt-14 overflow-hidden py-3 sm:mt-16">
-    <div class="pointer-events-none absolute inset-x-0 top-1/3 -z-10 mx-auto h-64 max-w-5xl rounded-full bg-[var(--glow-purple)] blur-3xl" aria-hidden="true"></div>
-    <div class="mx-auto max-w-2xl px-2 text-center">
-      <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">The ThemeHaven collection</p>
-      <h2 id="showcase-title" class="mt-2 text-3xl font-extrabold tracking-[-0.055em] sm:text-4xl">Discover More <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Designs</span></h2>
-      <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">Explore the featured website previews and find a starting point for your next idea.</p>
-    </div>
-    <div class="showcase-marquee mt-8 space-y-3 sm:mt-10 sm:space-y-4" aria-label="Moving showcase of featured themes">
-      <div class="showcase-track showcase-track-left">
-        <div class="showcase-set">{% for image,name,slug in showcase_themes %}<a href="{% url 'home' %}#trending-title" class="showcase-card group"><img src="{% static image %}" alt="{{ name }} theme preview" loading="lazy" /><span>{{ name }} <small>WordPress theme</small></span></a>{% endfor %}</div>
-        <div class="showcase-set" aria-hidden="true">{% for image,name,slug in showcase_themes %}<a tabindex="-1" href="{% url 'home' %}#trending-title" class="showcase-card group"><img src="{% static image %}" alt="" loading="lazy" /><span>{{ name }} <small>WordPress theme</small></span></a>{% endfor %}</div>
-      </div>
-      <div class="showcase-track showcase-track-right">
-        <div class="showcase-set">{% for image,name,slug in showcase_themes %}<a href="{% url 'home' %}#trending-title" class="showcase-card group"><img src="{% static image %}" alt="{{ name }} theme preview" loading="lazy" /><span>{{ name }} <small>Featured design</small></span></a>{% endfor %}</div>
-        <div class="showcase-set" aria-hidden="true">{% for image,name,slug in showcase_themes %}<a tabindex="-1" href="{% url 'home' %}#trending-title" class="showcase-card group"><img src="{% static image %}" alt="" loading="lazy" /><span>{{ name }} <small>Featured design</small></span></a>{% endfor %}</div>
-      </div>
-    </div>
-    <div class="mt-6 text-center"><a href="{% url 'home' %}#trending-title" class="inline-flex items-center gap-2 text-sm font-bold text-[var(--accent)] hover:gap-3">Browse all themes <span aria-hidden="true">→</span></a></div>
-  </section>
-
-  <section aria-labelledby="industries-title" class="mt-14 sm:mt-16">
-    <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-      <div><p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Start with your industry</p><h2 id="industries-title" class="mt-2 text-3xl font-extrabold tracking-[-0.055em] sm:text-4xl">Browse by <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Industry</span></h2></div>
-      <p class="max-w-md text-sm leading-6 text-[var(--text-secondary)]">Browse by the kind of work you do and discover a visual direction for your next project.</p>
-    </div>
-    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-      {% for category in business_categories %}<a href="{% url 'home' %}#industries-title" class="industry-card group relative isolate flex min-h-[178px] items-end overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-4 shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-1 hover:border-[var(--border-hover)] sm:min-h-[205px] sm:p-5">
-        <img src="{% static category.image %}" alt="" loading="lazy" class="absolute inset-0 -z-20 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-        <span class="absolute inset-0 -z-10 bg-gradient-to-t from-[#100b1c]/95 via-[#100b1c]/45 to-transparent" aria-hidden="true"></span>
-        <span class="absolute right-3 top-3 rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">Explore</span>
-        <span><span class="block text-base font-extrabold tracking-tight text-white sm:text-lg">{{ category.name }}</span><span class="mt-1 block text-[11px] leading-4 text-white/80 sm:text-xs">{{ category.description }}</span></span>
-      </a>{% endfor %}
-    </div>
-  </section>
-
-  <section aria-labelledby="why-title" class="mt-14 rounded-[26px] border border-[var(--border-color)] bg-[var(--bg-card)] px-5 py-8 shadow-[var(--shadow-card)] sm:mt-16 sm:px-8 sm:py-10">
+  <section aria-labelledby="why-title" class="mt-12 rounded-[26px] border border-[var(--border-color)] bg-[var(--bg-card)] px-5 py-8 shadow-[var(--shadow-card)] sm:mt-14 sm:px-8 sm:py-10">
     <div class="mx-auto max-w-2xl text-center"><p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Made for your next big idea</p><h2 id="why-title" class="mt-2 text-3xl font-extrabold tracking-[-0.055em] sm:text-4xl">Build with <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Confidence</span></h2><p class="mt-3 text-sm leading-6 text-[var(--text-secondary)]">A thoughtful collection, clear support, and a smoother path from inspiration to launch.</p></div>
     <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {% for title,description,icon in value_points %}<article class="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)]/70 p-5 transition hover:-translate-y-1 hover:border-[var(--border-hover)]"><span class="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ icon }}"/></svg></span><h3 class="mt-4 text-base font-bold">{{ title }}</h3><p class="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{{ description }}</p></article>{% endfor %}
     </div>
   </section>
-
-  <section aria-labelledby="final-cta-title" class="relative isolate mb-12 mt-14 overflow-hidden rounded-[28px] border border-[var(--border-hover)] bg-[linear-gradient(115deg,rgba(113,35,225,0.20),rgba(97,68,214,0.10),var(--bg-card))] px-6 py-10 text-center shadow-[var(--shadow-card)] sm:mb-16 sm:mt-16 sm:px-10 sm:py-14">
-    <span class="pointer-events-none absolute -left-20 -top-24 -z-10 h-64 w-64 rounded-full bg-[var(--glow-purple)] blur-3xl" aria-hidden="true"></span><span class="pointer-events-none absolute -bottom-28 -right-16 -z-10 h-72 w-72 rounded-full bg-[var(--glow-purple)] blur-3xl" aria-hidden="true"></span>
-    <p class="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">Find your next starting point</p><h2 id="final-cta-title" class="mx-auto mt-3 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.055em] sm:text-5xl">Your Next Great Website <span class="bg-[image:var(--accent-gradient)] bg-clip-text text-transparent">Starts Here.</span></h2><p class="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">Explore curated themes and templates designed to help bring your ideas to life.</p>
-    <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><a href="{% url 'home' %}#trending-title" class="rounded-full bg-[image:var(--accent-gradient)] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5">Explore Themes</a><a href="{% url 'home' %}#industries-title" class="rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:border-[var(--border-hover)]">Browse Templates</a></div>
-  </section>
 </div>
+
+{% include "products/partials/preview_modal.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (() => {
+    'use strict';
+
+    const states = new Map();
+
+    document.querySelectorAll('[data-product-section]').forEach((section) => {
+      const name = section.dataset.productSection;
+      const button = document.querySelector(`[data-show-more="${name}"]`);
+      states.set(name, {
+        section,
+        grid: section.querySelector('[data-product-grid]'),
+        button,
+        wrapper: button ? button.closest('[data-show-more-wrapper]') : null,
+        status: section.querySelector('[data-product-status]'),
+        url: section.dataset.nextUrl,
+        offset: Number(section.dataset.nextOffset || 0),
+        hasMore: section.dataset.hasMore === 'true',
+        loading: false,
+      });
+      if (button) button.addEventListener('click', () => loadMore(name));
+    });
+
+    async function loadMore(name) {
+      const state = states.get(name);
+      if (!state || state.loading || !state.hasMore || !state.button) return;
+      state.loading = true;
+      state.button.disabled = true;
+      const label = state.button.dataset.label || state.button.textContent.trim();
+      state.button.dataset.label = label;
+      state.button.textContent = 'Loading…';
+      try {
+        const url = new URL(state.url, window.location.origin);
+        url.searchParams.set('offset', String(state.offset));
+        const query = document.getElementById('home-search')?.value.trim();
+        if (query) url.searchParams.set('q', query);
+        const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        if (!response.ok) throw new Error('Request failed');
+        const data = await response.json();
+        const empty = state.grid.querySelector('[data-empty-state]');
+        if (empty) empty.remove();
+        if (data.html) state.grid.insertAdjacentHTML('beforeend', data.html);
+        state.offset = Number(data.next_offset) || state.offset + 8;
+        state.hasMore = Boolean(data.has_more);
+        if (!state.hasMore && state.wrapper) state.wrapper.hidden = true;
+        if (state.status) state.status.textContent = data.html ? 'Loaded more products.' : 'No more products.';
+      } catch (error) {
+        if (state.status) state.status.textContent = 'Could not load more products. Please try again.';
+      } finally {
+        state.loading = false;
+        state.button.disabled = false;
+        state.button.textContent = label;
+      }
+    }
+
+    const modal = document.getElementById('product-preview-modal');
+    let lastFocused = null;
+
+    function setText(selector, value) {
+      const node = modal?.querySelector(selector);
+      if (node) node.textContent = value || '';
+    }
+
+    function openPreview(trigger) {
+      const card = trigger.closest('[data-product-card]');
+      if (!card || !modal) return;
+      let data = {};
+      try { data = JSON.parse(card.dataset.productPreview || '{}'); } catch (error) { data = {}; }
+
+      lastFocused = trigger;
+      setText('[data-preview-title]', data.title);
+      setText('[data-preview-kind]', data.kind === 'wordpress' ? 'Premium WordPress Theme' : 'Professional Excel Dashboard');
+      setText('[data-preview-description]', data.shortDescription || data.description);
+      setText('[data-preview-price]', data.price);
+      const original = modal.querySelector('[data-preview-original]');
+      if (original) {
+        original.textContent = data.originalPrice || '';
+        original.hidden = !data.originalPrice;
+      }
+      const image = modal.querySelector('[data-preview-image]');
+      if (image) {
+        image.src = data.thumbnail || '';
+        image.alt = data.title ? `${data.title} preview` : '';
+      }
+      const detail = modal.querySelector('[data-preview-detail]');
+      if (detail) detail.href = data.detailUrl || '#';
+      const demo = modal.querySelector('[data-preview-demo]');
+      if (demo) {
+        demo.href = data.demoUrl || '#';
+        demo.hidden = !data.demoUrl;
+      }
+
+      const galleryWrap = modal.querySelector('[data-preview-gallery-wrap]');
+      const gallery = modal.querySelector('[data-preview-gallery]');
+      if (gallery && galleryWrap) {
+        gallery.replaceChildren();
+        const screenshots = Array.isArray(data.screenshots) ? data.screenshots : [];
+        screenshots.forEach((shot) => {
+          const thumb = document.createElement('button');
+          thumb.type = 'button';
+          thumb.className = 'h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-[var(--border-color)] transition hover:border-[var(--border-hover)]';
+          thumb.setAttribute('aria-label', `Show ${shot.alt || 'preview'}`);
+          const thumbImage = document.createElement('img');
+          thumbImage.src = shot.url;
+          thumbImage.alt = shot.alt || '';
+          thumbImage.loading = 'lazy';
+          thumbImage.className = 'h-full w-full object-cover object-top';
+          thumb.appendChild(thumbImage);
+          thumb.addEventListener('click', () => {
+            if (image) {
+              image.src = shot.url;
+              image.alt = shot.alt || '';
+            }
+          });
+          gallery.appendChild(thumb);
+        });
+        galleryWrap.hidden = screenshots.length === 0;
+      }
+
+      modal.hidden = false;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+      modal.querySelector('[data-preview-close]')?.focus();
+    }
+
+    function closePreview() {
+      if (!modal || modal.hidden) return;
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+      modal.hidden = true;
+      document.body.classList.remove('overflow-hidden');
+      lastFocused?.focus();
+    }
+
+    document.addEventListener('click', (event) => {
+      const trigger = event.target.closest('[data-product-preview-trigger]');
+      if (!trigger) return;
+      event.preventDefault();
+      event.stopPropagation();
+      openPreview(trigger);
+    });
+
+    modal?.addEventListener('click', (event) => {
+      if (event.target === modal) closePreview();
+    });
+    modal?.querySelector('[data-preview-close]')?.addEventListener('click', closePreview);
+
+    document.addEventListener('keydown', (event) => {
+      if (!modal || modal.hidden) return;
+      if (event.key === 'Escape') {
+        closePreview();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(modal.querySelectorAll('a[href], button:not([disabled])'));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  })();
+</script>
 {% endblock %}

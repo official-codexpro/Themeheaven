@@ -1,0 +1,28 @@
+<article class="product-card group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-1 hover:border-[var(--border-hover)] hover:shadow-[0_18px_42px_var(--glow-purple)]" data-product-card data-product-preview="{{ product.preview_data_json|escape }}">
+  <div class="relative aspect-[16/10] overflow-hidden bg-[var(--bg-tertiary)]">
+    <a href="{{ product.get_absolute_url }}" aria-label="View {{ product.title }} details" class="block h-full w-full">
+      <img src="{{ product.thumbnail.url }}" alt="{{ product.title }} preview" loading="lazy" class="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.04]" />
+    </a>
+    <div class="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
+      <span class="rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">{% if kind == 'wordpress' %}WordPress{% else %}Excel{% endif %}</span>
+      {% if product.is_featured %}<span class="rounded-full border border-white/15 bg-[image:var(--accent-gradient)] px-2.5 py-1 text-[10px] font-bold text-white">Featured</span>{% endif %}
+      {% if product.has_sale %}<span class="rounded-full border border-white/15 bg-rose-600/90 px-2.5 py-1 text-[10px] font-bold text-white">Sale</span>{% endif %}
+    </div>
+    <button type="button" data-product-preview-trigger aria-label="Open quick preview for {{ product.title }}" class="product-preview-trigger absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-white/20 bg-black/70 px-3.5 py-2 text-[11px] font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-black/85 focus-visible:outline-offset-2">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+      Quick Preview
+    </button>
+  </div>
+  <div class="flex flex-1 flex-col p-4">
+    <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--accent)]">{% if kind == 'wordpress' %}WordPress Theme{% else %}Excel Dashboard{% endif %}</p>
+    <h3 class="mt-1 line-clamp-1 text-[15px] font-extrabold tracking-[-0.03em]"><a href="{{ product.get_absolute_url }}" class="transition hover:text-[var(--accent)]">{{ product.title }}</a></h3>
+    <p class="mt-1.5 line-clamp-2 min-h-[38px] text-[12px] leading-[1.45] text-[var(--text-secondary)]">{{ product.short_description }}</p>
+    <div class="mt-auto flex items-end justify-between gap-2 border-t border-[var(--border-color)] pt-3">
+      <div class="flex min-w-0 items-baseline gap-2">
+        <span class="text-[15px] font-extrabold text-[var(--text-primary)]">{{ product.display_price_label }}</span>
+        {% if product.has_sale %}<span class="text-[11px] text-[var(--text-muted)] line-through">{{ product.price_label }}</span>{% endif %}
+      </div>
+      <a href="{{ product.get_absolute_url }}" aria-label="View details for {{ product.title }}" class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--border-color)] text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--accent)]" aria-hidden="true">→</a>
+    </div>
+  </div>
+</article>
