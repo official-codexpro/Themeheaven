@@ -122,8 +122,13 @@
         const THEME_KEY = "themehub-theme";
         const root = document.documentElement;
         const pullButton = document.getElementById("themePullToggle");
-        const pullCord = document.getElementById("themePullCord");
         const pullKnob = document.getElementById("themePullKnob");
+        const cordLine = document.getElementById("themeCordLine");
+        const cordShadow = document.getElementById("themeCordShadow");
+        const cordHighlight = document.getElementById("themeCordHighlight");
+        const cordBraid = document.getElementById("themeCordBraid");
+        const housingIcon = pullButton ? pullButton.querySelector(".theme-pull-housing-icon") : null;
+        const tooltipText = pullButton ? pullButton.querySelector(".theme-pull-tooltip-text") : null;
 
         function getTheme() { return root.getAttribute("data-theme") || "dark"; }
 
@@ -131,8 +136,14 @@
           if (!pullButton) return;
           const nextLabel = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
           pullButton.setAttribute("aria-label", nextLabel);
-          pullButton.setAttribute("title", nextLabel);
+          pullButton.setAttribute("title", "Pull to switch theme");
           pullButton.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
+          if (tooltipText) tooltipText.textContent = nextLabel;
+          if (housingIcon) {
+            housingIcon.innerHTML = theme === "dark"
+              ? '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>'
+              : '<path d="M20.8 15.4A8.5 8.5 0 0 1 8.6 3.2 8.5 8.5 0 1 0 20.8 15.4Z"></path>';
+          }
         }
 
         function setTheme(theme) {
@@ -156,20 +167,45 @@
           });
         }
 
-        if (pullButton && pullCord && pullKnob) {
-          let pointerId = null, startY = 0, dragging = false, activated = false;
+        if (pullButton && pullKnob && cordLine && cordShadow && cordHighlight && cordBraid) {
+          let pointerId = null, startY = 0, dragging = false, activated = false, dragDistance = 0;
           let raf = null, targetY = 0, currentY = 0, velocity = 0, swingRaf = null;
           const threshold = 42, maxPull = 68;
           const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          const baseEndY = 88, baseKnobY = 0; // knob group is authored at rest position
+
+          const setCordPath = (endY, sway) => {
+            const c1x = 24 - sway * 0.35;
+            const c2x = 24 + sway * 0.55;
+            const midY = 2 + (endY - 2) * 0.58;
+            const d = `M24 2 C${c1x.toFixed(2)} ${(2 + (endY - 2) * 0.22).toFixed(2)}, ${c2x.toFixed(2)} ${midY.toFixed(2)}, ${(24 + sway).toFixed(2)} ${endY.toFixed(2)}`;
+            cordLine.setAttribute("d", d);
+            cordShadow.setAttribute("d", d);
+            const h = `M23.25 2 C${(c1x - 0.75).toFixed(2)} ${(2 + (endY - 2) * 0.22).toFixed(2)}, ${(c2x - 0.75).toFixed(2)} ${midY.toFixed(2)}, ${(23.25 + sway).toFixed(2)} ${endY.toFixed(2)}`;
+            cordHighlight.setAttribute("d", h);
+            // simple stretched braid: vertical-ish sine with increasing spacing
+            let braid = `M24 10`;
+            const steps = 14;
+            for (let i = 1; i <= steps; i++) {
+              const t = i / steps;
+              const y = 10 + (endY - 10) * t;
+              const x = 24 + sway * t + (i % 2 === 0 ? -1.15 : 1.15) * (1 - t * 0.15);
+              braid += ` L${x.toFixed(2)} ${y.toFixed(2)}`;
+            }
+            cordBraid.setAttribute("d", braid);
+          };
 
           const render = () => {
-            pullCord.style.setProperty("--pull-y", `${currentY}px`);
-            pullKnob.style.setProperty("--pull-y", `${currentY}px`);
+            const y = Math.max(0, Math.min(maxPull, currentY));
+            const sway = Math.max(-1.8, Math.min(1.8, velocity * 0.08));
+            pullKnob.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
+            setCordPath(baseEndY + y, reducedMotion ? 0 : sway);
           };
           const stopSwing = () => {
             if (swingRaf) cancelAnimationFrame(swingRaf);
             swingRaf = null;
             pullButton.style.setProperty("--swing", "0deg");
+            render();
           };
           const startSwing = (amplitude) => {
             if (reducedMotion || amplitude < 0.2) return;
@@ -180,8 +216,10 @@
               const decay = Math.exp(-4.2 * t);
               const angle = from * decay * Math.cos(11 * t);
               pullButton.style.setProperty("--swing", `${angle.toFixed(3)}deg`);
+              // add tiny cord sway while swinging at rest
+              if (currentY < 1) setCordPath(baseEndY, angle * 0.35);
               if (t < 1) swingRaf = requestAnimationFrame(tick);
-              else pullButton.style.setProperty("--swing", "0deg");
+              else { pullButton.style.setProperty("--swing", "0deg"); render(); }
             };
             swingRaf = requestAnimationFrame(tick);
           };
@@ -217,13 +255,16 @@
             pullButton.classList.add(didToggle ? "is-activated" : "is-releasing");
             const releaseVelocity = Math.min(10, currentY * 0.12);
             targetY = 0;
-            animateTo(0, () => pullButton.classList.remove("is-releasing", "is-activated"));
-            startSwing(didToggle ? 2.8 + releaseVelocity * 0.25 : 1.4 + releaseVelocity * 0.15);
+            animateTo(0, () => {
+              pullButton.classList.remove("is-releasing", "is-activated");
+              render();
+            });
+            startSwing(didToggle ? 2.4 + releaseVelocity * 0.2 : 1.2 + releaseVelocity * 0.12);
           };
 
           pullButton.addEventListener("pointerdown", (event) => {
             if (event.button !== 0) return;
-            pointerId = event.pointerId; startY = event.clientY; dragging = true; activated = false;
+            pointerId = event.pointerId; startY = event.clientY; dragging = true; activated = false; dragDistance = 0;
             pullButton.dataset.dragged = "false";
             pullButton.classList.add("is-dragging");
             pullButton.classList.remove("is-releasing", "is-activated");
@@ -232,9 +273,9 @@
           });
           pullButton.addEventListener("pointermove", (event) => {
             if (!dragging || event.pointerId !== pointerId) return;
-            if ((event.clientY - startY) > 7) pullButton.dataset.dragged = "true";
+            dragDistance = Math.max(0, event.clientY - startY);
+            if (dragDistance > 7) pullButton.dataset.dragged = "true";
             setTargetFromPointer(event.clientY);
-            if (!activated && targetY >= threshold) { activated = true; toggleTheme(); }
           });
           const finishDrag = (event) => {
             if (!dragging || event.pointerId !== pointerId) return;
@@ -242,15 +283,12 @@
             if (pullButton.hasPointerCapture && pullButton.hasPointerCapture(pointerId)) {
               try { pullButton.releasePointerCapture(pointerId); } catch (error) {}
             }
-            const didToggle = activated, wasDrag = pullButton.dataset.dragged === "true";
+            const wasDrag = pullButton.dataset.dragged === "true";
+            const didToggle = wasDrag && currentY >= threshold;
             pointerId = null;
+            if (didToggle) toggleTheme();
             resetPull(didToggle);
-            if (!didToggle && !wasDrag) {
-              pullButton.dataset.clickHandled = "true";
-              toggleTheme();
-              window.setTimeout(() => { pullButton.dataset.clickHandled = "false"; }, 0);
-            }
-            window.setTimeout(() => { pullButton.dataset.dragged = "false"; }, 50);
+            window.setTimeout(() => { pullButton.dataset.dragged = "false"; }, 60);
           };
           pullButton.addEventListener("pointerup", finishDrag);
           pullButton.addEventListener("pointercancel", finishDrag);
@@ -258,14 +296,16 @@
             if (!dragging) return; dragging = false; pointerId = null; resetPull(activated);
           });
           pullButton.addEventListener("click", (event) => {
-            if (pullButton.dataset.dragged === "true" || pullButton.dataset.clickHandled === "true") {
+            if (pullButton.dataset.dragged === "true") {
               event.preventDefault(); event.stopPropagation();
-              pullButton.dataset.dragged = "false"; pullButton.dataset.clickHandled = "false";
+              pullButton.dataset.dragged = "false";
               return;
             }
-            if (!reducedMotion) { stopSwing(); currentY = 0; targetY = 8; render(); animateTo(0); startSwing(1.2); }
+            if (!reducedMotion) { stopSwing(); currentY = 0; targetY = 8; render(); animateTo(0, render); startSwing(1.1); }
             toggleTheme();
           });
+
+          render();
         }
 
         updateButton(getTheme());

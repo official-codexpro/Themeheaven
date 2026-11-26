@@ -41,12 +41,13 @@
         <svg id="mobileMenuIcon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
       </button>
           <div class="theme-pull-slot" aria-hidden="false">
-        <span class="theme-pull-housing" aria-hidden="true">
-          <span class="theme-pull-housing-cap"></span>
-          <span class="theme-pull-housing-bulb"></span>
-        </span>
-        <button id="themePullToggle" type="button" class="theme-pull-toggle" aria-label="Switch to light theme" aria-pressed="false" title="Switch theme">
+        <button id="themePullToggle" type="button" class="theme-pull-toggle" aria-label="Switch to light theme" aria-pressed="false" title="Pull to switch theme">
           <span class="sr-only">Toggle color theme</span>
+          <span class="theme-pull-tooltip" aria-hidden="true"><span class="theme-pull-tooltip-text">Pull to switch theme</span></span>
+          <span class="theme-pull-housing" aria-hidden="true">
+            <span class="theme-pull-housing-cap"></span>
+            <span class="theme-pull-housing-bulb"><svg class="theme-pull-housing-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path></svg></span>
+          </span>
           <svg class="theme-pull-svg" viewBox="0 0 48 148" aria-hidden="true" focusable="false">
             <defs>
               <linearGradient id="themeBrassBody" x1="0.15" y1="0" x2="0.95" y2="1">
@@ -71,11 +72,11 @@
                 <stop offset="0%" stop-color="rgba(255,248,230,0.8)" /><stop offset="55%" stop-color="rgba(255,236,196,0.3)" /><stop offset="100%" stop-color="rgba(255,236,196,0)" />
               </radialGradient>
             </defs>
-            <g id="themePullCord" class="theme-pull-cord">
-              <path d="M24 2 C23.2 18, 24.8 36, 24 54 C23.4 66, 24.6 78, 24 88" class="theme-pull-cord-shadow" />
-              <path d="M24 2 C23.2 18, 24.8 36, 24 54 C23.4 66, 24.6 78, 24 88" class="theme-pull-cord-line" />
-              <path d="M23.25 2 C22.45 18, 24.05 36, 23.25 54 C22.65 66, 23.85 78, 23.25 88" class="theme-pull-cord-highlight" />
-              <path d="M24 10 C22.8 12, 25.2 14, 24 16 C22.8 18, 25.2 20, 24 22 C22.8 24, 25.2 26, 24 28 C22.8 30, 25.2 32, 24 34 C22.8 36, 25.2 38, 24 40 C22.8 42, 25.2 44, 24 46 C22.8 48, 25.2 50, 24 52 C22.8 54, 25.2 56, 24 58 C22.8 60, 25.2 62, 24 64 C22.8 66, 25.2 68, 24 70 C22.8 72, 25.2 74, 24 76 C22.8 78, 25.2 80, 24 82 C22.8 84, 25.2 86, 24 88" class="theme-pull-cord-braid" />
+            <g class="theme-pull-cord">
+              <path id="themeCordShadow" d="M24 2 C23.2 18, 24.8 36, 24 54 C23.4 66, 24.6 78, 24 88" class="theme-pull-cord-shadow" />
+              <path id="themeCordLine" d="M24 2 C23.2 18, 24.8 36, 24 54 C23.4 66, 24.6 78, 24 88" class="theme-pull-cord-line" />
+              <path id="themeCordHighlight" d="M23.25 2 C22.45 18, 24.05 36, 23.25 54 C22.65 66, 23.85 78, 23.25 88" class="theme-pull-cord-highlight" />
+              <path id="themeCordBraid" d="M24 10 C22.8 12, 25.2 14, 24 16 C22.8 18, 25.2 20, 24 22 C22.8 24, 25.2 26, 24 28 C22.8 30, 25.2 32, 24 34 C22.8 36, 25.2 38, 24 40 C22.8 42, 25.2 44, 24 46 C22.8 48, 25.2 50, 24 52 C22.8 54, 25.2 56, 24 58 C22.8 60, 25.2 62, 24 64 C22.8 66, 25.2 68, 24 70 C22.8 72, 25.2 74, 24 76 C22.8 78, 25.2 80, 24 82 C22.8 84, 25.2 86, 24 88" class="theme-pull-cord-braid" />
             </g>
             <g id="themePullKnob" class="theme-pull-knob" filter="url(#themeKnobShadow)">
               <circle cx="24" cy="92" r="13" class="theme-pull-knob-glow" />
