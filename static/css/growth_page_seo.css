@@ -1,0 +1,470 @@
+.gcpage-shell {
+  max-width: 1500px;
+}
+
+.gcpage-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gcpage-header-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  color: var(--body-quiet-color, #666);
+  font-size: 13px;
+}
+
+.gcpage-header-stats strong {
+  color: var(--body-fg, #222);
+  font-size: 18px;
+}
+
+.gcpage-filter-card {
+  padding: 16px 18px;
+}
+
+.gcpage-filter-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 220px auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.gcpage-filter-form input,
+.gcpage-filter-form select,
+.gcpage-bulk-controls select,
+.gcpage-input,
+.gcpage-textarea,
+.gcpage-code,
+.gcpage-file,
+.gcpage-select {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 8px;
+  background: var(--body-bg, #fff);
+  color: var(--body-fg, #222);
+  font: inherit;
+  font-size: 13px;
+}
+
+.gcpage-textarea,
+.gcpage-code {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.gcpage-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.gcpage-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 1px solid var(--primary, #417690);
+  border-radius: 8px;
+  background: var(--primary, #417690);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.gcpage-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gcpage-button-secondary {
+  border-color: var(--border-color, #ccc);
+  background: transparent;
+  color: var(--body-fg, #222);
+}
+
+.gcpage-bulk-bar {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+}
+
+.gcpage-bulk-bar p {
+  margin: 4px 0 0;
+  color: var(--body-quiet-color, #666);
+  font-size: 12px;
+}
+
+.gcpage-bulk-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.gcpage-bulk-controls select {
+  width: auto;
+  min-width: 250px;
+}
+
+.gcpage-check {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--body-quiet-color, #666);
+  font-size: 12px;
+}
+
+.gcpage-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.gcpage-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.gcpage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.gcpage-table th,
+.gcpage-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color, #ddd);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.gcpage-table thead th {
+  background: var(--darkened-bg, #f8f8f8);
+  color: var(--body-quiet-color, #666);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gcpage-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.gcpage-table code {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.gcpage-check-cell {
+  width: 38px;
+  text-align: center !important;
+}
+
+.gcpage-page-link {
+  color: var(--link-fg, var(--primary, #417690));
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gcpage-page-link:hover {
+  text-decoration: underline;
+}
+
+.gcpage-cell-note {
+  display: block;
+  margin-top: 4px;
+  color: var(--body-quiet-color, #777);
+  font-size: 11px;
+}
+
+.gcpage-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 999px;
+  background: var(--body-bg, #fff);
+  color: var(--body-quiet-color, #666);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gcpage-badge-good,
+.gcpage-badge-index,
+.gcpage-badge-indexed,
+.gcpage-badge-custom,
+.gcpage-badge-follow,
+.gcpage-badge-generated,
+.gcpage-badge-configured {
+  border-color: #3ba272;
+  color: #20845c;
+}
+
+.gcpage-badge-inherited,
+.gcpage-badge-auto,
+.gcpage-badge-inherit {
+  border-color: #6b7fb5;
+  color: #5369a8;
+}
+
+.gcpage-badge-warning,
+.gcpage-badge-noindex,
+.gcpage-badge-nofollow,
+.gcpage-badge-disabled {
+  border-color: #d39b38;
+  color: #a86f13;
+}
+
+.gcpage-badge-missing,
+.gcpage-badge-faqpage {
+  border-color: #c65f5f;
+  color: #b23c3c;
+}
+
+.gcpage-empty {
+  padding: 28px !important;
+  color: var(--body-quiet-color, #777);
+  text-align: center !important;
+}
+
+.gcpage-pagination {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 0;
+  color: var(--body-quiet-color, #666);
+  font-size: 12px;
+}
+
+.gcpage-pagination a {
+  color: var(--link-fg, var(--primary, #417690));
+}
+
+.gcpage-path {
+  margin: 8px 0 0;
+}
+
+.gcpage-path code {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.gcpage-checks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.gcpage-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.gcpage-editor-main,
+.gcpage-editor-side {
+  display: grid;
+  gap: 18px;
+}
+
+.gcpage-editor-side {
+  position: sticky;
+  top: 18px;
+}
+
+.gcpage-card {
+  padding: 18px 20px;
+}
+
+.gcpage-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gcpage-field-wide {
+  grid-column: 1 / -1;
+}
+
+.gcpage-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gcpage-generated {
+  padding: 10px 12px;
+  border: 1px dashed var(--border-color, #ccc);
+  border-radius: 8px;
+  color: var(--body-quiet-color, #666);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.gcpage-counter-warning {
+  color: #b23c3c;
+  font-weight: 700;
+}
+
+.gcpage-schema-preview {
+  max-height: 240px;
+  padding: 12px;
+  margin: 0;
+  overflow: auto;
+  border: 1px dashed var(--border-color, #ccc);
+  border-radius: 8px;
+  background: var(--body-bg, #fff);
+  color: var(--body-fg, #222);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+}
+
+.gcpage-schema-error {
+  margin: 8px 0 0;
+  color: #b23c3c;
+  font-size: 12px;
+}
+
+.gcseo-google-title,
+.gcseo-google-description,
+.gcpage-social-title,
+.gcpage-social-description {
+  overflow-wrap: anywhere;
+}
+
+.gcpage-preview-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.gcpage-social-card {
+  overflow: hidden;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  background: var(--body-bg, #fff);
+}
+
+.gcpage-social-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  background: var(--darkened-bg, #f5f5f5);
+}
+
+.gcpage-social-image img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.gcpage-social-image span {
+  color: var(--body-quiet-color, #777);
+  font-size: 12px;
+}
+
+.gcpage-social-body {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.gcpage-social-site {
+  color: var(--body-quiet-color, #777);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.gcpage-social-title {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.gcpage-social-description {
+  margin: 0;
+  color: var(--body-quiet-color, #666);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.gcpage-social-url {
+  color: var(--body-quiet-color, #888);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.gcpage-save-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 1180px) {
+  .gcpage-checks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gcpage-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gcpage-editor-side {
+    position: static;
+  }
+}
+
+@media (max-width: 820px) {
+  .gcpage-filter-form,
+  .gcpage-bulk-bar,
+  .gcpage-form-grid {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .gcpage-bulk-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gcpage-bulk-controls,
+  .gcpage-save-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gcpage-bulk-controls select {
+    width: 100%;
+  }
+
+  .gcpage-checks {
+    grid-template-columns: 1fr;
+  }
+}

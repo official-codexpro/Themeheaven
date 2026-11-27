@@ -47,11 +47,20 @@ class CoreConfig(AppConfig):
                 'view_only': True,
             }
 
+        def page_seo_entry():
+            return {
+                'name': 'Page SEO',
+                'object_name': 'pageseo',
+                'admin_url': reverse('admin:growth-center-page-seo'),
+                'add_url': None,
+                'view_only': True,
+            }
+
         def add_growth_center(apps, user):
             if not getattr(user, 'is_staff', False):
                 return
             try:
-                entries = [growth_center_entry(), seo_settings_entry()]
+                entries = [growth_center_entry(), seo_settings_entry(), page_seo_entry()]
             except NoReverseMatch:
                 return
             for app in apps:
@@ -142,7 +151,7 @@ class CoreConfig(AppConfig):
             return apps
 
         def system_settings_get_urls(self):
-            from growth_center.views import analytics_dashboard, seo_settings_dashboard
+            from growth_center.views import analytics_dashboard, page_seo_dashboard, page_seo_editor, seo_settings_dashboard
 
             from .settings_views import settings_category, settings_index
 
@@ -154,12 +163,22 @@ class CoreConfig(AppConfig):
                     self.admin_view(analytics_dashboard),
                     name='growth-center-analytics',
                 ),
-                path(
-                    'growth-center/seo-settings/',
-                    self.admin_view(seo_settings_dashboard),
-                    name='growth-center-seo-settings',
-                ),
-            ]
+                    path(
+                        'growth-center/seo-settings/',
+                        self.admin_view(seo_settings_dashboard),
+                        name='growth-center-seo-settings',
+                    ),
+                    path(
+                        'growth-center/page-seo/',
+                        self.admin_view(page_seo_dashboard),
+                        name='growth-center-page-seo',
+                    ),
+                    path(
+                        'growth-center/page-seo/<path:page_key>/',
+                        self.admin_view(page_seo_editor),
+                        name='growth-center-page-seo-edit',
+                    ),
+                ]
             return custom_urls + original_get_urls(self)
 
         AdminSite.each_context = branded_each_context

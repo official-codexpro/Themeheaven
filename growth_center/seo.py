@@ -91,7 +91,7 @@ def is_public_canonical_path(path):
 
 def build_canonical_url(request, path=None, instance=None):
     instance = instance or get_seo_settings()
-    target_path = normalize_path(path if path is not None else request.path_info)
+    target_path = normalize_path(path if path is not None else getattr(request, 'path_info', '/'))
     if not is_public_canonical_path(target_path):
         return ''
     target_path = normalize_path(target_path, instance.trailing_slash_behavior)
@@ -131,7 +131,7 @@ def build_seo_context(request):
     token = sanitized_verification_token(instance)
     image = absolute_url(instance.default_image.url, request, instance) if instance.default_image else ''
 
-    return {
+    context = {
         'title': title,
         'description': description,
         'keywords': sanitize_text(instance.meta_keywords, 500),
@@ -142,3 +142,8 @@ def build_seo_context(request):
         'google_verification_token': token,
         'index_enabled': instance.index_enabled,
     }
+
+    from .page_seo import build_page_seo_context
+
+    context.update(build_page_seo_context(request, context, instance))
+    return context

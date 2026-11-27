@@ -800,6 +800,7 @@ class CoreAdminMenuTests(TestCase):
             ('products', 'wordpresstheme'): 'wordpress',
             ('growth_center', 'analytics'): 'bar-chart',
             ('growth_center', 'seosettings'): 'search',
+            ('growth_center', 'pageseo'): 'file-search',
         }
         request = RequestFactory().get('/admin/')
         request.user = self.user

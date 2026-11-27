@@ -1,6 +1,8 @@
 import io
+import json
 import os
 import re
+from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
 
@@ -96,6 +98,50 @@ def robots_txt_warnings(value):
         if target in {'/static/', '/static', '/css/', '/js/', '/assets/'}:
             warnings.append('The rule blocks CSS, JavaScript, or static assets used for rendering.')
     return list(dict.fromkeys(warnings))
+
+
+def is_valid_canonical_url(value):
+    text = str(value or '').strip()
+    if not text:
+        return True
+    parsed = urlparse(text)
+    if parsed.scheme not in {'http', 'https'} or not parsed.netloc:
+        return False
+    if parsed.username or parsed.password or parsed.query or parsed.fragment:
+        return False
+    if any(character.isspace() for character in text):
+        return False
+    return True
+
+
+def validate_jsonld(value):
+    text = str(value or '').strip()
+    if not text:
+        return ''
+    if len(text) > 20000:
+        raise ValidationError('Structured data must be 20,000 characters or fewer.')
+    try:
+        payload = json.loads(text)
+    except (TypeError, ValueError):
+        raise ValidationError('Enter valid JSON for the structured data.')
+    if not isinstance(payload, (dict, list)):
+        raise ValidationError('Structured data must be a JSON object or array.')
+    return text
+
+
+def sanitize_jsonld(value):
+    text = validate_jsonld(value)
+    if not text:
+        return ''
+    payload = json.loads(text)
+    return (
+        json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
+        .replace('<', '\\u003c')
+        .replace('>', '\\u003e')
+        .replace('&', '\\u0026')
+        .replace('\u2028', '\\u2028')
+        .replace('\u2029', '\\u2029')
+    )
 
 
 def make_test_image(size=(8, 8), image_format='PNG'):

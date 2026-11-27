@@ -2,6 +2,7 @@ import os
 import uuid
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from .validators import SAFE_ROBOTS_TXT, validate_seo_image
@@ -10,6 +11,11 @@ from .validators import SAFE_ROBOTS_TXT, validate_seo_image
 def seo_image_path(instance, filename):
     extension = os.path.splitext(filename.lower())[1]
     return f'seo/default-{uuid.uuid4().hex}{extension}'
+
+
+def page_seo_image_path(instance, filename):
+    extension = os.path.splitext(filename.lower())[1]
+    return f'seo/pages/{uuid.uuid4().hex}{extension}'
 
 
 class Visitor(models.Model):
@@ -147,3 +153,104 @@ class SEOSettings(models.Model):
 
         clear_seo_settings_cache()
         return 0, {}
+
+
+class PageSEO(models.Model):
+    INDEX_CHOICES = (
+        ('inherit', 'Inherit Global Setting'),
+        ('index', 'Index'),
+        ('noindex', 'Noindex'),
+    )
+    FOLLOW_CHOICES = (
+        ('inherit', 'Inherit Global Setting'),
+        ('follow', 'Follow'),
+        ('nofollow', 'Nofollow'),
+    )
+    SCHEMA_MODE_CHOICES = (
+        ('inherit', 'Inherit default behavior'),
+        ('disabled', 'Disable page schema'),
+        ('generated', 'Generate from real page data'),
+        ('custom', 'Custom JSON-LD'),
+    )
+    SCHEMA_TYPE_CHOICES = (
+        ('webpage', 'WebPage'),
+        ('article', 'Article'),
+        ('product', 'Product'),
+        ('organization', 'Organization'),
+        ('breadcrumblist', 'BreadcrumbList'),
+        ('faqpage', 'FAQPage'),
+    )
+
+    page_key = models.CharField(max_length=220, unique=True)
+    seo_title = models.CharField(max_length=120, blank=True)
+    meta_description = models.TextField(max_length=320, blank=True)
+    og_title = models.CharField(max_length=120, blank=True)
+    og_description = models.TextField(max_length=320, blank=True)
+    og_image_alt = models.CharField(max_length=160, blank=True)
+    og_image = models.ImageField(upload_to=page_seo_image_path, validators=[validate_seo_image], blank=True)
+    canonical_override = models.CharField(max_length=500, blank=True)
+    index_mode = models.CharField(max_length=10, choices=INDEX_CHOICES, default='inherit')
+    follow_mode = models.CharField(max_length=10, choices=FOLLOW_CHOICES, default='inherit')
+    schema_mode = models.CharField(max_length=12, choices=SCHEMA_MODE_CHOICES, default='inherit')
+    schema_type = models.CharField(max_length=16, choices=SCHEMA_TYPE_CHOICES, default='webpage')
+    schema_json = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('page_key',)
+        indexes = [
+            models.Index(fields=['index_mode']),
+            models.Index(fields=['schema_mode']),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(index_mode__in=['inherit', 'index', 'noindex']),
+                name='pageseo_valid_index_mode',
+            ),
+            models.CheckConstraint(
+                condition=Q(follow_mode__in=['inherit', 'follow', 'nofollow']),
+                name='pageseo_valid_follow_mode',
+            ),
+            models.CheckConstraint(
+                condition=Q(schema_mode__in=['inherit', 'disabled', 'generated', 'custom']),
+                name='pageseo_valid_schema_mode',
+            ),
+        ]
+
+    def __str__(self):
+        return f'Page SEO: {self.page_key}'
+
+    @property
+    def is_configured(self):
+        return bool(
+            self.seo_title
+            or self.meta_description
+            or self.og_title
+            or self.og_description
+            or self.og_image
+            or self.canonical_override
+            or self.index_mode != 'inherit'
+            or self.follow_mode != 'inherit'
+            or self.schema_mode != 'inherit'
+        )
+
+    def save(self, *args, **kwargs):
+        from .page_seo_cache import clear_page_seo_cache
+
+        if self.pk:
+            previous = type(self).objects.filter(pk=self.pk).first()
+            if previous and previous.og_image and previous.og_image.name != self.og_image.name:
+                previous.og_image.delete(save=False)
+        super().save(*args, **kwargs)
+        clear_page_seo_cache(self.page_key)
+
+    def delete(self, *args, **kwargs):
+        from .page_seo_cache import clear_page_seo_cache
+
+        key = self.page_key
+        if self.og_image:
+            self.og_image.delete(save=False)
+        result = super().delete(*args, **kwargs)
+        clear_page_seo_cache(key)
+        return result

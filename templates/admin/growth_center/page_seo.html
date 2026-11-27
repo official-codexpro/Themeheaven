@@ -1,0 +1,122 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_page_seo.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gc-shell gcpage-shell" id="page-seo-dashboard">
+    <div class="gc-header">
+      <div>
+        <p class="gc-eyebrow">Growth Center</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">{{ subtitle }}</p>
+      </div>
+      <div class="gcpage-header-stats">
+        <span><strong>{{ total_pages }}</strong> pages</span>
+        <span><strong>{{ configured_count }}</strong> configured</span>
+        <span><strong>{{ noindex_count }}</strong> noindex</span>
+      </div>
+    </div>
+
+    <section class="gc-card gcpage-filter-card">
+      <form method="get" class="gcpage-filter-form">
+        <label class="gcpage-search">
+          <span class="gcpage-visually-hidden">Search pages</span>
+          <input type="search" name="q" value="{{ query }}" placeholder="Search by page title or URL/path" aria-label="Search by page title or URL/path">
+        </label>
+        <label class="gcpage-filter-select">
+          <span class="gcpage-visually-hidden">Filter pages</span>
+          <select name="filter" aria-label="Filter pages">
+            {% for key, label in filters %}
+              <option value="{{ key }}" {% if key == filter_key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="gcpage-button gcpage-button-secondary">Apply</button>
+      </form>
+    </section>
+
+    <form method="post" class="gcpage-bulk-form" data-bulk-form>
+      {% csrf_token %}
+      <section class="gc-card gcpage-bulk-bar">
+        <div>
+          <strong>Bulk indexing actions</strong>
+          <p>These changes affect search visibility. Confirmation is required.</p>
+        </div>
+        <div class="gcpage-bulk-controls">
+          <select name="bulk_action" aria-label="Bulk action">
+            {% for key, label in bulk_actions.items %}
+              <option value="{{ key }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label class="gcpage-check"><input type="checkbox" name="confirm" value="1" data-bulk-confirm> Confirm visibility change</label>
+          <button type="submit" class="gcpage-button" data-bulk-submit disabled>Apply to selected</button>
+        </div>
+      </section>
+
+      <section class="gc-card gcpage-table-card">
+        <div class="gcpage-table-wrap">
+          <table class="gcpage-table">
+            <thead>
+              <tr>
+                <th scope="col" class="gcpage-check-cell"><span class="gcpage-visually-hidden">Select</span></th>
+                <th scope="col">Page name/title</th>
+                <th scope="col">URL/path</th>
+                <th scope="col">SEO title</th>
+                <th scope="col">Meta description</th>
+                <th scope="col">Indexing</th>
+                <th scope="col">SEO image</th>
+                <th scope="col">Canonical</th>
+                <th scope="col">Configuration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for status in page_obj %}
+                <tr>
+                  <td class="gcpage-check-cell"><input type="checkbox" name="page_keys" value="{{ status.page.key }}" data-page-select aria-label="Select {{ status.page.title }}"></td>
+                  <td>
+                    <a class="gcpage-page-link" href="{% url 'admin:growth-center-page-seo-edit' status.page.key %}">{{ status.page.title }}</a>
+                    <span class="gcpage-cell-note">{{ status.page.source_label }}</span>
+                  </td>
+                  <td><code>{{ status.page.path }}</code></td>
+                  <td><span class="gcpage-badge gcpage-badge-{{ status.title_status }}">{{ status.title_status|title }}</span></td>
+                  <td><span class="gcpage-badge gcpage-badge-{{ status.description_status }}">{{ status.description_status|title }}</span></td>
+                  <td><span class="gcpage-badge gcpage-badge-{{ status.index_status }}">{{ status.index_status|title }}</span></td>
+                  <td><span class="gcpage-badge gcpage-badge-{{ status.image_status }}">{{ status.image_status|title }}</span></td>
+                  <td><span class="gcpage-badge gcpage-badge-{{ status.canonical_status }}">{{ status.canonical_status|title }}</span></td>
+                  <td>
+                    <span class="gcpage-badge gcpage-badge-{% if status.configured %}good{% else %}missing{% endif %}">{% if status.configured %}Configured{% else %}Missing SEO{% endif %}</span>
+                    <span class="gcpage-cell-note">{{ status.completeness }}% completeness</span>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="9" class="gcpage-empty">No pages match the current search or filter.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </form>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="gcpage-pagination" aria-label="Page SEO pagination">
+        {% if page_obj.has_previous %}
+          <a href="?q={{ query }}&filter={{ filter_key }}&page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a href="?q={{ query }}&filter={{ filter_key }}&page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extrabody %}
+  {{ block.super }}
+  <script src="{% static 'js/growth_page_seo.js' %}"></script>
+{% endblock %}

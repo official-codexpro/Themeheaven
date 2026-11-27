@@ -1,0 +1,257 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_seo.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_page_seo.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gc-shell gcpage-shell" id="page-seo-editor" data-page-editor data-dirty-label="You have unsaved changes.">
+    <div class="gc-header">
+      <div>
+        <p class="gc-eyebrow"><a href="{% url 'admin:growth-center-page-seo' %}">Page SEO</a> / {{ page.source_label }}</p>
+        <h1>{{ page.title }}</h1>
+        <p class="gc-summary">{{ subtitle }}</p>
+        <p class="gcpage-path"><code>{{ page.path }}</code></p>
+      </div>
+      <div class="gcseo-save-state" data-dirty-state hidden>Unsaved changes</div>
+    </div>
+
+    {{ seo_config|json_script:"page-seo-config" }}
+
+    <section class="gc-card gcpage-status-card">
+      <div class="gc-card-heading">
+        <div>
+          <h2>SEO Status / Health Indicators</h2>
+          <p>Configuration completeness only — not a ranking score.</p>
+        </div>
+        <div class="gcseo-readiness">
+          <strong>{{ status.completeness }}%</strong>
+          <span>configuration completeness</span>
+        </div>
+      </div>
+      <div class="gcseo-checks gcpage-checks">
+        {% for check in status.checks %}
+          <div class="gcseo-check gcseo-status-{{ check.status }}">
+            <span class="gcseo-status-dot"></span>
+            <div>
+              <strong>{{ check.label }}</strong>
+              <span>{{ check.status|title }}</span>
+              <p>{{ check.detail }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if form.non_field_errors %}
+      <div class="gcseo-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" data-page-form>
+      {% csrf_token %}
+      <div class="gcpage-editor-grid">
+        <div class="gcpage-editor-main">
+          <section class="gc-card gcpage-card" id="section-metadata">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Search Engine Metadata</h2>
+                <p>The SEO title is independent from the visible page title.</p>
+              </div>
+              <span class="gcpage-badge gcpage-badge-{{ status.title_status }}" data-page-source="title">{% if status.title_status == 'custom' %}Custom title{% else %}Inherited title{% endif %}</span>
+            </div>
+            <div class="gcpage-form-grid">
+              <div class="gcpage-field">
+                <label for="{{ form.seo_title.id_for_label }}">SEO title</label>
+                {{ form.seo_title }}
+                {{ form.seo_title.errors }}
+                <div class="gcseo-counter" data-page-counter-for="title"><span data-page-count="title">{{ form.seo_title.value|default:''|length }}</span> / 60 recommended</div>
+                <p class="gcseo-help">{{ form.seo_title.help_text }}</p>
+              </div>
+              <div class="gcpage-field">
+                <label for="{{ form.meta_description.id_for_label }}">Meta description</label>
+                {{ form.meta_description }}
+                {{ form.meta_description.errors }}
+                <div class="gcseo-counter" data-page-counter-for="description"><span data-page-count="description">{{ form.meta_description.value|default:''|length }}</span> / 160 recommended</div>
+                <p class="gcseo-help">{{ form.meta_description.help_text }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="gc-card gcpage-card" id="section-social">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Social Sharing</h2>
+                <p>Open Graph and Twitter/X metadata for shared links.</p>
+              </div>
+              <span class="gcpage-badge gcpage-badge-{{ status.image_status }}" data-page-source="image">{% if status.image_status == 'custom' %}Custom image{% else %}Inherited image{% endif %}</span>
+            </div>
+            <div class="gcpage-form-grid">
+              <div class="gcpage-field">
+                <label for="{{ form.og_title.id_for_label }}">OG title</label>
+                {{ form.og_title }}
+                {{ form.og_title.errors }}
+                <p class="gcseo-help">{{ form.og_title.help_text }}</p>
+              </div>
+              <div class="gcpage-field">
+                <label for="{{ form.og_image_alt.id_for_label }}">OG image alt text</label>
+                {{ form.og_image_alt }}
+                {{ form.og_image_alt.errors }}
+                <p class="gcseo-help">{{ form.og_image_alt.help_text }}</p>
+              </div>
+              <div class="gcpage-field gcpage-field-wide">
+                <label for="{{ form.og_description.id_for_label }}">OG description</label>
+                {{ form.og_description }}
+                {{ form.og_description.errors }}
+                <p class="gcseo-help">{{ form.og_description.help_text }}</p>
+              </div>
+              <div class="gcpage-field gcpage-field-wide">
+                <label for="{{ form.og_image.id_for_label }}">Custom social image</label>
+                {{ form.og_image }}
+                {{ form.og_image.errors }}
+                <label class="gcpage-check"><input type="checkbox" name="remove_og_image" id="id_remove_og_image" {% if form.remove_og_image.value %}checked{% endif %} data-page-remove-image> {{ form.remove_og_image.label }}</label>
+                <p class="gcseo-help">{{ form.og_image.help_text }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="gc-card gcpage-card" id="section-indexing">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Indexing</h2>
+                <p>Inheritance uses the existing Global SEO Settings.</p>
+              </div>
+              <span class="gcpage-badge gcpage-badge-{{ status.index_status }}">{{ status.robots }}</span>
+            </div>
+            <div class="gcpage-form-grid">
+              <div class="gcpage-field">
+                <label for="{{ form.index_mode.id_for_label }}">Indexing</label>
+                {{ form.index_mode }}
+                {{ form.index_mode.errors }}
+                <p class="gcseo-help">{{ form.index_mode.help_text }}</p>
+              </div>
+              <div class="gcpage-field">
+                <label for="{{ form.follow_mode.id_for_label }}">Link following</label>
+                {{ form.follow_mode }}
+                {{ form.follow_mode.errors }}
+                <p class="gcseo-help">{{ form.follow_mode.help_text }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="gc-card gcpage-card" id="section-canonical">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Canonical URL</h2>
+                <p>Canonical tags are metadata only and do not redirect visitors.</p>
+              </div>
+              <span class="gcpage-badge gcpage-badge-{{ status.canonical_status }}">{{ status.canonical_status|title }}</span>
+            </div>
+            <div class="gcpage-form-grid">
+              <div class="gcpage-field gcpage-field-wide">
+                <label>Generated default canonical</label>
+                <div class="gcpage-generated" data-generated-canonical>{{ generated_canonical }}</div>
+              </div>
+              <div class="gcpage-field gcpage-field-wide">
+                <label for="{{ form.canonical_override.id_for_label }}">Custom canonical override</label>
+                {{ form.canonical_override }}
+                {{ form.canonical_override.errors }}
+                <label class="gcpage-check"><input type="checkbox" name="reset_canonical" value="1" data-reset-canonical> Reset and use automatic generation</label>
+                <p class="gcseo-help">{{ form.canonical_override.help_text }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="gc-card gcpage-card" id="section-schema">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Structured Data</h2>
+                <p>Generated schema uses only real page data. Custom JSON-LD is validated before saving.</p>
+              </div>
+              <span class="gcpage-badge gcpage-badge-{{ status.schema_status }}">{{ status.schema_status|title }}</span>
+            </div>
+            <div class="gcpage-form-grid">
+              <div class="gcpage-field">
+                <label for="{{ form.schema_mode.id_for_label }}">Schema mode</label>
+                {{ form.schema_mode }}
+                {{ form.schema_mode.errors }}
+                <p class="gcseo-help">{{ form.schema_mode.help_text }}</p>
+              </div>
+              <div class="gcpage-field">
+                <label for="{{ form.schema_type.id_for_label }}">Schema type</label>
+                {{ form.schema_type }}
+                {{ form.schema_type.errors }}
+                <p class="gcseo-help">{{ form.schema_type.help_text }}</p>
+              </div>
+              <div class="gcpage-field gcpage-field-wide">
+                <label for="{{ form.schema_json.id_for_label }}">Custom JSON-LD</label>
+                {{ form.schema_json }}
+                {{ form.schema_json.errors }}
+                <p class="gcseo-help">{{ form.schema_json.help_text }}</p>
+              </div>
+              <div class="gcpage-field gcpage-field-wide">
+                <label>Resulting JSON-LD preview</label>
+                <pre class="gcpage-schema-preview" data-schema-preview>{}</pre>
+                <p class="gcpage-schema-error" data-schema-error hidden></p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="gcpage-editor-side">
+          <section class="gc-card gcpage-card">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Google Search Preview</h2>
+                <p>Live illustration. Google may display results differently.</p>
+              </div>
+            </div>
+            <div class="gcseo-google-preview">
+              <div class="gcseo-google-url" data-search-url>{{ generated_canonical }}</div>
+              <div class="gcseo-google-title" data-search-title>{{ seo.title }}</div>
+              <div class="gcseo-google-description" data-search-description>{{ seo.description }}</div>
+            </div>
+            <div class="gcpage-preview-flags">
+              <span class="gcpage-badge gcpage-badge-{{ status.title_status }}" data-page-source="title">{% if status.title_status == 'custom' %}Custom title{% else %}Inherited title{% endif %}</span>
+              <span class="gcpage-badge gcpage-badge-{{ status.description_status }}" data-page-source="description">{% if status.description_status == 'custom' %}Custom description{% else %}Inherited description{% endif %}</span>
+            </div>
+          </section>
+
+          <section class="gc-card gcpage-card">
+            <div class="gc-card-heading">
+              <div>
+                <h2>Social Sharing Preview</h2>
+                <p>Approximate card appearance for shared links.</p>
+              </div>
+            </div>
+            <div class="gcpage-social-card">
+              <div class="gcpage-social-image">
+                <img data-social-image src="{% if instance.og_image %}{{ instance.og_image.url }}{% elif default_image %}{{ default_image }}{% endif %}" alt="Social sharing preview" data-has-image="{% if instance.og_image or default_image %}true{% else %}false{% endif %}" {% if not instance.og_image and not default_image %}hidden{% endif %}>
+                <span data-social-placeholder {% if instance.og_image or default_image %}hidden{% endif %}>No image configured</span>
+              </div>
+              <div class="gcpage-social-body">
+                <span class="gcpage-social-site" data-social-site>{{ seo.site_name|default:'ThemeHaven' }}</span>
+                <strong class="gcpage-social-title" data-social-title>{{ seo.og_title|default:seo.title }}</strong>
+                <p class="gcpage-social-description" data-social-description>{{ seo.og_description|default:seo.description }}</p>
+                <span class="gcpage-social-url" data-social-url>{{ seo.og_url|default:generated_canonical }}</span>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div class="gcpage-save-bar">
+        <a class="gcpage-button gcpage-button-secondary" href="{% url 'admin:growth-center-page-seo' %}">Back to Page SEO</a>
+        <button type="submit" class="gcpage-button">Save page SEO</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block extrabody %}
+  {{ block.super }}
+  <script src="{% static 'js/growth_page_seo.js' %}"></script>
+{% endblock %}
