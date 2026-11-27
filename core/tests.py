@@ -781,3 +781,59 @@ class CoreAdminMenuTests(TestCase):
         self.assertEqual(AppearanceSettings._meta.verbose_name_plural, 'Appearance & Theme Settings')
         self.assertEqual(ErrorPageSettings._meta.verbose_name, '404 Error Page Settings')
         self.assertEqual(ErrorPageSettings._meta.verbose_name_plural, '404 Error Page Settings')
+
+    def test_every_sidebar_section_and_item_has_expected_icon(self):
+        expected_apps = {
+            'auth': 'shield',
+            'core': 'settings',
+            'products': 'package',
+            'growth_center': 'trending-up',
+        }
+        expected_models = {
+            ('auth', 'group'): 'users',
+            ('auth', 'user'): 'user',
+            ('core', 'errorpagesettings'): 'route',
+            ('core', 'appearancesettings'): 'palette',
+            ('core', 'systemsettings'): 'sliders',
+            ('core', 'footersettings'): 'panel-bottom',
+            ('products', 'exceldashboard'): 'excel',
+            ('products', 'wordpresstheme'): 'wordpress',
+            ('growth_center', 'analytics'): 'bar-chart',
+            ('growth_center', 'seosettings'): 'search',
+        }
+        request = RequestFactory().get('/admin/')
+        request.user = self.user
+
+        apps = admin.site.get_app_list(request)
+        self.assertTrue(apps)
+        for app in apps:
+            self.assertEqual(app['icon_name'], expected_apps[app['app_label']])
+            self.assertIn('<svg class="admin-menu-icon', app['icon_svg'])
+            for model in app['models']:
+                key = (app['app_label'], model['object_name'].lower())
+                self.assertEqual(model['icon_name'], expected_models[key])
+                self.assertIn('<svg class="admin-menu-icon', model['icon_svg'])
+
+    def test_sidebar_renders_exactly_one_icon_per_section_and_item(self):
+        request = RequestFactory().get('/admin/')
+        request.user = self.user
+        apps = admin.site.get_app_list(request)
+        expected = sum(1 + len(app['models']) for app in apps)
+
+        html = self.client.get(reverse('admin:system-settings-index')).content.decode()
+        nav = html.split('<nav class="sticky" id="nav-sidebar"', 1)[1].split('</nav>', 1)[0]
+        self.assertEqual(nav.count('class="admin-menu-icon'), expected)
+        self.assertIn('admin-menu-icon-excel', nav)
+        self.assertIn('admin-menu-icon-wordpress', nav)
+
+    def test_unknown_admin_items_get_fallback_icon(self):
+        from core.admin_icons import apply_admin_icons
+
+        apps = apply_admin_icons([{
+            'app_label': 'unknown_app',
+            'name': 'Unknown App',
+            'app_url': '/admin/unknown/',
+            'models': [{'object_name': 'Mystery', 'name': 'Mystery', 'admin_url': '/admin/unknown/mystery/'}],
+        }])
+        self.assertEqual(apps[0]['icon_name'], 'layout-grid')
+        self.assertEqual(apps[0]['models'][0]['icon_name'], 'layout-grid')

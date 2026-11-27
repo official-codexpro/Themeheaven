@@ -1,0 +1,42 @@
+.module table caption a.section,
+.module table th[scope="row"] > a:first-child {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.admin-menu-icon {
+  display: inline-block;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  color: currentColor;
+  opacity: 0.72;
+}
+
+.admin-menu-icon-brand {
+  opacity: 0.88;
+}
+
+.current-app > table > caption a.section > .admin-menu-icon:not(.admin-menu-icon-brand),
+.current-model .admin-menu-icon:not(.admin-menu-icon-brand) {
+  color: var(--primary, currentColor);
+  opacity: 1;
+}
+
+.current-app > table > caption a.section > .admin-menu-icon-brand,
+.current-model .admin-menu-icon-brand {
+  opacity: 1;
+  filter: saturate(1.08);
+}
+
+@media (max-width: 768px) {
+  .admin-menu-icon {
+    flex-basis: 15px;
+    width: 15px;
+    height: 15px;
+    margin-right: 6px;
+  }
+}

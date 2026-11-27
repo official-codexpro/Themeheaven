@@ -1,5 +1,7 @@
 from django.apps import AppConfig
 
+from .admin_icons import apply_admin_icons
+
 
 class CoreConfig(AppConfig):
     name = 'core'
@@ -102,6 +104,7 @@ class CoreConfig(AppConfig):
 
                 normalize_core_menu(context.get('available_apps', []))
                 add_growth_center(context.get('available_apps', []), request.user)
+                apply_admin_icons(context.get('available_apps', []))
 
                 if not getattr(request.user, 'is_superuser', False):
                     return context
@@ -113,6 +116,7 @@ class CoreConfig(AppConfig):
                             app['models'].insert(0, entry)
                         break
                 normalize_core_menu(context.get('available_apps', []))
+                apply_admin_icons(context.get('available_apps', []))
             except (NoReverseMatch, OperationalError, ProgrammingError):
                 pass
             return context
@@ -121,6 +125,7 @@ class CoreConfig(AppConfig):
             apps = original_get_app_list(self, request, app_label)
             normalize_core_menu(apps)
             add_growth_center(apps, request.user)
+            apply_admin_icons(apps)
             if not getattr(request.user, 'is_superuser', False):
                 return apps
             try:
@@ -131,6 +136,7 @@ class CoreConfig(AppConfig):
                             app['models'].insert(0, entry)
                         break
                 normalize_core_menu(apps)
+                apply_admin_icons(apps)
             except NoReverseMatch:
                 pass
             return apps
