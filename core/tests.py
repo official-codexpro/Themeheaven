@@ -387,6 +387,11 @@ class AppearanceFrontendTests(TestCase):
 
 
 class AppearanceAdminTests(TestCase):
+    def test_admin_branding(self):
+        response = self.client.get('/admin/login/')
+        self.assertContains(response, 'themehaven.in')
+        self.assertNotContains(response, 'Django administration')
+
     def test_admin_only_allows_one_record(self):
         settings_obj = AppearanceSettings.load()
         model_admin = AppearanceSettingsAdmin(AppearanceSettings, admin.site)
