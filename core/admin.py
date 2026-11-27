@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib import admin
+from django.utils.html import format_html
 
-from .models import AppearanceSettings, FooterSettings
+from .models import AppearanceSettings, ErrorPageSettings, FooterSettings
 
 COLOR_FIELDS = (
     'dark_bg_primary', 'dark_bg_secondary', 'dark_bg_card', 'dark_header_bg',
@@ -209,6 +210,46 @@ class AppearanceSettingsAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not AppearanceSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ErrorPageSettings)
+class ErrorPageSettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'heading', 'background_color')
+    readonly_fields = ('gif_preview',)
+    fieldsets = (
+        ('404 Page Content', {
+            'fields': ('heading', 'message', 'supporting_message'),
+            'description': 'Leave a text field empty to use its default wording on the error page.',
+        }),
+        ('Visual Settings', {
+            'fields': ('gif', 'gif_preview', 'background_color'),
+            'description': 'Uploaded GIFs keep their animation. The background color uses a hex picker.',
+        }),
+    )
+
+    def gif_preview(self, obj):
+        if not obj or not obj.gif:
+            return 'No GIF uploaded yet.'
+        return format_html(
+            '<img src="{}" alt="Current 404 GIF preview" style="max-width:320px;max-height:240px;'
+            'border:1px solid #d9cdf0;border-radius:10px;display:block;margin-top:8px;">',
+            obj.gif.url,
+        )
+
+    gif_preview.short_description = 'Current GIF Preview'
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'background_color':
+            kwargs['widget'] = forms.TextInput(attrs={'type': 'color'})
+        elif db_field.name == 'supporting_message':
+            kwargs['widget'] = forms.Textarea(attrs={'rows': 3})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    def has_add_permission(self, request):
+        return not ErrorPageSettings.objects.exists()
 
     def has_delete_permission(self, request, obj=None):
         return False

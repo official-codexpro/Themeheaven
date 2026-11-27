@@ -3,6 +3,8 @@ from django.shortcuts import render
 from products.catalogue import PAGE_SIZE, visible_products
 from products.models import ExcelDashboard, WordPressTheme
 
+from .models import ErrorPageSettings
+
 
 def home(request):
     query = (request.GET.get('q') or '').strip()
@@ -27,6 +29,11 @@ def home(request):
 
 def support(request):
     return render(request, 'core/support.html')
+
+
+def custom_404(request, exception):
+    error_page = ErrorPageSettings.load()
+    return render(request, '404.html', {'error_page': error_page}, status=404)
 
 
 POLICIES = {

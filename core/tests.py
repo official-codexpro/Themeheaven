@@ -1,17 +1,19 @@
 import tempfile
 
+import io
+
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.template.loader import get_template
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
-from core.admin import AppearanceSettingsAdmin
+from core.admin import AppearanceSettingsAdmin, ErrorPageSettingsAdmin
 from core.context_processors import footer_links
-from core.models import AppearanceSettings, FooterSettings
+from core.models import AppearanceSettings, ErrorPageSettings, FooterSettings, clear_error_page_settings_cache
 from core.storage import appearance_svg_storage, whatsapp_svg_storage
 from core.svg_sanitizer import sanitize_svg
 from core.validators import validate_hex_color, validate_svg_upload, validate_whatsapp_phone
@@ -482,3 +484,91 @@ class AppearanceAdminTests(TestCase):
             whatsapp_svg_storage.location = original_whatsapp_location
             appearance_root.cleanup()
             whatsapp_root.cleanup()
+
+
+class ErrorPageTests(TestCase):
+    def setUp(self):
+        clear_error_page_settings_cache()
+
+    def tearDown(self):
+        clear_error_page_settings_cache()
+
+    def _missing_page(self):
+        with override_settings(DEBUG=False):
+            return self.client.get('/this-page-does-not-exist/')
+
+    def test_custom_404_uses_defaults(self):
+        response = self._missing_page()
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, '404.html')
+        html = response.content.decode()
+        self.assertIn('--page-bg: #ffffff', html)
+        self.assertIn('Oops! This page seems to have wandered off.', html)
+        self.assertIn("The page you&#x27;re looking for doesn&#x27;t exist or may have been moved.", html)
+        self.assertIn('href="/"', html)
+        self.assertNotIn('Django tried these URL patterns', html)
+
+    def test_admin_settings_are_reflected_on_404_page(self):
+        settings_obj = ErrorPageSettings.load()
+        settings_obj.background_color = '#fff4e6'
+        settings_obj.heading = 'Lost?'
+        settings_obj.message = 'That link went missing.'
+        settings_obj.supporting_message = 'Try the homepage instead.'
+        settings_obj.save()
+
+        html = self._missing_page().content.decode()
+        self.assertIn('--page-bg: #fff4e6', html)
+        self.assertIn('<h1>Lost?</h1>', html)
+        self.assertIn('That link went missing.', html)
+        self.assertIn('Try the homepage instead.', html)
+
+    def test_settings_are_singleton(self):
+        settings_obj = ErrorPageSettings.load()
+        settings_obj.save()
+        self.assertEqual(ErrorPageSettings.objects.count(), 1)
+        model_admin = ErrorPageSettingsAdmin(ErrorPageSettings, admin.site)
+        request = RequestFactory().get('/admin/')
+        self.assertFalse(model_admin.has_add_permission(request))
+        self.assertFalse(model_admin.has_delete_permission(request, settings_obj))
+
+    def test_gif_upload_is_stored_and_rendered(self):
+        media_root = tempfile.TemporaryDirectory()
+        with override_settings(MEDIA_ROOT=media_root.name):
+            try:
+                from PIL import Image
+
+                buffer = io.BytesIO()
+                Image.new('RGB', (80, 60), (110, 70, 190)).save(buffer, format='GIF')
+                settings_obj = ErrorPageSettings.load()
+                settings_obj.gif = SimpleUploadedFile('loader.gif', buffer.getvalue(), content_type='image/gif')
+                settings_obj.save()
+
+                settings_obj = ErrorPageSettings.objects.get(pk=1)
+                self.assertIn('error_pages/404/', settings_obj.gif.name)
+                self.assertTrue(settings_obj.gif.name.endswith('.gif'))
+                self.assertIn(settings_obj.gif.url, self._missing_page().content.decode())
+            finally:
+                media_root.cleanup()
+
+    def test_debug_404_page_is_unchanged(self):
+        with override_settings(DEBUG=True):
+            response = self.client.get('/this-page-does-not-exist/')
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn('Oops! This page seems to have wandered off.', response.content.decode())
+
+    def test_admin_change_page_renders_preview_and_color_picker(self):
+        ErrorPageSettings.load()
+        user = get_user_model().objects.create_superuser('admin-404', 'admin404@example.com', 'password')
+        self.client.force_login(user)
+        response = self.client.get(reverse('admin:core_errorpagesettings_change', args=[1]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Current GIF Preview')
+        self.assertContains(response, 'type="color"')
+
+    def test_handler500_remains_default(self):
+        from django.conf import settings
+
+        import config.urls
+
+        self.assertFalse(hasattr(config.urls, 'handler500'))
+        self.assertFalse((settings.BASE_DIR / 'templates' / '500.html').exists())

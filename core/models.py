@@ -6,7 +6,7 @@ from django.db import models
 
 from .storage import appearance_svg_storage, whatsapp_svg_storage
 from .svg_sanitizer import SvgValidationError, sanitize_svg
-from .validators import validate_hex_color, validate_svg_upload, validate_whatsapp_phone
+from .validators import HEX_COLOR, validate_gif_upload, validate_hex_color, validate_svg_upload, validate_whatsapp_phone
 
 DEFAULT_WHATSAPP_MESSAGE = 'Hi ThemeHaven! I need help regarding themes and templates.'
 
@@ -384,3 +384,87 @@ class AppearanceSettings(models.Model):
     def load(cls):
         obj, _created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+def error_page_gif_path(instance, filename):
+    return f'error_pages/404/{uuid.uuid4().hex}.gif'
+
+
+_error_page_settings_cache = None
+
+
+class ErrorPageSettings(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+
+    gif = models.ImageField(
+        '404 GIF',
+        upload_to=error_page_gif_path,
+        validators=[validate_gif_upload],
+        blank=True,
+        help_text='Upload a .gif file. Animation is preserved and displayed as uploaded.',
+    )
+    background_color = models.CharField(
+        '404 Background Color',
+        max_length=7,
+        default='#ffffff',
+        validators=[validate_hex_color],
+        help_text='Use a hex color such as #ffffff.',
+    )
+    heading = models.CharField('404 Heading', max_length=80, blank=True, default='404')
+    message = models.CharField(
+        '404 Message',
+        max_length=200,
+        blank=True,
+        default='Oops! This page seems to have wandered off.',
+    )
+    supporting_message = models.CharField(
+        '404 Supporting Message',
+        max_length=240,
+        blank=True,
+        default="The page you're looking for doesn't exist or may have been moved.",
+    )
+
+    class Meta:
+        verbose_name = '404 Error Page Settings'
+        verbose_name_plural = '404 Error Page Settings'
+
+    def __str__(self):
+        return '404 Error Page Settings'
+
+    @property
+    def safe_background_color(self):
+        value = (self.background_color or '').strip()
+        return value if HEX_COLOR.fullmatch(value) else '#ffffff'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        previous_file = None
+        if not self._state.adding:
+            existing = type(self).objects.filter(pk=1).first()
+            if existing and existing.gif and existing.gif.name != self.gif.name:
+                previous_file = existing.gif
+
+        super().save(*args, **kwargs)
+        clear_error_page_settings_cache()
+
+        if previous_file and previous_file.name != self.gif.name:
+            previous_file.delete(save=False)
+
+    def delete(self, *args, **kwargs):
+        if self.gif:
+            self.gif.delete(save=False)
+        clear_error_page_settings_cache()
+        return super().delete(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        global _error_page_settings_cache
+        if _error_page_settings_cache is None:
+            obj, _created = cls.objects.get_or_create(pk=1)
+            _error_page_settings_cache = obj
+        return _error_page_settings_cache
+
+
+def clear_error_page_settings_cache():
+    global _error_page_settings_cache
+    _error_page_settings_cache = None

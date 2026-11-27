@@ -21,6 +21,8 @@ from django.urls import include, path
 
 from core import views
 
+handler404 = 'core.views.custom_404'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),

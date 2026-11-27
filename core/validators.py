@@ -17,6 +17,23 @@ def validate_hex_color(value):
         raise ValidationError('Use a hex color in #RRGGBB format.')
 
 
+def validate_gif_upload(upload):
+    if os.path.splitext(upload.name.lower())[1] != '.gif':
+        raise ValidationError('Upload an animated GIF file with a .gif extension.')
+
+    try:
+        from PIL import Image
+
+        position = upload.tell()
+        with Image.open(upload) as image:
+            if image.format != 'GIF':
+                raise ValidationError('Upload a valid GIF image.')
+            image.verify()
+        upload.seek(position)
+    except (OSError, ValueError):
+        raise ValidationError('The uploaded file is not a valid GIF image.')
+
+
 def validate_whatsapp_phone(value):
     if not value:
         return
