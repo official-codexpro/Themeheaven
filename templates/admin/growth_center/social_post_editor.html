@@ -1,0 +1,111 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_social_media.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-social" class="gc-shell ga-shell gcsmm-shell gcsmm-editor-shell" data-dashboard-url="{% url 'admin:growth-center-social' %}">
+    <div class="gc-header ga-header gcsmm-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / SOCIAL MEDIA</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">Prepare platform-specific content, media, campaign tracking, and manual publishing reminders.</p>
+      </div>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-social' %}?section=posts">Back to Posts</a>
+    </div>
+
+    <form class="gcsmm-form gcsmm-post-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="gcsmm-two-column">
+        <section class="gc-card">
+          <div class="gc-card-heading"><div><h2>Post Details</h2><p>Internal copy and workflow state.</p></div></div>
+          <div class="gcsmm-form-grid">
+            <label class="gcsmm-field gcsmm-field-wide"><span>Internal Title *</span>{{ form.title }}{{ form.title.errors }}</label>
+            <label class="gcsmm-field"><span>Content Type</span>{{ form.content_type }}{{ form.content_type.errors }}</label>
+            <label class="gcsmm-field"><span>Status</span>{{ form.status }}{{ form.status.errors }}</label>
+            <label class="gcsmm-field"><span>Scheduled Date</span>{{ form.scheduled_date }}{{ form.scheduled_date.errors }}</label>
+            <label class="gcsmm-field"><span>Scheduled Time</span>{{ form.scheduled_time }}{{ form.scheduled_time.errors }}</label>
+            <label class="gcsmm-field gcsmm-field-wide"><span>Content *</span>{{ form.content }}{{ form.content.errors }}</label>
+            <label class="gcsmm-field gcsmm-field-wide"><span>Hashtags</span>{{ form.hashtags }}{{ form.hashtags.errors }}</label>
+            <label class="gcsmm-field gcsmm-field-wide"><span>Internal Notes</span>{{ form.notes }}{{ form.notes.errors }}</label>
+          </div>
+        </section>
+
+        <section class="gc-card">
+          <div class="gc-card-heading"><div><h2>Campaign &amp; UTM Tracking</h2><p>Links are generated with the existing campaign URL builder.</p></div></div>
+          <div class="gcsmm-form-grid">
+            <label class="gcsmm-field"><span>Campaign</span>{{ form.campaign }}{{ form.campaign.errors }}</label>
+            <label class="gcsmm-field"><span>Destination URL</span>{{ form.destination_url }}{{ form.destination_url.errors }}</label>
+            <label class="gcsmm-field"><span>UTM Source</span>{{ form.utm_source }}{{ form.utm_source.errors }}</label>
+            <label class="gcsmm-field"><span>UTM Medium</span>{{ form.utm_medium }}{{ form.utm_medium.errors }}</label>
+            <label class="gcsmm-field"><span>UTM Campaign</span>{{ form.utm_campaign }}{{ form.utm_campaign.errors }}</label>
+            <label class="gcsmm-field"><span>UTM Term</span>{{ form.utm_term }}{{ form.utm_term.errors }}</label>
+            <label class="gcsmm-field"><span>UTM Content</span>{{ form.utm_content }}{{ form.utm_content.errors }}</label>
+          </div>
+          <div class="gcsmm-tracking-preview" data-tracking-preview><code>No destination URL yet.</code></div>
+        </section>
+      </div>
+
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Platforms</h2><p>Select platforms and optionally override the copy or reminder time for each one.</p></div></div>
+        {{ form.platforms.errors }}
+        <div class="gcsmm-platform-grid">
+          {% for key, label in platforms %}
+            <label class="gcsmm-platform-option">
+              <input type="checkbox" name="platforms" value="{{ key }}" data-platform-toggle="{{ key }}" {% if key in form.platforms.value %}checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+        <div class="gcsmm-platform-panels">
+          {% for item in platform_fields %}
+            <fieldset class="gcsmm-platform-panel" data-platform-panel="{{ item.config.key }}" hidden>
+              <legend>{{ item.config.label }}</legend>
+              <p>{{ item.config.limit }} characters · {{ item.config.media }}</p>
+              {% if item.title_field %}
+                <label class="gcsmm-field"><span>Title</span>{{ item.title_field }}{{ item.title_field.errors }}</label>
+              {% endif %}
+              <label class="gcsmm-field gcsmm-field-wide"><span>Copy</span>{{ item.content_field }}{{ item.content_field.errors }}</label>
+              <label class="gcsmm-field"><span>Reminder time override</span>{{ item.time_field }}{{ item.time_field.errors }}</label>
+            </fieldset>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Media</h2><p>Select assets from the private media library.</p></div></div>
+        {{ form.media.errors }}
+        {% if media_assets %}
+          <div class="gcsmm-media-check-grid">
+            {% for item in media_assets %}
+              <label class="gcsmm-media-option">
+                <input type="checkbox" name="media" value="{{ item.asset.id }}" {% if item.asset.id in form.media.value %}checked{% endif %}>
+                {% if item.asset.media_type == 'Image' %}<img src="{{ item.preview_url }}" alt="">{% endif %}
+                <span>{{ item.asset.title }}</span>
+                <small>{{ item.asset.media_type }} · {{ item.asset.size_display }}</small>
+              </label>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="gcsmm-muted">No media uploaded yet. <a href="{% url 'admin:growth-center-social' %}?section=media">Upload media first</a>.</p>
+        {% endif %}
+      </section>
+
+      <div class="gcsmm-form-actions">
+        {{ form.workflow_action }}
+        <button type="submit" class="gc-button" data-workflow-submit="save_draft">Save Draft</button>
+        <button type="submit" class="gc-button" data-workflow-submit="mark_ready">Mark Ready</button>
+        <button type="submit" class="gc-button" data-workflow-submit="schedule">Schedule Reminder</button>
+      </div>
+    </form>
+  </div>
+  <div id="gcsmm-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_social_media.js' %}"></script>
+{% endblock %}

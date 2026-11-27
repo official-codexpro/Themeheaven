@@ -1,0 +1,57 @@
+<div class="gcsmm-two-column">
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Upload Media</h2><p>Private staff-only storage. Images up to 8 MB, videos up to 50 MB.</p></div></div>
+    <form class="gcsmm-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="media">
+      <input type="hidden" name="intent" value="upload_asset">
+      {{ asset_form.non_field_errors }}
+      <label class="gcsmm-field"><span>Title</span>{{ asset_form.title }}{{ asset_form.title.errors }}</label>
+      <label class="gcsmm-field"><span>Media type</span>{{ asset_form.media_type }}{{ asset_form.media_type.errors }}</label>
+      <label class="gcsmm-field gcsmm-field-wide"><span>File</span>{{ asset_form.file }}{{ asset_form.file.errors }}</label>
+      <label class="gcsmm-field gcsmm-field-wide"><span>Alt text</span>{{ asset_form.alt_text }}{{ asset_form.alt_text.errors }}</label>
+      <button type="submit" class="gc-button">Add to Library</button>
+    </form>
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Library</h2><p>{{ assets.paginator.count }} stored assets</p></div></div>
+    {% if assets.object_list %}
+      <div class="gcsmm-media-grid">
+        {% for asset in assets %}
+          <article class="gcsmm-media-card">
+            <div class="gcsmm-media-preview">
+              {% if asset.media_type == 'Image' %}
+                <img src="{% url 'admin:growth-center-social-media-asset-file' asset.id %}" alt="{{ asset.alt_text|default:asset.title }}">
+              {% else %}
+                <video src="{% url 'admin:growth-center-social-media-asset-file' asset.id %}" preload="metadata" controls></video>
+              {% endif %}
+            </div>
+            <div class="gcsmm-media-meta">
+              <strong>{{ asset.title }}</strong>
+              <span>{{ asset.media_type }} · {{ asset.size_display }}</span>
+              {% if asset.width and asset.height %}<span>{{ asset.width }} × {{ asset.height }}</span>{% endif %}
+              <small>{{ asset.alt_text|default:'No alt text' }}</small>
+            </div>
+            <div class="gcsmm-media-actions">
+              <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-social-media-asset-file' asset.id %}?download=1">Download</a>
+              <form method="post" action="{% url 'admin:growth-center-social-media-asset-action' asset.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="confirm" value="1">
+                <button type="submit" class="gc-button gc-danger">Delete</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      <div class="gcsmm-pagination">
+        {% if assets.has_previous %}<a class="gc-button gc-link-button" href="?section=media&media_page={{ assets.previous_page_number }}">Previous</a>{% endif %}
+        <span>Page {{ assets.number }} of {{ assets.paginator.num_pages }}</span>
+        {% if assets.has_next %}<a class="gc-button gc-link-button" href="?section=media&media_page={{ assets.next_page_number }}">Next</a>{% endif %}
+      </div>
+    {% else %}
+      <p class="gcsmm-muted">No media uploaded yet.</p>
+    {% endif %}
+  </section>
+</div>

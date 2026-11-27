@@ -1,0 +1,45 @@
+<section class="gc-card gcsmm-table-card">
+  <div class="gc-card-heading">
+    <div><h2>All Posts</h2><p>{{ posts.paginator.count }} matching posts</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-social-post-create' %}">New Post</a>
+  </div>
+
+  {% if posts.object_list %}
+    <div class="gcsmm-table-wrap">
+      <table class="gcsmm-table">
+        <thead>
+          <tr><th>Post</th><th>Platforms</th><th>Status</th><th>Scheduled</th><th>Media</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for row in posts %}
+            <tr>
+              <td>
+                <a href="{{ row.detail_url }}">{{ row.post.title }}</a>
+                <small>{{ row.post.content_preview }}</small>
+              </td>
+              <td>
+                {% for platform in row.platforms %}<span class="gcsmm-platform-badge">{{ platform.label }}</span>{% endfor %}
+              </td>
+              <td><span class="gcsmm-status gcsmm-status-{{ row.post.status|lower }}">{{ row.post.status }}</span></td>
+              <td>{% if row.scheduled_at %}{{ row.scheduled_at|date:'d M Y H:i' }}{% else %}—{% endif %}</td>
+              <td>{{ row.media_count }}</td>
+              <td><a href="{{ row.edit_url }}">Edit</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gcsmm-pagination">
+      {% if posts.has_previous %}
+        <a class="gc-button gc-link-button" href="?section=posts&page={{ posts.previous_page_number }}{% if query_params %}&{{ query_params|safe }}{% endif %}">Previous</a>
+      {% endif %}
+      <span>Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+      {% if posts.has_next %}
+        <a class="gc-button gc-link-button" href="?section=posts&page={{ posts.next_page_number }}{% if query_params %}&{{ query_params|safe }}{% endif %}">Next</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <p class="gcsmm-muted">No posts match the current filters.</p>
+  {% endif %}
+</section>

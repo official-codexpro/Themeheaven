@@ -1,11 +1,22 @@
 import os
 import uuid
+from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+
+from .social_platforms import (
+    ACCOUNT_STATUSES,
+    CONTENT_TYPES,
+    PLATFORM_CHOICES,
+    STATUSES,
+    TEMPLATE_KINDS,
+)
+from .social_storage import social_media_storage
+from .social_validators import validate_social_media
 
 from .validators import SAFE_ROBOTS_TXT, validate_seo_image
 
@@ -157,6 +168,196 @@ class Campaign(models.Model):
     def save(self, *args, **kwargs):
         if not self.campaign_key:
             self.campaign_key = f'CMP-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+
+def social_asset_path(instance, filename):
+    suffix = Path(filename).suffix.lower()
+    return f'social-media/{uuid.uuid4().hex}{suffix}'
+
+
+class SocialMediaAsset(models.Model):
+    MEDIA_TYPES = (
+        ('Image', 'Image'),
+        ('Video', 'Video'),
+    )
+
+    asset_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    title = models.CharField(max_length=150)
+    file = models.FileField(
+        upload_to=social_asset_path,
+        storage=social_media_storage,
+        validators=[validate_social_media],
+        max_length=300,
+    )
+    media_type = models.CharField(max_length=8, choices=MEDIA_TYPES, default='Image', db_index=True)
+    alt_text = models.CharField(max_length=200, blank=True)
+    mime_type = models.CharField(max_length=100, blank=True)
+    size_bytes = models.PositiveBigIntegerField(default=0)
+    width = models.PositiveIntegerField(null=True, blank=True)
+    height = models.PositiveIntegerField(null=True, blank=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='social_media_assets')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['media_type', '-created_at']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.asset_key:
+            self.asset_key = f'SMA-{uuid.uuid4().hex[:10].upper()}'
+        if self.file and not self.mime_type:
+            import mimetypes
+
+            self.mime_type = mimetypes.guess_type(self.file.name)[0] or ''
+        if self.file and not self.size_bytes:
+            try:
+                self.size_bytes = self.file.size
+            except (AttributeError, OSError, ValueError):
+                self.size_bytes = 0
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        file = self.file
+        result = super().delete(*args, **kwargs)
+        if file:
+            file.delete(save=False)
+        return result
+
+    @property
+    def size_display(self):
+        size = float(self.size_bytes or 0)
+        for unit in ('B', 'KB', 'MB', 'GB'):
+            if size < 1024 or unit == 'GB':
+                return f'{size:.0f} {unit}' if unit == 'B' else f'{size:.1f} {unit}'
+            size /= 1024
+        return '0 B'
+
+
+class SocialPost(models.Model):
+    STATUS_CHOICES = STATUSES
+    CONTENT_TYPE_CHOICES = CONTENT_TYPES
+
+    post_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    title = models.CharField(max_length=150)
+    content = models.TextField()
+    content_type = models.CharField(max_length=24, choices=CONTENT_TYPE_CHOICES, default='post')
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='Draft', db_index=True)
+    scheduled_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    published_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    campaign = models.ForeignKey(Campaign, null=True, blank=True, on_delete=models.SET_NULL, related_name='social_posts')
+    media = models.ManyToManyField(SocialMediaAsset, blank=True, related_name='posts')
+    destination_url = models.URLField(max_length=500, blank=True)
+    utm_source = models.CharField(max_length=120, blank=True)
+    utm_medium = models.CharField(max_length=120, blank=True, db_index=True)
+    utm_campaign = models.CharField(max_length=120, blank=True, db_index=True)
+    utm_term = models.CharField(max_length=120, blank=True)
+    utm_content = models.CharField(max_length=120, blank=True)
+    hashtags = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='social_posts')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['status', 'scheduled_at']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.post_key:
+            self.post_key = f'SOC-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+    @property
+    def platform_keys(self):
+        return list(self.platform_entries.values_list('platform', flat=True))
+
+    @property
+    def content_preview(self):
+        text = ' '.join((self.content or '').split())
+        return text[:140] + ('…' if len(text) > 140 else '')
+
+
+class SocialPostPlatform(models.Model):
+    STATUS_CHOICES = STATUSES
+
+    post = models.ForeignKey(SocialPost, on_delete=models.CASCADE, related_name='platform_entries')
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, db_index=True)
+    content = models.TextField(blank=True)
+    platform_title = models.CharField(max_length=120, blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='Draft', db_index=True)
+    scheduled_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    published_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    published_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='social_platform_publications')
+    publication_url = models.URLField(max_length=500, blank=True)
+    tracking_url = models.URLField(max_length=500, blank=True)
+
+    class Meta:
+        ordering = ('platform',)
+        constraints = [
+            models.UniqueConstraint(fields=['post', 'platform'], name='unique_social_post_platform'),
+        ]
+        indexes = [
+            models.Index(fields=['platform', 'status']),
+            models.Index(fields=['platform', 'scheduled_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.post.title} on {self.get_platform_display()}'
+
+
+class SocialAccount(models.Model):
+    STATUS_CHOICES = ACCOUNT_STATUSES
+
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, unique=True)
+    account_name = models.CharField(max_length=150, blank=True)
+    status = models.CharField(max_length=14, choices=STATUS_CHOICES, default='Not Connected', db_index=True)
+    connected_at = models.DateTimeField(null=True, blank=True)
+    disconnected_at = models.DateTimeField(null=True, blank=True)
+    capabilities = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('platform',)
+
+    def __str__(self):
+        return f'{self.get_platform_display()}: {self.status}'
+
+
+class SocialPostTemplate(models.Model):
+    KIND_CHOICES = TEMPLATE_KINDS
+
+    template_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    name = models.CharField(max_length=120)
+    kind = models.CharField(max_length=12, choices=KIND_CHOICES, default='template', db_index=True)
+    platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES, blank=True, db_index=True)
+    content = models.TextField()
+    hashtags = models.CharField(max_length=500, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='social_templates')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.template_key:
+            self.template_key = f'SPT-{uuid.uuid4().hex[:10].upper()}'
         super().save(*args, **kwargs)
 
 

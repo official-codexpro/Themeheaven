@@ -47,6 +47,15 @@ class CoreConfig(AppConfig):
                 'view_only': False,
             }
 
+        def social_media_entry():
+            return {
+                'name': 'Social Media Manager',
+                'object_name': 'social',
+                'admin_url': reverse('admin:growth-center-social'),
+                'add_url': reverse('admin:growth-center-social-post-create'),
+                'view_only': False,
+            }
+
         def seo_settings_entry():
             return {
                 'name': 'SEO Settings',
@@ -69,7 +78,7 @@ class CoreConfig(AppConfig):
             if not getattr(user, 'is_staff', False):
                 return
             try:
-                entries = [analytics_entry(), campaigns_entry(), seo_settings_entry(), page_seo_entry()]
+                entries = [analytics_entry(), campaigns_entry(), social_media_entry(), seo_settings_entry(), page_seo_entry()]
             except NoReverseMatch:
                 return
             for app in apps:
@@ -169,6 +178,14 @@ class CoreConfig(AppConfig):
                 page_seo_dashboard,
                 page_seo_editor,
                 seo_settings_dashboard,
+                social_calendar_reschedule,
+                social_media_asset_action,
+                social_media_asset_file,
+                social_media_manager_dashboard,
+                social_post_action,
+                social_post_detail,
+                social_post_editor,
+                social_template_action,
             )
 
             from .settings_views import settings_category, settings_index
@@ -205,6 +222,51 @@ class CoreConfig(AppConfig):
                     'growth-center/campaigns/<slug:campaign_key>/action/',
                     self.admin_view(campaign_action),
                     name='growth-center-campaign-action',
+                ),
+                path(
+                    'growth-center/social/',
+                    self.admin_view(social_media_manager_dashboard),
+                    name='growth-center-social',
+                ),
+                path(
+                    'growth-center/social/create/',
+                    self.admin_view(social_post_editor),
+                    name='growth-center-social-post-create',
+                ),
+                path(
+                    'growth-center/social/media/<int:asset_id>/file/',
+                    self.admin_view(social_media_asset_file),
+                    name='growth-center-social-media-asset-file',
+                ),
+                path(
+                    'growth-center/social/media/<int:asset_id>/action/',
+                    self.admin_view(social_media_asset_action),
+                    name='growth-center-social-media-asset-action',
+                ),
+                path(
+                    'growth-center/social/templates/<slug:template_key>/action/',
+                    self.admin_view(social_template_action),
+                    name='growth-center-social-template-action',
+                ),
+                path(
+                    'growth-center/social/calendar/reschedule/',
+                    self.admin_view(social_calendar_reschedule),
+                    name='growth-center-social-calendar-reschedule',
+                ),
+                path(
+                    'growth-center/social/posts/<slug:post_key>/detail/',
+                    self.admin_view(social_post_detail),
+                    name='growth-center-social-post-detail',
+                ),
+                path(
+                    'growth-center/social/posts/<slug:post_key>/edit/',
+                    self.admin_view(social_post_editor),
+                    name='growth-center-social-post-edit',
+                ),
+                path(
+                    'growth-center/social/posts/<slug:post_key>/action/',
+                    self.admin_view(social_post_action),
+                    name='growth-center-social-post-action',
                 ),
                 path(
                     'growth-center/seo-settings/',

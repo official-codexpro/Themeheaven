@@ -1,0 +1,26 @@
+<div class="gc-card gcsmm-notice">
+  <strong>No native social API connections are configured in this installation.</strong>
+  <span>All platforms support content preparation, reminders, tracking links, and staff-confirmed manual publishing. Native reach, impressions, and engagement are never estimated.</span>
+</div>
+
+<section class="gc-card gcsmm-table-card">
+  <div class="gc-card-heading"><div><h2>Platform Availability</h2><p>{{ connected_count }} staff-recorded connected accounts</p></div></div>
+  <div class="gcsmm-table-wrap">
+    <table class="gcsmm-table">
+      <thead><tr><th>Platform</th><th>Status</th><th>Account</th><th>Available workflow</th><th>Platform</th></tr></thead>
+      <tbody>
+        {% for account in accounts %}
+          <tr>
+            <td><span class="gcsmm-platform-badge">{{ account.label }}</span></td>
+            <td><span class="gcsmm-status gcsmm-status-{{ account.status|lower|cut:' ' }}">{{ account.status }}</span></td>
+            <td>{{ account.account_name }}</td>
+            <td>
+              {% if account.capabilities %}{{ account.capabilities }}{% else %}Prepare content, schedule reminders, copy tracking links, publish manually{% endif %}
+            </td>
+            <td><a href="{{ account.home_url }}" rel="noopener noreferrer" target="_blank">Open platform</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,101 @@
+<div class="gc-card gcsmm-notice">
+  <strong>Website attribution only.</strong>
+  <span>These numbers come from real analytics sessions with social UTMs or social referrers. They do not represent platform reach, impressions, likes, shares, or follower counts.</span>
+</div>
+
+<form class="gc-controls ga-controls gcsmm-filters" method="get" aria-label="Social performance filters">
+  <input type="hidden" name="section" value="performance">
+  <label class="gc-field">
+    <span>Date range</span>
+    <select class="gcsmm-filter" name="range">
+      {% for value, label in range_choices %}<option value="{{ value }}" {% if range.key == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="gc-field"><span>From</span><input class="gcsmm-filter" type="date" name="start" value="{{ range.start_iso }}"></label>
+  <label class="gc-field"><span>To</span><input class="gcsmm-filter" type="date" name="end" value="{{ range.end_iso }}"></label>
+  <label class="gc-field">
+    <span>Chart period</span>
+    <select class="gcsmm-filter" name="grain">
+      {% for value, label in grain_choices %}<option value="{{ value }}" {% if grain == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit" class="gc-button">Apply</button>
+</form>
+
+{% if not has_web_data %}
+  <div class="ga-empty-state" role="status">
+    <strong>No social-attributed website traffic yet.</strong>
+    <span>Sessions will appear here when visitors arrive through links carrying social UTM values or recognised social referrers.</span>
+  </div>
+{% endif %}
+
+<div class="gcsmm-kpi-grid">
+  <div class="gc-card gcsmm-kpi"><span>Social visits</span><strong>{{ kpis.visits }}</strong><small>Attributed sessions</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Visitors</span><strong>{{ kpis.visitors }}</strong><small>Unique visitors</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Page views</span><strong>{{ kpis.page_views }}</strong><small>Within attributed sessions</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Avg. duration</span><strong>{{ kpis.avg_duration }}</strong><small>Session engagement</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Bounce rate</span><strong>{{ kpis.bounce_rate }}%</strong><small>Single-page sessions</small></div>
+</div>
+
+<section class="gc-card ga-chart-card gcsmm-chart-card">
+  <div class="gc-card-heading"><div><h2>Social-attributed website traffic</h2><p>{{ range.label }} · {{ range.start_iso }} to {{ range.end_iso }}</p></div></div>
+  <div class="ga-chart" data-chart="social-traffic"><svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Social traffic chart"></svg></div>
+</section>
+
+<div class="gcsmm-overview-grid">
+  <section class="gc-card gcsmm-table-card">
+    <div class="gc-card-heading"><div><h2>By platform</h2><p>Attributed website sessions</p></div></div>
+    <div class="gcsmm-table-wrap">
+      <table class="gcsmm-table">
+        <thead><tr><th>Platform</th><th>Visits</th></tr></thead>
+        <tbody>
+          {% for row in platform_rows %}
+            <tr><td><span class="gcsmm-platform-badge">{{ row.label }}</span></td><td>{{ row.visits }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="gc-card gcsmm-table-card">
+    <div class="gc-card-heading"><div><h2>Top posts</h2><p>Matched by UTM Content</p></div></div>
+    {% if post_rows %}
+      <div class="gcsmm-table-wrap">
+        <table class="gcsmm-table">
+          <thead><tr><th>Post</th><th>Visits</th><th>Visitors</th></tr></thead>
+          <tbody>
+            {% for row in post_rows %}
+              <tr>
+                <td>{% if row.url %}<a href="{{ row.url }}">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}</td>
+                <td>{{ row.visits }}</td>
+                <td>{{ row.visitors }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="gcsmm-muted">No UTM Content matches from social posts.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="gc-card gcsmm-table-card">
+  <div class="gc-card-heading"><div><h2>Campaign traffic from social links</h2><p>UTM Campaign values generated from saved campaigns</p></div></div>
+  {% if campaign_rows %}
+    <div class="gcsmm-table-wrap">
+      <table class="gcsmm-table">
+        <thead><tr><th>Campaign</th><th>Visits</th></tr></thead>
+        <tbody>
+          {% for row in campaign_rows %}
+            <tr><td>{% if row.url %}<a href="{{ row.url }}">{{ row.name }}</a>{% else %}{{ row.name }}{% endif %}</td><td>{{ row.visits }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="gcsmm-muted">No social-attributed campaign visits recorded.</p>
+  {% endif %}
+</section>
+
+{{ charts|json_script:"gcsmm-chart-data" }}

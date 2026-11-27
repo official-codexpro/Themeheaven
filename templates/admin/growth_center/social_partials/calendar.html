@@ -1,0 +1,68 @@
+<section class="gc-card gcsmm-calendar-card">
+  <div class="gc-card-heading gcsmm-calendar-heading">
+    <div>
+      <h2>Content Calendar</h2>
+      <p>{{ calendar_start|date:'d M Y' }} – {{ calendar_end|date:'d M Y' }} · {{ calendar_entry_count }} scheduled reminders</p>
+    </div>
+    <div class="gcsmm-calendar-actions">
+      <button type="button" class="gc-button gc-link-button" data-calendar-nav="{{ calendar_previous }}">Previous</button>
+      <button type="button" class="gc-button gc-link-button" data-calendar-nav="{{ calendar_today }}">Today</button>
+      <button type="button" class="gc-button gc-link-button" data-calendar-nav="{{ calendar_next }}">Next</button>
+    </div>
+  </div>
+
+  {% if view == 'list' %}
+    {% if calendar_groups %}
+      <div class="gcsmm-calendar-list">
+        {% for group in calendar_groups %}
+          <div class="gcsmm-calendar-group">
+            <h3>{{ group.date|date:'D d M Y' }}</h3>
+            {% for item in group.entries %}
+              <div class="gcsmm-calendar-entry" draggable="true" data-post-key="{{ item.post.post_key }}" data-platform="{{ item.entry.platform }}" data-date="{{ item.date|date:'Y-m-d' }}" data-time="{{ item.time }}">
+                <span class="gcsmm-platform-badge">{{ item.platform.label }}</span>
+                <a href="{{ item.detail_url }}">{{ item.post.title }}</a>
+                <span class="gcsmm-entry-time">{{ item.time }}</span>
+                <span class="gcsmm-entry-type">{{ item.content_type }}</span>
+                <span class="gcsmm-entry-status">{{ item.entry.status }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="gcsmm-muted">No scheduled content in the next 30 days.</p>
+    {% endif %}
+  {% else %}
+    <div class="gcsmm-calendar-grid" data-calendar-view="{{ view }}">
+      {% for weekday in calendar_weekdays %}<div class="gcsmm-weekday">{{ weekday }}</div>{% endfor %}
+      {% for day in calendar_days %}
+        <div class="gcsmm-calendar-day {% if not day.in_period %}is-outside{% endif %} {% if day.is_today %}is-today{% endif %}" data-date="{{ day.iso }}">
+          <div class="gcsmm-day-heading">
+            <span>{{ day.date|date:'d' }}</span>
+            <a href="{{ day.create_url }}" aria-label="Create post on {{ day.date|date:'d M Y' }}">+</a>
+          </div>
+          {% for item in day.entries %}
+            <div class="gcsmm-calendar-entry" draggable="true" data-post-key="{{ item.post.post_key }}" data-platform="{{ item.entry.platform }}" data-date="{{ item.date|date:'Y-m-d' }}" data-time="{{ item.time }}">
+              <span class="gcsmm-platform-badge">{{ item.platform.label }}</span>
+              <a href="{{ item.detail_url }}">{{ item.post.title }}</a>
+              <span class="gcsmm-entry-time">{{ item.time }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+<div id="gcsmm-reschedule-dialog" class="gcsmm-dialog" hidden>
+  <div class="gcsmm-dialog-panel">
+    <h3>Reschedule reminder</h3>
+    <p id="gcsmm-reschedule-label"></p>
+    <label class="gc-field"><span>Date</span><input id="gcsmm-reschedule-date" type="date"></label>
+    <label class="gc-field"><span>Time</span><input id="gcsmm-reschedule-time" type="time"></label>
+    <div class="gcsmm-dialog-actions">
+      <button type="button" class="gc-button" id="gcsmm-reschedule-save">Save</button>
+      <button type="button" class="gc-button gc-link-button" id="gcsmm-reschedule-cancel">Cancel</button>
+    </div>
+  </div>
+</div>

@@ -800,6 +800,7 @@ class CoreAdminMenuTests(TestCase):
             ('products', 'wordpresstheme'): 'wordpress',
             ('growth_center', 'analytics'): 'bar-chart',
             ('growth_center', 'campaigns'): 'megaphone',
+            ('growth_center', 'social'): 'share-2',
             ('growth_center', 'seosettings'): 'search',
             ('growth_center', 'pageseo'): 'file-search',
         }
@@ -854,6 +855,19 @@ class CoreAdminMenuTests(TestCase):
         target = self.client.get(reverse('admin:growth-center-campaigns'))
         self.assertEqual(target.status_code, 200)
         self.assertIn('class="model-campaigns current-model"', target.content.decode())
+
+    def test_social_media_manager_is_visible_in_rendered_sidebar(self):
+        response = self.client.get(reverse('admin:growth-center-seo-settings'))
+        nav = response.content.decode().split('id="nav-sidebar"', 1)[1].split('</nav>', 1)[0]
+
+        self.assertIn('>Social Media Manager</a>', nav)
+        self.assertIn('href="/admin/growth-center/social/"', nav)
+        self.assertLess(nav.index('/admin/growth-center/campaigns/'), nav.index('/admin/growth-center/social/'))
+        self.assertLess(nav.index('/admin/growth-center/social/'), nav.index('/admin/growth-center/seo-settings/'))
+
+        target = self.client.get(reverse('admin:growth-center-social'))
+        self.assertEqual(target.status_code, 200)
+        self.assertIn('class="model-social current-model"', target.content.decode())
 
     def test_staff_sees_analytics_sidebar_link(self):
         from django.contrib.auth.models import Permission

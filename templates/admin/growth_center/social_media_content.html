@@ -1,0 +1,41 @@
+<div class="gc-header ga-header gcsmm-header">
+  <div>
+    <p class="gc-eyebrow">GROWTH CENTER</p>
+    <h1>Social Media Manager</h1>
+    <p class="gc-summary">{{ summary_text }}</p>
+  </div>
+  <div class="gcsmm-header-actions">
+    <a class="gc-button" href="{% url 'admin:growth-center-social-post-create' %}">Create Post</a>
+    <button type="button" class="gc-button gc-link-button gcsmm-refresh">Refresh</button>
+  </div>
+</div>
+
+<nav class="ga-subnav" aria-label="Social media sections">
+  {% for key, label in sections %}
+    <a href="?section={{ key }}" class="ga-section-link {% if section == key %}is-active{% endif %}" data-section="{{ key }}" {% if section == key %}aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% include "admin/growth_center/social_partials/filters.html" %}
+
+{% if section == 'overview' %}
+  {% include "admin/growth_center/social_partials/overview.html" %}
+{% elif section == 'calendar' %}
+  {% include "admin/growth_center/social_partials/calendar.html" %}
+{% elif section == 'posts' %}
+  {% include "admin/growth_center/social_partials/posts.html" %}
+{% elif section == 'create' %}
+  <div class="gc-card gcsmm-empty-action">
+    <h2>Ready to create a post?</h2>
+    <p>Open the full post editor to prepare platform-specific copy, media, and tracking links.</p>
+    <a class="gc-button" href="{% url 'admin:growth-center-social-post-create' %}">Open Post Editor</a>
+  </div>
+{% elif section == 'media' %}
+  {% include "admin/growth_center/social_partials/media.html" %}
+{% elif section == 'templates' %}
+  {% include "admin/growth_center/social_partials/templates.html" %}
+{% elif section == 'accounts' %}
+  {% include "admin/growth_center/social_partials/accounts.html" %}
+{% else %}
+  {% include "admin/growth_center/social_partials/performance.html" %}
+{% endif %}

@@ -1,8 +1,14 @@
+import mimetypes
+from datetime import date, datetime, time
+from pathlib import Path
+from urllib.parse import urlsplit
+
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 from django.urls import reverse
@@ -12,7 +18,16 @@ from django.views.decorators.http import require_POST
 from .campaign_urls import build_campaign_url
 from .campaigns import build_campaign_context, build_campaign_detail_context
 from .forms import CampaignForm, PageSEOForm, SEOSettingsForm
-from .models import AnalyticsSession, Campaign, PageSEO, PageView
+from .models import (
+    AnalyticsSession,
+    Campaign,
+    PageSEO,
+    PageView,
+    SocialMediaAsset,
+    SocialPost,
+    SocialPostPlatform,
+    SocialPostTemplate,
+)
 from .page_registry import discover_pages, get_managed_page
 from .page_seo import (
     build_page_seo_context,
@@ -25,6 +40,9 @@ from .seo import SAFE_DESCRIPTION, SAFE_TITLE, absolute_url, build_canonical_url
 from .seo_health import seo_health_summary
 from .seo_settings import get_seo_settings, reset_seo_settings
 from .services import build_analytics_context
+from .social import build_asset_preview_metadata, build_post_detail_context, build_social_context, sync_post_tracking_urls
+from .social_forms import SocialMediaAssetForm, SocialPostForm, SocialPostTemplateForm
+from .social_platforms import PLATFORMS, PLATFORM_KEYS
 from .sitemaps import PublicSitemap
 from .tracking import decode_tracking_token
 from .validators import SAFE_ROBOTS_TXT, sanitize_text
@@ -197,6 +215,366 @@ def campaign_action(request, campaign_key):
 
     messages.error(request, 'Unknown campaign action.')
     return redirect('admin:growth-center-campaign-detail', campaign.campaign_key)
+
+
+def _parse_social_datetime(date_value, time_value):
+    try:
+        parsed_date = date.fromisoformat(date_value)
+        parsed_time = time.fromisoformat(time_value)
+        return timezone.make_aware(datetime.combine(parsed_date, parsed_time), timezone.get_current_timezone())
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_publication_url(value):
+    url = sanitize_text(value or '', 500)
+    if not url:
+        return ''
+    parts = urlsplit(url)
+    if parts.scheme not in {'http', 'https'} or not parts.netloc:
+        return ''
+    return url
+
+
+@staff_member_required
+def social_media_manager_dashboard(request):
+    asset_form = None
+    template_form = None
+
+    if request.method == 'POST':
+        intent = request.POST.get('intent')
+        section = request.POST.get('section', 'overview')
+        if intent == 'upload_asset':
+            asset_form = SocialMediaAssetForm(request.POST, request.FILES)
+            if asset_form.is_valid():
+                asset = asset_form.save(commit=False)
+                asset.uploaded_by = request.user
+                asset.save()
+                uploaded_file = asset_form.cleaned_data.get('file')
+                if uploaded_file and hasattr(uploaded_file, 'seek'):
+                    width, height = build_asset_preview_metadata(asset)
+                    if width and height:
+                        asset.width = width
+                        asset.height = height
+                        asset.save(update_fields=['width', 'height'])
+                messages.success(request, f'Media asset “{asset.title}” added to the library.')
+                return redirect(f'{reverse("admin:growth-center-social")}?section=media')
+            messages.error(request, 'Please correct the highlighted media upload errors.')
+        elif intent == 'save_template':
+            template_form = SocialPostTemplateForm(request.POST)
+            if template_form.is_valid():
+                template = template_form.save(commit=False)
+                template.created_by = request.user
+                template.save()
+                messages.success(request, f'Template “{template.name}” saved.')
+                return redirect(f'{reverse("admin:growth-center-social")}?section=templates')
+            messages.error(request, 'Please correct the highlighted template errors.')
+        else:
+            messages.error(request, 'Unknown social media action.')
+
+    context = build_social_context(
+        request,
+        asset_form=asset_form or SocialMediaAssetForm(),
+        template_form=template_form or SocialPostTemplateForm(),
+    )
+    context = {**admin.site.each_context(request), **context}
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+        return JsonResponse({
+            'html': render_to_string(
+                'admin/growth_center/social_media_content.html',
+                context,
+                request=request,
+            ),
+            'section': context['section'],
+        })
+
+    return render(request, 'admin/growth_center/social_media.html', context)
+
+
+@staff_member_required
+def social_post_editor(request, post_key=None):
+    post = None
+    if post_key:
+        post = get_object_or_404(SocialPost, post_key=post_key)
+
+    workflow_action = request.POST.get('workflow_action', 'save_draft') if request.method == 'POST' else 'save_draft'
+    if request.method == 'POST':
+        form = SocialPostForm(request.POST, instance=post, workflow_action=workflow_action)
+        form.created_by = request.user
+        if form.is_valid():
+            instance = form.save()
+            sync_post_tracking_urls(instance)
+            messages.success(request, f'Post “{instance.title}” saved with status {instance.status}.')
+            for warning in form.warnings:
+                messages.warning(request, warning)
+            return redirect('admin:growth-center-social-post-detail', instance.post_key)
+        messages.error(request, 'Please correct the highlighted post fields.')
+        for warning in form.warnings:
+            messages.warning(request, warning)
+    else:
+        form = SocialPostForm(instance=post)
+        if not post:
+            if request.GET.get('date'):
+                form.initial['scheduled_date'] = request.GET.get('date')
+            if request.GET.get('time'):
+                form.initial['scheduled_time'] = request.GET.get('time')
+            template_key = request.GET.get('template')
+            if template_key:
+                template = SocialPostTemplate.objects.filter(template_key=template_key).first()
+                if template:
+                    form.initial['content'] = template.content
+                    form.initial['hashtags'] = template.hashtags
+                    if template.platform:
+                        form.initial['platforms'] = [template.platform]
+
+    platform_fields = []
+    for platform in PLATFORMS:
+        title_name = f'platform_title_{platform["key"]}'
+        content_name = f'platform_content_{platform["key"]}'
+        time_name = f'platform_time_{platform["key"]}'
+        platform_fields.append({
+            'config': platform,
+            'title_field': form[title_name] if title_name in form.fields else None,
+            'content_field': form[content_name] if content_name in form.fields else None,
+            'time_field': form[time_name] if time_name in form.fields else None,
+        })
+
+    context = {
+        'title': f'Edit {post.title}' if post else 'Create Social Post',
+        'form': form,
+        'post': post,
+        'is_edit': bool(post),
+        'platforms': form.fields['platforms'].choices,
+        'platform_fields': platform_fields,
+        'media_assets': [
+            {
+                'asset': asset,
+                'preview_url': reverse('admin:growth-center-social-media-asset-file', args=[asset.id]),
+            }
+            for asset in SocialMediaAsset.objects.all()
+        ],
+    }
+    context.update(admin.site.each_context(request))
+    return render(request, 'admin/growth_center/social_post_editor.html', context)
+
+
+@staff_member_required
+def social_post_detail(request, post_key):
+    post = get_object_or_404(SocialPost, post_key=post_key)
+    context = build_post_detail_context(request, post)
+    context = {**admin.site.each_context(request), **context}
+    return render(request, 'admin/growth_center/social_post_detail.html', context)
+
+
+@staff_member_required
+@require_POST
+def social_post_action(request, post_key):
+    post = get_object_or_404(SocialPost, post_key=post_key)
+    action = request.POST.get('action')
+
+    if action == 'duplicate':
+        copy = SocialPost(
+            title=f'{post.title} (Copy)',
+            content=post.content,
+            content_type=post.content_type,
+            status='Draft',
+            campaign=post.campaign,
+            destination_url=post.destination_url,
+            utm_source=post.utm_source,
+            utm_medium=post.utm_medium,
+            utm_campaign=post.utm_campaign,
+            utm_term=post.utm_term,
+            utm_content=post.utm_content,
+            hashtags=post.hashtags,
+            notes=post.notes,
+            created_by=request.user,
+        )
+        copy.save()
+        copy.media.set(post.media.all())
+        for entry in post.platform_entries.all():
+            SocialPostPlatform.objects.create(
+                post=copy,
+                platform=entry.platform,
+                content=entry.content,
+                platform_title=entry.platform_title,
+                status='Draft',
+            )
+        sync_post_tracking_urls(copy)
+        messages.success(request, f'Duplicated post as “{copy.title}”.')
+        return redirect('admin:growth-center-social-post-detail', copy.post_key)
+
+    if action == 'delete':
+        if request.POST.get('confirm') != '1':
+            messages.error(request, 'Confirm post deletion before removing it.')
+            return redirect('admin:growth-center-social-post-detail', post.post_key)
+        title = post.title
+        post.delete()
+        messages.success(request, f'Post “{title}” deleted.')
+        return redirect('admin:growth-center-social')
+
+    if action == 'sync_tracking':
+        sync_post_tracking_urls(post)
+        messages.success(request, 'Tracking URLs regenerated from the current campaign and UTM settings.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    platform_key = request.POST.get('platform')
+    entry = post.platform_entries.filter(platform=platform_key).first() if platform_key in PLATFORM_KEYS else None
+    if not entry:
+        messages.error(request, 'Select a valid platform for this action.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    if action == 'mark_published':
+        published_at = _parse_social_datetime(
+            request.POST.get('published_date'),
+            request.POST.get('published_time'),
+        ) or timezone.now()
+        entry.status = 'Published'
+        entry.scheduled_at = None
+        entry.published_at = published_at
+        entry.published_by = request.user
+        entry.publication_url = _safe_publication_url(request.POST.get('publication_url'))
+        entry.save()
+        published_entries = post.platform_entries.filter(status='Published')
+        post.status = 'Published'
+        post.published_at = max(published_entries.values_list('published_at', flat=True))
+        post.save(update_fields=['status', 'published_at', 'updated_at'])
+        messages.success(request, f'Marked “{post.title}” as published on {entry.get_platform_display()} by staff confirmation.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    if action == 'mark_failed':
+        entry.status = 'Failed'
+        entry.save(update_fields=['status'])
+        post.status = 'Failed'
+        post.save(update_fields=['status', 'updated_at'])
+        messages.success(request, f'Marked “{post.title}” as failed on {entry.get_platform_display()}.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    if action == 'mark_ready':
+        entry.status = 'Ready'
+        entry.scheduled_at = None
+        entry.published_at = None
+        entry.save()
+        post.status = 'Ready'
+        post.published_at = None
+        post.save(update_fields=['status', 'published_at', 'updated_at'])
+        messages.success(request, f'Marked “{post.title}” ready for manual publishing.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    if action == 'cancel_schedule':
+        entry.status = 'Draft'
+        entry.scheduled_at = None
+        entry.save(update_fields=['status', 'scheduled_at'])
+        if not post.platform_entries.filter(status='Scheduled').exists():
+            post.scheduled_at = None
+            post.status = 'Draft' if not post.platform_entries.filter(status='Published').exists() else 'Published'
+            post.save(update_fields=['status', 'scheduled_at', 'updated_at'])
+        messages.success(request, 'Schedule cancelled. The post remains available in the workflow.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    if action == 'reschedule':
+        scheduled_at = _parse_social_datetime(request.POST.get('scheduled_date'), request.POST.get('scheduled_time'))
+        if not scheduled_at:
+            messages.error(request, 'Provide a valid date and time to reschedule this platform.')
+            return redirect('admin:growth-center-social-post-detail', post.post_key)
+        entry.status = 'Scheduled'
+        entry.scheduled_at = scheduled_at
+        entry.published_at = None
+        entry.save()
+        post.status = 'Scheduled'
+        post.scheduled_at = scheduled_at
+        post.published_at = None
+        post.save(update_fields=['status', 'scheduled_at', 'published_at', 'updated_at'])
+        messages.success(request, 'Post reminder rescheduled. No platform was contacted.')
+        return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+    messages.error(request, 'Unknown post action.')
+    return redirect('admin:growth-center-social-post-detail', post.post_key)
+
+
+@staff_member_required
+@require_POST
+def social_calendar_reschedule(request):
+    post_key = request.POST.get('post_key')
+    platform_key = request.POST.get('platform')
+    scheduled_at = _parse_social_datetime(request.POST.get('date'), request.POST.get('time'))
+    if platform_key not in PLATFORM_KEYS or not scheduled_at:
+        return JsonResponse({'ok': False, 'error': 'Invalid platform or schedule.'}, status=400)
+
+    entry = SocialPostPlatform.objects.filter(post__post_key=post_key, platform=platform_key).first()
+    if not entry:
+        return JsonResponse({'ok': False, 'error': 'Post platform entry not found.'}, status=404)
+
+    entry.status = 'Scheduled'
+    entry.scheduled_at = scheduled_at
+    entry.save(update_fields=['status', 'scheduled_at'])
+    post = entry.post
+    post.status = 'Scheduled'
+    post.scheduled_at = scheduled_at
+    post.save(update_fields=['status', 'scheduled_at', 'updated_at'])
+    return JsonResponse({
+        'ok': True,
+        'iso': scheduled_at.isoformat(),
+        'label': timezone.localtime(scheduled_at).strftime('%d %b %H:%M'),
+    })
+
+
+@staff_member_required
+@require_POST
+def social_media_asset_action(request, asset_id):
+    asset = get_object_or_404(SocialMediaAsset, id=asset_id)
+    action = request.POST.get('action')
+    if action == 'delete':
+        if request.POST.get('confirm') != '1':
+            messages.error(request, 'Confirm media deletion before removing it.')
+            return redirect(f'{reverse("admin:growth-center-social")}?section=media')
+        if asset.posts.filter(status='Published').exists():
+            messages.error(request, 'This asset is used by a published post and cannot be deleted.')
+            return redirect(f'{reverse("admin:growth-center-social")}?section=media')
+        title = asset.title
+        asset.delete()
+        messages.success(request, f'Media asset “{title}” deleted.')
+        return redirect(f'{reverse("admin:growth-center-social")}?section=media')
+    messages.error(request, 'Unknown media action.')
+    return redirect(f'{reverse("admin:growth-center-social")}?section=media')
+
+
+@staff_member_required
+def social_media_asset_file(request, asset_id):
+    asset = get_object_or_404(SocialMediaAsset, id=asset_id)
+    root = Path(settings.SOCIAL_MEDIA_ROOT).resolve()
+    file_path = Path(asset.file.path).resolve()
+    if root != file_path and root not in file_path.parents:
+        raise Http404('File not found.')
+
+    content_type = mimetypes.guess_type(file_path.name)[0] or asset.mime_type or 'application/octet-stream'
+    download = request.GET.get('download') == '1'
+    try:
+        opened = asset.file.open('rb')
+        return FileResponse(
+            opened,
+            content_type=content_type,
+            as_attachment=download,
+            filename=file_path.name if download else None,
+        )
+    except (OSError, ValueError):
+        raise Http404('File not found.')
+
+
+@staff_member_required
+@require_POST
+def social_template_action(request, template_key):
+    template = get_object_or_404(SocialPostTemplate, template_key=template_key)
+    if request.POST.get('action') == 'delete':
+        if request.POST.get('confirm') != '1':
+            messages.error(request, 'Confirm template deletion before removing it.')
+            return redirect(f'{reverse("admin:growth-center-social")}?section=templates')
+        name = template.name
+        template.delete()
+        messages.success(request, f'Template “{name}” deleted.')
+        return redirect(f'{reverse("admin:growth-center-social")}?section=templates')
+    messages.error(request, 'Unknown template action.')
+    return redirect(f'{reverse("admin:growth-center-social")}?section=templates')
 
 
 @staff_member_required

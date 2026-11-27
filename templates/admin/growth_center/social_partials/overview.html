@@ -1,0 +1,82 @@
+{% if not total_posts %}
+  <div class="gc-card gcsmm-empty-action">
+    <h2>No social posts yet</h2>
+    <p>Create a post to prepare platform-specific copy, schedule reminders, and generate campaign tracking links.</p>
+    <a class="gc-button" href="{% url 'admin:growth-center-social-post-create' %}">Create Your First Post</a>
+  </div>
+{% endif %}
+
+<div class="gcsmm-kpi-grid">
+  <div class="gc-card gcsmm-kpi"><span>Total posts</span><strong>{{ total_posts }}</strong><small>All workflow stages</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Drafts</span><strong>{{ draft_posts }}</strong><small>Not ready to publish</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Scheduled</span><strong>{{ scheduled_posts }}</strong><small>Manual reminders only</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Published</span><strong>{{ published_posts }}</strong><small>Confirmed by staff</small></div>
+  <div class="gc-card gcsmm-kpi"><span>Created this month</span><strong>{{ posts_this_month }}</strong><small>Content production</small></div>
+  {% if connected_count %}
+    <div class="gc-card gcsmm-kpi is-connected"><span>Connected accounts</span><strong>{{ connected_count }}</strong><small>Staff-recorded only</small></div>
+  {% endif %}
+</div>
+
+<div class="gcsmm-overview-grid">
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Upcoming reminders</h2><p>Scheduled posts appear here. No platform is contacted automatically.</p></div></div>
+    {% if upcoming_posts %}
+      <ul class="gcsmm-activity-list">
+        {% for item in upcoming_posts %}
+          <li>
+            <span class="gcsmm-platform-badge">{{ item.platform.label }}</span>
+            <a href="{{ item.detail_url }}">{{ item.post.title }}</a>
+            <time datetime="{{ item.scheduled_at|date:'c' }}">{{ item.scheduled_at|date:'d M Y H:i' }}</time>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="gcsmm-muted">No upcoming scheduled reminders.</p>
+    {% endif %}
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Recently confirmed published</h2><p>Only entries marked published by staff appear here.</p></div></div>
+    {% if recent_published %}
+      <ul class="gcsmm-activity-list">
+        {% for item in recent_published %}
+          <li>
+            <span class="gcsmm-platform-badge">{{ item.platform.label }}</span>
+            <a href="{{ item.detail_url }}">{{ item.post.title }}</a>
+            <time datetime="{{ item.entry.published_at|date:'c' }}">{{ item.entry.published_at|date:'d M Y H:i' }}</time>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="gcsmm-muted">No confirmed publications yet.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="gc-card gcsmm-table-card">
+  <div class="gc-card-heading"><div><h2>Recent content</h2><p>Latest posts across all workflow stages.</p></div></div>
+  {% if recent_posts %}
+    <div class="gcsmm-table-wrap">
+      <table class="gcsmm-table">
+        <thead><tr><th>Post</th><th>Platforms</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for row in recent_posts %}
+            <tr>
+              <td><a href="{{ row.detail_url }}">{{ row.post.title }}</a><small>{{ row.post.content_preview }}</small></td>
+              <td>{% for platform in row.platforms %}<span class="gcsmm-platform-badge">{{ platform.label }}</span>{% endfor %}</td>
+              <td><span class="gcsmm-status gcsmm-status-{{ row.post.status|lower }}">{{ row.post.status }}</span></td>
+              <td><a href="{{ row.edit_url }}">Edit</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="gcsmm-muted">No posts created yet.</p>
+  {% endif %}
+</section>
+
+<div class="gc-card gcsmm-notice">
+  <strong>Native platform analytics are not available in this installation.</strong>
+  <span>The Performance section shows only real website sessions attributed to social UTMs and social referrers.</span>
+</div>

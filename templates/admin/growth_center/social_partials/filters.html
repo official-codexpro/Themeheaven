@@ -1,0 +1,64 @@
+<form class="gc-controls ga-controls gcsmm-filters" method="get" aria-label="Social media filters">
+  <input type="hidden" name="section" value="{{ section }}">
+
+  <label class="gc-field">
+    <span>Search</span>
+    <input class="gcsmm-search" type="search" name="q" value="{{ query }}" placeholder="Search posts, media, or templates">
+  </label>
+
+  <label class="gc-field">
+    <span>Platform</span>
+    <select class="gcsmm-filter" name="platform">
+      <option value="">All platforms</option>
+      {% for item in platforms %}
+        <option value="{{ item.key }}" {% if platform == item.key %}selected{% endif %}>{{ item.label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="gc-field">
+    <span>Status</span>
+    <select class="gcsmm-filter" name="status">
+      <option value="all">All statuses</option>
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  {% if section == 'calendar' %}
+    <label class="gc-field">
+      <span>Calendar view</span>
+      <select class="gcsmm-filter" name="view">
+        {% for value, label in calendar_views %}
+          <option value="{{ value }}" {% if view == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="gc-field">
+      <span>Date</span>
+      <input class="gcsmm-filter" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+    </label>
+  {% endif %}
+
+  {% if section == 'posts' %}
+    <label class="gc-field">
+      <span>Sort by</span>
+      <select class="gcsmm-filter" name="sort">
+        {% for value, label in sorts %}
+          <option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="gc-field">
+      <span>Direction</span>
+      <select class="gcsmm-filter" name="dir">
+        <option value="asc" {% if sort_direction == 'asc' %}selected{% endif %}>Ascending</option>
+        <option value="desc" {% if sort_direction == 'desc' %}selected{% endif %}>Descending</option>
+      </select>
+    </label>
+  {% endif %}
+
+  <button type="submit" class="gc-button">Apply</button>
+  <a class="gc-button gc-link-button" href="?section={{ section }}">Reset</a>
+</form>

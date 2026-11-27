@@ -20,6 +20,7 @@ MODEL_ICON_NAMES = {
     ('products', 'wordpresstheme'): 'wordpress',
     ('growth_center', 'analytics'): 'bar-chart',
     ('growth_center', 'campaigns'): 'megaphone',
+    ('growth_center', 'social'): 'share-2',
     ('growth_center', 'seosettings'): 'search',
     ('growth_center', 'pageseo'): 'file-search',
 }
@@ -63,6 +64,13 @@ _LUCIDE_PATHS = {
         '<path d="m3 11 18-5v12L3 14v-3z"/>'
         '<path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'
         '<path d="M15.5 8.5a4 4 0 0 1 0 7"/>'
+    ),
+    'share-2': (
+        '<circle cx="18" cy="5" r="3"/>'
+        '<circle cx="6" cy="12" r="3"/>'
+        '<circle cx="18" cy="19" r="3"/>'
+        '<path d="m8.6 13.5 6.8 4"/>'
+        '<path d="m15.4 6.5-6.8 4"/>'
     ),
     'search': '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     'file-search': (

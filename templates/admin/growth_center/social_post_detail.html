@@ -1,0 +1,128 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_social_media.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-social" class="gc-shell ga-shell gcsmm-shell gcsmm-detail-shell" data-dashboard-url="{% url 'admin:growth-center-social' %}">
+    <div class="gc-header ga-header gcsmm-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / SOCIAL POST {{ post.post_key }}</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">{{ summary_text }}</p>
+      </div>
+      <div class="gcsmm-header-actions">
+        <a class="gc-button" href="{% url 'admin:growth-center-social-post-edit' post.post_key %}">Edit Post</a>
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-social' %}?section=posts">Back to Posts</a>
+      </div>
+    </div>
+
+    <div class="gcsmm-detail-grid">
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Post Summary</h2><p>Content shared across selected platforms.</p></div></div>
+        <div class="gcsmm-detail-meta">
+          <div><span>Status</span><strong class="gcsmm-status gcsmm-status-{{ post.status|lower }}">{{ post.status }}</strong></div>
+          <div><span>Content type</span><strong>{{ post.get_content_type_display }}</strong></div>
+          <div><span>Scheduled</span><strong>{% if post.scheduled_at %}{{ post.scheduled_at|date:'d M Y H:i' }}{% else %}—{% endif %}</strong></div>
+          <div><span>Campaign</span><strong>{% if post.campaign %}<a href="{% url 'admin:growth-center-campaign-detail' post.campaign.campaign_key %}">{{ post.campaign.name }}</a>{% else %}—{% endif %}</strong></div>
+        </div>
+        <div class="gcsmm-copy-block"><span>Base content</span><p>{{ post.content|linebreaksbr }}</p><button type="button" class="gc-button gc-link-button" data-copy-text="{{ post.content }}">Copy</button></div>
+        {% if hashtags %}<div class="gcsmm-copy-block"><span>Hashtags</span><p>{{ hashtags|join:' ' }}</p><button type="button" class="gc-button gc-link-button" data-copy-text="{{ hashtags|join:' ' }}">Copy</button></div>{% endif %}
+        {% if post.notes %}<div class="gcsmm-copy-block"><span>Internal notes</span><p>{{ post.notes|linebreaksbr }}</p></div>{% endif %}
+      </section>
+
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Attachments</h2><p>{{ media_rows|length }} selected assets</p></div></div>
+        {% if media_rows %}
+          <div class="gcsmm-detail-media">
+            {% for item in media_rows %}
+              <div class="gcsmm-detail-media-item">
+                {% if item.asset.media_type == 'Image' %}<img src="{{ item.preview_url }}" alt="{{ item.asset.alt_text|default:item.asset.title }}">{% endif %}
+                <div><strong>{{ item.asset.title }}</strong><small>{{ item.asset.media_type }} · {{ item.asset.size_display }}</small></div>
+                <a href="{{ item.download_url }}">Download</a>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="gcsmm-muted">No media attached.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <section class="gc-card gcsmm-notice">
+      <strong>Publishing is manual.</strong>
+      <span>Open each platform, paste the prepared copy, attach downloaded media, then confirm publication here with the live URL.</span>
+    </section>
+
+    <section class="gc-card gcsmm-table-card">
+      <div class="gc-card-heading"><div><h2>Platform Workflow</h2><p>Copy, schedule reminders, and confirm real publication.</p></div></div>
+      {% if platform_rows %}
+        <div class="gcsmm-platform-workflow-list">
+          {% for row in platform_rows %}
+            <article class="gcsmm-platform-workflow">
+              <div class="gcsmm-workflow-heading">
+                <span class="gcsmm-platform-badge">{{ row.platform.label }}</span>
+                <span class="gcsmm-status gcsmm-status-{{ row.entry.status|lower }}">{{ row.entry.status }}</span>
+                <span>{% if row.scheduled_at %}{{ row.scheduled_at|date:'d M Y H:i' }}{% else %}Not scheduled{% endif %}</span>
+                <a href="{{ row.platform.home_url }}" target="_blank" rel="noopener noreferrer">Open platform</a>
+              </div>
+              {% if row.entry.platform_title %}<p><strong>Title:</strong> {{ row.entry.platform_title }}</p>{% endif %}
+              <p>{{ row.copy_content|linebreaksbr }}</p>
+              <div class="gcsmm-workflow-links">
+                <button type="button" class="gc-button gc-link-button" data-copy-text="{{ row.copy_content }}">Copy content</button>
+                {% if row.entry.tracking_url %}
+                  <button type="button" class="gc-button gc-link-button" data-copy-text="{{ row.entry.tracking_url }}">Copy tracking URL</button>
+                  <a href="{{ row.entry.tracking_url }}" target="_blank" rel="noopener noreferrer">Open tracking URL</a>
+                {% else %}
+                  <span class="gcsmm-muted">Add a destination URL in the post editor to generate a tracking link.</span>
+                {% endif %}
+                {% if row.entry.publication_url %}<a href="{{ row.entry.publication_url }}" target="_blank" rel="noopener noreferrer">Live post</a>{% endif %}
+              </div>
+              <div class="gcsmm-workflow-actions">
+                <form method="post" action="{{ row.action_url }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="platform" value="{{ row.entry.platform }}">
+                  <button type="submit" name="action" value="mark_ready" class="gc-button gc-link-button">Mark Ready</button>
+                  <button type="submit" name="action" value="mark_failed" class="gc-button gc-link-button">Mark Failed</button>
+                  <button type="submit" name="action" value="cancel_schedule" class="gc-button gc-link-button">Cancel Schedule</button>
+                  <button type="submit" name="action" value="reschedule" class="gc-button gc-link-button" disabled>Reschedule via Calendar</button>
+                </form>
+                <form method="post" action="{{ row.action_url }}" class="gcsmm-publish-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="platform" value="{{ row.entry.platform }}">
+                  <label class="gc-field"><span>Published URL</span><input type="url" name="publication_url" value="{{ row.entry.publication_url }}" placeholder="https://..."></label>
+                  <label class="gc-field"><span>Date</span><input type="date" name="published_date" value="{% if row.entry.published_at %}{{ row.entry.published_at|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}"></label>
+                  <label class="gc-field"><span>Time</span><input type="time" name="published_time" value="{% if row.entry.published_at %}{{ row.entry.published_at|date:'H:i' }}{% else %}{% now 'H:i' %}{% endif %}"></label>
+                  <button type="submit" name="action" value="mark_published" class="gc-button">Confirm Published</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="gc-card gcsmm-danger-zone">
+      <div class="gc-card-heading"><div><h2>Post Actions</h2><p>Duplicate, regenerate tracking links, or delete this post.</p></div></div>
+      <div class="gcsmm-workflow-actions">
+        <form method="post" action="{% url 'admin:growth-center-social-post-action' post.post_key %}">
+          {% csrf_token %}
+          <button type="submit" name="action" value="duplicate" class="gc-button gc-link-button">Duplicate</button>
+          <button type="submit" name="action" value="sync_tracking" class="gc-button gc-link-button">Regenerate Tracking URLs</button>
+        </form>
+        <form method="post" action="{% url 'admin:growth-center-social-post-action' post.post_key %}">
+          {% csrf_token %}
+          <input type="hidden" name="confirm" value="1">
+          <button type="submit" name="action" value="delete" class="gc-button gc-danger">Delete Post</button>
+        </form>
+      </div>
+    </section>
+  </div>
+  <div id="gcsmm-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_social_media.js' %}"></script>
+{% endblock %}

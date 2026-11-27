@@ -1,0 +1,46 @@
+<div class="gcsmm-two-column">
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Save Template</h2><p>Reusable captions, ideas, calls to action, and hashtag groups.</p></div></div>
+    <form class="gcsmm-form" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="section" value="templates">
+      <input type="hidden" name="intent" value="save_template">
+      {{ template_form.non_field_errors }}
+      <label class="gcsmm-field"><span>Name</span>{{ template_form.name }}{{ template_form.name.errors }}</label>
+      <label class="gcsmm-field"><span>Kind</span>{{ template_form.kind }}{{ template_form.kind.errors }}</label>
+      <label class="gcsmm-field"><span>Platform</span>{{ template_form.platform }}{{ template_form.platform.errors }}</label>
+      <label class="gcsmm-field gcsmm-field-wide"><span>Content</span>{{ template_form.content }}{{ template_form.content.errors }}</label>
+      <label class="gcsmm-field gcsmm-field-wide"><span>Hashtags</span>{{ template_form.hashtags }}{{ template_form.hashtags.errors }}</label>
+      <button type="submit" class="gc-button">Save Template</button>
+    </form>
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Saved Templates</h2><p>{{ templates|length }} available</p></div></div>
+    {% if templates %}
+      <div class="gcsmm-template-list">
+        {% for template in templates %}
+          <article class="gcsmm-template-card">
+            <div class="gcsmm-template-heading">
+              <strong>{{ template.name }}</strong>
+              <span class="gcsmm-platform-badge">{{ template.get_platform_display }}</span>
+            </div>
+            <p>{{ template.content|linebreaksbr }}</p>
+            {% if template.hashtags %}<small>{{ template.hashtags }}</small>{% endif %}
+            <div class="gcsmm-template-actions">
+              <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-social-post-create' %}?template={{ template.template_key }}">Use Template</a>
+              <form method="post" action="{% url 'admin:growth-center-social-template-action' template.template_key %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="confirm" value="1">
+                <button type="submit" class="gc-button gc-danger">Delete</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="gcsmm-muted">No templates saved yet.</p>
+    {% endif %}
+  </section>
+</div>
