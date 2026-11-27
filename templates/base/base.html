@@ -1,6 +1,6 @@
 {% load static %}
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="{{ appearance.html_classes }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -70,6 +70,11 @@
 
     <!-- ================= FONT ================= -->
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    {% include "components/appearance_styles.html" %}
+    {% include "components/whatsapp_float_styles.html" %}
+    {% if appearance.global.font_family == 'inter' %}
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -81,21 +86,8 @@
 
     <!-- ================= THEME INITIALIZATION ================= -->
 
-    <script>
-      (() => {
-        try {
-          const savedTheme = localStorage.getItem("themehub-theme");
-
-          const theme = savedTheme === "light" ? "light" : "dark";
-
-          document.documentElement.setAttribute("data-theme", theme);
-        } catch (error) {
-          document.documentElement.setAttribute("data-theme", "dark");
-        }
-      })();
-    </script>
-
-
+    {{ appearance.config|json_script:"themehaven-appearance-config" }}
+    {% include "components/appearance_init.html" %}
 
     {% block extra_head %}{% endblock %}
   </head>
@@ -120,6 +112,10 @@
       (() => {
         "use strict";
 
+        const configElement = document.getElementById("themehaven-appearance-config");
+        let config = {};
+        try { config = JSON.parse(configElement.textContent); } catch (error) {}
+
         const THEME_KEY = "themehub-theme";
         const root = document.documentElement;
         const pullButton = document.getElementById("themePullToggle");
@@ -139,8 +135,8 @@
           pullButton.setAttribute("aria-label", nextLabel);
           pullButton.setAttribute("title", "Pull to switch theme");
           pullButton.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
-          if (tooltipText) tooltipText.textContent = nextLabel;
-          if (housingIcon) {
+          if (tooltipText) tooltipText.textContent = config.desktopTooltip || nextLabel;
+          if (housingIcon && !config.desktopCustomIcon) {
             housingIcon.innerHTML = theme === "dark"
               ? '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>'
               : '<path d="M20.8 15.4A8.5 8.5 0 0 1 8.6 3.2 8.5 8.5 0 1 0 20.8 15.4Z"></path>';
@@ -149,15 +145,27 @@
 
         function setTheme(theme) {
           root.setAttribute("data-theme", theme);
-          try { localStorage.setItem(THEME_KEY, theme); } catch (error) {}
+          if (config.canSwitch) {
+            try { localStorage.setItem(THEME_KEY, JSON.stringify({ theme: theme, token: config.token })); } catch (error) {}
+          }
           updateButton(theme);
           const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-          if (themeColorMeta) themeColorMeta.setAttribute("content", theme === "dark" ? "#080511" : "#f8f6ff");
+          if (themeColorMeta && config.metaColors && config.metaColors[theme]) {
+            themeColorMeta.setAttribute("content", config.metaColors[theme]);
+          }
         }
 
-        function toggleTheme() { setTheme(getTheme() === "dark" ? "light" : "dark"); }
+        function toggleTheme() {
+          if (!config.canSwitch) return;
+          const themes = config.themes && config.themes.length ? config.themes : ["dark", "light"];
+          const current = getTheme();
+          const next = themes.indexOf(current) === -1 ? themes[0] : themes[(themes.indexOf(current) + 1) % themes.length];
+          setTheme(next);
+        }
 
-        if (pullButton) {
+        window.themehavenToggleTheme = toggleTheme;
+
+        if (pullButton && config.canSwitch) {
           pullButton.addEventListener("keydown", (event) => {
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
@@ -168,7 +176,7 @@
           });
         }
 
-        if (pullButton && pullKnob && cordLine && cordShadow && cordHighlight && cordBraid) {
+        if (config.canSwitch && pullButton && pullKnob && cordLine && cordShadow && cordHighlight && cordBraid) {
           let pointerId = null, startY = 0, dragging = false, activated = false, dragDistance = 0;
           let raf = null, targetY = 0, currentY = 0, velocity = 0, swingRaf = null;
           const threshold = 42, maxPull = 68;
@@ -316,7 +324,6 @@
     <script>
       (() => {
         const root = document.documentElement;
-        const pullButton = document.getElementById("themePullToggle");
         const toggles = document.querySelectorAll("[data-theme-toggle]");
 
         const sync = () => {
@@ -333,7 +340,7 @@
         };
 
         toggles.forEach((button) => button.addEventListener("click", () => {
-          pullButton?.click();
+          window.themehavenToggleTheme?.();
           sync();
         }));
 
@@ -342,12 +349,7 @@
       })();
     </script>
 
-    <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Chat with ThemeHaven on WhatsApp" title="Chat with us{% if not whatsapp_number_configured %} — select ThemeHaven from your WhatsApp contacts{% endif %}" class="group fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] right-[calc(env(safe-area-inset-right)+1rem)] z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_24px_rgba(10,120,62,0.32)] transition duration-200 hover:-translate-y-1 hover:scale-105 hover:bg-[#20bd5a] hover:shadow-[0_12px_30px_rgba(10,120,62,0.4)] focus-visible:outline-offset-4 sm:h-[60px] sm:w-[60px]" {% if not whatsapp_number_configured %}data-phone-unconfigured="true"{% endif %}>
-      <svg class="h-8 w-8" viewBox="0 0 32 32" fill="currentColor" role="img" aria-label="WhatsApp">
-        <path d="M16.04 3.2a12.55 12.55 0 0 0-10.7 19.1L3.7 28.8l6.66-1.72A12.55 12.55 0 1 0 16.04 3.2Zm0 22.83c-1.9 0-3.77-.51-5.4-1.48l-.39-.23-3.95 1.02 1.05-3.85-.25-.4a10.23 10.23 0 1 1 8.94 4.94Zm5.62-7.66c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.69.15-.2.3-.79.98-.97 1.18-.18.2-.36.22-.66.07-.3-.15-1.26-.46-2.4-1.48-.89-.8-1.49-1.78-1.67-2.08-.18-.3-.02-.47.13-.62.13-.13.3-.36.45-.54.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.69-1.65-.94-2.26-.25-.6-.5-.52-.69-.53h-.59c-.2 0-.53.08-.81.38-.28.3-1.07 1.04-1.07 2.54s1.1 2.95 1.25 3.15c.15.2 2.16 3.3 5.24 4.63.73.32 1.3.5 1.74.64.73.23 1.4.2 1.93.12.59-.09 1.78-.73 2.03-1.44.25-.71.25-1.32.18-1.44-.08-.13-.28-.2-.58-.36Z"/>
-      </svg>
-      <span aria-hidden="true" class="pointer-events-none absolute right-[calc(100%+0.75rem)] whitespace-nowrap rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)] opacity-0 shadow-lg transition group-hover:opacity-100 group-focus-visible:opacity-100">Chat with us</span>
-    </a>
+    {% include "components/whatsapp_float.html" %}
 
     {% block extra_js %}{% endblock %}
   </body>

@@ -1,4 +1,4 @@
-<article class="product-card group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-[var(--shadow-card)] transition duration-300 hover:-translate-y-1 hover:border-[var(--border-hover)] hover:shadow-[0_18px_42px_var(--glow-purple)]" data-product-card data-product-preview="{{ product.preview_data_json|escape }}">
+<article class="product-card group relative flex h-full flex-col overflow-hidden rounded-[18px] border border-[var(--border-color)] bg-[var(--bg-card)] transition duration-300 hover:-translate-y-1 hover:border-[var(--border-hover)]" data-product-card data-product-preview="{{ product.preview_data_json|escape }}">
   <div class="relative aspect-[16/10] overflow-hidden bg-[var(--bg-tertiary)]">
     <a href="{{ product.get_absolute_url }}" aria-label="View {{ product.title }} details" class="block h-full w-full">
       <img src="{{ product.thumbnail.url }}" alt="{{ product.title }} preview" loading="lazy" class="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.04]" />

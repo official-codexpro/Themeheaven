@@ -1,0 +1,25 @@
+{% if whatsapp_float.enabled %}
+  <a
+    href="{{ whatsapp_float.url }}"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Chat with ThemeHaven on WhatsApp"
+    title="{{ whatsapp_float.tooltip_title }}"
+    class="whatsapp-float whatsapp-float--{{ whatsapp_float.position }} whatsapp-float--animation-{{ whatsapp_float.animation }}{% if whatsapp_float.hide_on_mobile %} whatsapp-float--hide-mobile{% endif %}{% if whatsapp_float.hide_on_desktop %} whatsapp-float--hide-desktop{% endif %}"
+    style="--wa-background: {{ whatsapp_float.background_color }}; --wa-icon-color: {{ whatsapp_float.icon_color }}; --wa-button-size: {{ whatsapp_float.button_size }}px; --wa-icon-size: {{ whatsapp_float.icon_size }}px; --wa-border-radius: {{ whatsapp_float.border_radius }}px; --wa-offset-x: {{ whatsapp_float.horizontal_offset }}px; --wa-offset-y: {{ whatsapp_float.vertical_offset }}px; --wa-z-index: {{ whatsapp_float.z_index }};"
+    {% if not whatsapp_float.number_configured %}data-phone-unconfigured="true"{% endif %}
+  >
+    <span class="whatsapp-float__icon">
+      {% if whatsapp_float.svg_markup %}
+        {{ whatsapp_float.svg_markup|safe }}
+      {% else %}
+        <svg viewBox="0 0 32 32" fill="currentColor" role="img" aria-label="WhatsApp">
+          <path d="M16.04 3.2a12.55 12.55 0 0 0-10.7 19.1L3.7 28.8l6.66-1.72A12.55 12.55 0 1 0 16.04 3.2Zm0 22.83c-1.9 0-3.77-.51-5.4-1.48l-.39-.23-3.95 1.02 1.05-3.85-.25-.4a10.23 10.23 0 1 1 8.94 4.94Zm5.62-7.66c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.69.15-.2.3-.79.98-.97 1.18-.18.2-.36.22-.66.07-.3-.15-1.26-.46-2.4-1.48-.89-.8-1.49-1.78-1.67-2.08-.18-.3-.02-.47.13-.62.13-.13.3-.36.45-.54.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.69-1.65-.94-2.26-.25-.6-.5-.52-.69-.53h-.59c-.2 0-.53.08-.81.38-.28.3-1.07 1.04-1.07 2.54s1.1 2.95 1.25 3.15c.15.2 2.16 3.3 5.24 4.63.73.32 1.3.5 1.74.64.73.23 1.4.2 1.93.12.59-.09 1.78-.73 2.03-1.44.25-.71.25-1.32.18-1.44-.08-.13-.28-.2-.58-.36Z"/>
+        </svg>
+      {% endif %}
+    </span>
+    {% if whatsapp_float.tooltip_enabled %}
+      <span class="whatsapp-float__tooltip" role="tooltip">{{ whatsapp_float.tooltip_text }}</span>
+    {% endif %}
+  </a>
+{% endif %}

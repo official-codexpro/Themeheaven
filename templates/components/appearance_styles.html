@@ -1,0 +1,157 @@
+<style>
+  :root {
+    --font-primary: {{ appearance.global.font_stack|safe }};
+    --global-radius: {{ appearance.global.border_radius }}px;
+    --global-button-radius: {{ appearance.global.button_radius }}px;
+    --global-accent: {{ appearance.global.accent_color }};
+    --global-accent-hover: {{ appearance.global.accent_hover }};
+    --global-accent-shadow: {{ appearance.global.accent_shadow }};
+    --accent-gradient: linear-gradient(110deg, var(--global-accent) 0%, color-mix(in srgb, var(--global-accent) 62%, #315fff) 100%);
+  }
+
+  [data-theme="dark"] {
+    --bg-primary: {{ appearance.dark.bg_primary }};
+    --bg-secondary: {{ appearance.dark.bg_secondary }};
+    --bg-card: {{ appearance.dark.bg_card }};
+    --header-bg: {{ appearance.dark.header_bg }};
+    --footer-bg: {{ appearance.dark.footer_bg }};
+    --text-primary: {{ appearance.dark.text_primary }};
+    --text-secondary: {{ appearance.dark.text_secondary }};
+    --heading-color: {{ appearance.dark.heading_color }};
+    --border-color: {{ appearance.dark.border_color }};
+    --button-bg: {{ appearance.dark.button_bg }};
+    --button-hover: {{ appearance.dark.button_hover }};
+    --button-text: {{ appearance.dark.button_text }};
+    --input-bg: {{ appearance.dark.input_bg }};
+    --input-text: {{ appearance.dark.input_text }};
+    --link-color: {{ appearance.dark.link_color }};
+    --accent: {{ appearance.dark.accent_color }};
+    --accent-hover: {{ appearance.dark.accent_hover }};
+    --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  [data-theme="light"] {
+    --bg-primary: {{ appearance.light.bg_primary }};
+    --bg-secondary: {{ appearance.light.bg_secondary }};
+    --bg-card: {{ appearance.light.bg_card }};
+    --header-bg: {{ appearance.light.header_bg }};
+    --footer-bg: {{ appearance.light.footer_bg }};
+    --text-primary: {{ appearance.light.text_primary }};
+    --text-secondary: {{ appearance.light.text_secondary }};
+    --heading-color: {{ appearance.light.heading_color }};
+    --border-color: {{ appearance.light.border_color }};
+    --button-bg: {{ appearance.light.button_bg }};
+    --button-hover: {{ appearance.light.button_hover }};
+    --button-text: {{ appearance.light.button_text }};
+    --input-bg: {{ appearance.light.input_bg }};
+    --input-text: {{ appearance.light.input_text }};
+    --link-color: {{ appearance.light.link_color }};
+    --accent: {{ appearance.light.accent_color }};
+    --accent-hover: {{ appearance.light.accent_hover }};
+    --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  h1, h2, h3, h4, h5, h6 { color: var(--heading-color) !important; }
+  @media (min-width: 1280px) {
+    #themehub-navbar { background-color: transparent !important; }
+    [data-theme] #themehub-navbar.is-scrolled { background-color: var(--header-bg) !important; }
+  }
+  #site-footer { background-color: var(--footer-bg) !important; }
+  .btn, input[type="submit"], input[type="button"] { border-radius: var(--global-button-radius) !important; }
+  .btn-primary { background: var(--button-bg) !important; color: var(--button-text) !important; }
+  .btn-primary:hover { background: var(--button-hover) !important; }
+  input:not([type="color"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]), select, textarea {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border-color: var(--border-color);
+    border-radius: var(--global-radius);
+  }
+  main a:not(.btn), #site-footer a:not(.btn) { color: var(--link-color); }
+
+  .theme-pull-slot {
+    --desktop-button-size: {{ appearance.desktop.button_size }};
+    --desktop-radius: {{ appearance.desktop.border_radius }}px;
+    --desktop-bg: {{ appearance.desktop.background_color }};
+    --desktop-icon-color: {{ appearance.desktop.icon_color }};
+    --desktop-icon-size: {{ appearance.desktop.icon_size }}px;
+    transform: scale(calc(var(--desktop-button-size) / 48));
+    transform-origin: top right;
+  }
+  .theme-pull-slot--bottom-right { position: fixed; right: 16px; bottom: 16px; z-index: 71; }
+  .theme-pull-slot--bottom-left { position: fixed; left: 16px; bottom: 16px; z-index: 71; }
+  #themePullToggle { border-radius: var(--desktop-radius); }
+  .appearance-desktop-custom-bg #themePullToggle { background-color: var(--desktop-bg); }
+  .theme-pull-housing-icon {
+    width: var(--desktop-icon-size);
+    height: var(--desktop-icon-size);
+    color: var(--desktop-icon-color);
+  }
+  .theme-pull-housing-icon svg { display: block; width: 100%; height: 100%; }
+  .appearance-desktop-no-tooltip .theme-pull-tooltip { display: none !important; }
+  .appearance-desktop-no-hover #themePullToggle:hover .theme-pull-housing-bulb { transform: translateX(-50%) !important; }
+  .appearance-desktop-no-hover #themePullToggle:hover .theme-pull-svg { transform: none !important; }
+  .appearance-desktop-no-hover #themePullToggle:hover .theme-pull-knob-glow { opacity: .55 !important; }
+  .appearance-desktop-no-transition #themePullToggle,
+  .appearance-desktop-no-transition #themePullToggle * { transition: none !important; }
+
+  [data-theme-toggle].appearance-mobile-switcher {
+    --mobile-bg: {{ appearance.mobile.background_color }};
+    --mobile-icon-color: {{ appearance.mobile.icon_color }};
+    --mobile-icon-size: {{ appearance.mobile.icon_size }}px;
+    --mobile-button-size: {{ appearance.mobile.button_size }}px;
+    --mobile-radius: {{ appearance.mobile.border_radius }}px;
+    min-height: var(--mobile-button-size);
+    border-radius: var(--mobile-radius);
+    position: relative;
+  }
+  .appearance-mobile-custom-bg [data-theme-toggle].appearance-mobile-switcher { background-color: var(--mobile-bg); }
+  [data-theme-toggle] .appearance-mobile-icon { width: var(--mobile-icon-size) !important; height: var(--mobile-icon-size) !important; color: var(--mobile-icon-color); }
+  [data-theme-toggle] .appearance-mobile-icon svg { display: block; width: 100%; height: 100%; }
+  [data-theme-toggle].appearance-mobile-bottom-right,
+  [data-theme-toggle].appearance-mobile-bottom-left {
+    position: fixed;
+    bottom: 92px;
+    z-index: 72;
+    min-width: 48px;
+    padding-inline: 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--mobile-bg);
+    box-shadow: 0 8px 24px rgba(10, 8, 20, .22);
+  }
+  [data-theme-toggle].appearance-mobile-bottom-right { right: 16px; }
+  [data-theme-toggle].appearance-mobile-bottom-left { left: 16px; }
+  .appearance-mobile-tooltip {
+    display: none;
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    padding: 5px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .appearance-mobile-tooltip-enabled .appearance-mobile-tooltip { display: block; }
+  [data-theme-toggle]:hover .appearance-mobile-tooltip,
+  [data-theme-toggle]:focus-visible .appearance-mobile-tooltip { opacity: 1; }
+  .appearance-mobile-no-hover [data-theme-toggle].appearance-mobile-switcher:hover { transform: none !important; }
+  .appearance-mobile-no-transition [data-theme-toggle].appearance-mobile-switcher,
+  .appearance-mobile-no-transition [data-theme-toggle].appearance-mobile-switcher * { transition: none !important; }
+
+  html.appearance-no-animation *,
+  html.appearance-no-animation *::before,
+  html.appearance-no-animation *::after { animation: none !important; }
+  html.appearance-no-hover :hover { transform: none !important; }
+  html.appearance-no-transition *,
+  html.appearance-no-transition *::before,
+  html.appearance-no-transition *::after,
+  html.appearance-instant-theme *,
+  html.appearance-instant-theme *::before,
+  html.appearance-instant-theme *::after { transition: none !important; }
+</style>

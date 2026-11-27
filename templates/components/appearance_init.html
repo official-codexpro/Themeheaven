@@ -1,0 +1,39 @@
+<script>
+  (() => {
+    const configElement = document.getElementById("themehaven-appearance-config");
+    if (!configElement) return;
+    let config = {};
+    try { config = JSON.parse(configElement.textContent); } catch (error) { config = {}; }
+
+    const root = document.documentElement;
+    let theme = config.defaultTheme || "dark";
+    let stored = null;
+    try { stored = localStorage.getItem("themehub-theme"); } catch (error) {}
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.theme) stored = parsed;
+        else if (stored !== "dark" && stored !== "light") stored = null;
+      } catch (error) {
+        if (stored !== "dark" && stored !== "light") stored = null;
+      }
+    }
+
+    if (stored && stored.theme) {
+      const fresh = config.preferencePolicy !== "follow" || stored.token === config.token;
+      if (fresh && (!config.themes || config.themes.includes(stored.theme))) {
+        theme = stored.theme;
+      }
+    }
+
+    if (!config.canSwitch) theme = config.forcedTheme || config.defaultTheme || theme;
+    if (config.themes && !config.themes.includes(theme)) theme = config.defaultTheme;
+
+    root.setAttribute("data-theme", theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta && config.metaColors && config.metaColors[theme]) {
+      meta.setAttribute("content", config.metaColors[theme]);
+    }
+  })();
+</script>
