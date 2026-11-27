@@ -1,0 +1,11 @@
+<div class="ga-split">
+  <div class="ga-donut" data-donut="device" aria-hidden="true"></div>
+  <div class="ga-breakdown">
+    {% for row in device_breakdown %}
+      <button type="button" class="ga-breakdown-row {% if device == row.category %}is-active{% endif %}" data-device="{{ row.category }}">
+        <span class="ga-breakdown-label"><i class="gc-dot gc-tone-{{ row.tone }}"></i>{{ row.category }}</span>
+        <span class="ga-breakdown-value">{{ row.count|floatformat:0 }} · {{ row.percent|floatformat:1 }}%</span>
+      </button>
+    {% endfor %}
+  </div>
+</div>

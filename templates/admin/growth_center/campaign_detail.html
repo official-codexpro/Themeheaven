@@ -1,0 +1,218 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_campaigns.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-campaigns" class="gc-shell gccamp-detail-shell" data-dashboard-url="{% url 'admin:growth-center-campaigns' %}">
+    <div class="gc-header ga-header gccamp-header">
+      <div>
+        <p class="gc-eyebrow"><a href="{% url 'admin:growth-center-campaigns' %}">CAMPAIGNS / UTM MANAGER</a> / {{ campaign.campaign_key }}</p>
+        <h1>{{ campaign.name }}</h1>
+        <p class="gc-summary">{{ summary_text }}</p>
+      </div>
+      <div class="gccamp-header-actions">
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-campaign-edit' campaign.campaign_key %}">Edit Campaign</a>
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-analytics' %}?section=acquisition">Analytics</a>
+      </div>
+    </div>
+
+    <form class="gc-controls ga-controls gccamp-controls gccamp-detail-filters" method="get">
+      <label class="gc-field">
+        <span>Date range</span>
+        <select name="range" aria-label="Campaign date range">
+          {% for value, label in range_choices %}
+            <option value="{{ value }}" {% if range.key == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% if range.key == 'custom' %}
+        <label class="gc-field"><span>From</span><input type="date" name="start" value="{{ range.start_iso }}"></label>
+        <label class="gc-field"><span>To</span><input type="date" name="end" value="{{ range.end_iso }}"></label>
+      {% endif %}
+      <label class="gc-field">
+        <span>Chart period</span>
+        <select name="grain" aria-label="Campaign chart period">
+          {% for value, label in grain_choices %}
+            <option value="{{ value }}" {% if grain == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="ga-check">
+        <input type="checkbox" name="compare" value="1" {% if compare %}checked{% endif %}>
+        <span>Compare with previous period</span>
+      </label>
+      <button type="submit" class="gc-button">Apply</button>
+    </form>
+
+    <section class="gc-card gccamp-campaign-summary">
+      <div class="gccamp-summary-grid">
+        <div><span>Status</span><strong><span class="gccamp-status gccamp-status-{{ campaign.status|lower }}">{{ campaign.status }}</span></strong></div>
+        <div><span>Objective</span><strong>{{ campaign.get_objective_display }}</strong></div>
+        <div><span>Source / Medium</span><strong>{{ campaign.utm_source }} / {{ campaign.utm_medium }}</strong></div>
+        <div><span>Campaign UTM</span><strong>{{ campaign.utm_campaign }}</strong></div>
+        <div><span>Schedule</span><strong>{{ campaign.start_date|default:"—" }} → {{ campaign.end_date|default:"—" }}</strong></div>
+        <div><span>Created</span><strong>{{ campaign.created_at|date:"M d, Y" }}</strong></div>
+      </div>
+      <div class="gccamp-detail-url">
+        <div data-url-preview><code>{{ campaign_url }}</code></div>
+        <button type="button" class="gc-button" data-copy-url="{{ campaign_url }}">Copy URL</button>
+        <a class="gc-button gc-link-button" href="{{ campaign_url }}" target="_blank" rel="noopener noreferrer">Open</a>
+      </div>
+    </section>
+
+    <section class="gccamp-action-bar" role="group" aria-label="Campaign actions">
+      <form method="post" action="{% url 'admin:growth-center-campaign-action' campaign.campaign_key %}">
+        {% csrf_token %}<input type="hidden" name="action" value="duplicate">
+        <button type="submit" class="gc-button gc-link-button">Duplicate</button>
+      </form>
+      {% if campaign.status == 'Active' %}
+        <form method="post" action="{% url 'admin:growth-center-campaign-action' campaign.campaign_key %}">
+          {% csrf_token %}<input type="hidden" name="action" value="pause">
+          <button type="submit" class="gc-button gc-link-button">Pause</button>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'admin:growth-center-campaign-action' campaign.campaign_key %}">
+          {% csrf_token %}<input type="hidden" name="action" value="resume">
+          <button type="submit" class="gc-button gc-link-button">Resume</button>
+        </form>
+      {% endif %}
+      <form method="post" action="{% url 'admin:growth-center-campaign-action' campaign.campaign_key %}">
+        {% csrf_token %}<input type="hidden" name="action" value="archive">
+        <button type="submit" class="gc-button gc-link-button">Archive</button>
+      </form>
+      <form method="post" action="{% url 'admin:growth-center-campaign-action' campaign.campaign_key %}" data-confirm="Delete “{{ campaign.name }}” permanently?">
+        {% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="confirm" value="1">
+        <button type="submit" class="gc-button gccamp-danger">Delete</button>
+      </form>
+    </section>
+
+    {% if not has_data %}
+      <div class="ga-empty-state" role="status">
+        <strong>No visits recorded for this campaign yet.</strong>
+        <span>Share the trackable URL above. Performance appears after real visitors open it.</span>
+      </div>
+    {% endif %}
+
+    <div class="gc-kpi-grid ga-kpi-grid">
+      {% for key, kpi in kpis.items %}
+        <article class="gc-card gc-kpi ga-kpi" data-kpi="{{ key }}">
+          <div class="ga-kpi-top">
+            <span>{{ kpi.label }}</span>
+            <button type="button" class="ga-info" data-tooltip="{{ kpi.help }}" aria-label="About {{ kpi.label }}">i</button>
+          </div>
+          <strong>{{ kpi.display }}</strong>
+          <p class="gc-comparison gc-{{ kpi.comparison.direction }} {{ kpi.comparison.tone }}">
+            {{ kpi.comparison.label }} <span>{{ kpi.direction_label }}</span>
+          </p>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="ga-chart-grid">
+      <section class="gc-card ga-chart-card">
+        <div class="gc-card-heading">
+          <div>
+            <h2>Campaign Performance</h2>
+            <p>Visitors, visits, and page views over the selected period.</p>
+          </div>
+          <div class="gc-legend" aria-label="Campaign performance legend">
+            <span><i class="gc-swatch gc-swatch-new"></i>Visitors</span>
+            <span><i class="gc-swatch gc-swatch-returning"></i>Visits</span>
+            <span><i class="gc-swatch gc-swatch-views"></i>Page Views</span>
+          </div>
+        </div>
+        <div class="ga-chart" data-chart="campaign-traffic">
+          <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Campaign performance over time chart"></svg>
+          <div class="gc-tooltip ga-tooltip" hidden></div>
+        </div>
+      </section>
+
+      <section class="gc-card ga-panel">
+        <div class="gc-card-heading">
+          <div>
+            <h2>Device Breakdown</h2>
+            <p>Visits by device category.</p>
+          </div>
+        </div>
+        <div class="ga-donut-row">
+          <div class="ga-donut" data-donut="device"></div>
+          <div class="ga-donut-legend">
+            {% for row in devices %}
+              <span><i class="gc-swatch gc-swatch-{{ row.tone }}"></i>{{ row.label }} <strong>{{ row.count }}</strong></span>
+            {% empty %}
+              <span>No device data</span>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="ga-detail-grid">
+      <section class="gc-card ga-panel">
+        <div class="gc-card-heading"><div><h2>UTM Details</h2><p>How this campaign is classified.</p></div></div>
+        <div class="gccamp-summary-grid gccamp-summary-grid-tight">
+          <div><span>UTM Term</span><strong>{{ campaign.utm_term|default:"—" }}</strong></div>
+          <div><span>UTM Content</span><strong>{{ campaign.utm_content|default:"—" }}</strong></div>
+          <div><span>Source</span><strong>{{ campaign.utm_source }}</strong></div>
+          <div><span>Medium</span><strong>{{ campaign.utm_medium }}</strong></div>
+        </div>
+        {% if term_rows %}
+          <ul class="gccamp-mini-list">
+            {% for row in term_rows %}<li><span>{{ row.utm_term }}</span><strong>{{ row.visits }} visits</strong></li>{% endfor %}
+          </ul>
+        {% endif %}
+        {% if content_rows %}
+          <ul class="gccamp-mini-list">
+            {% for row in content_rows %}<li><span>{{ row.utm_content }}</span><strong>{{ row.visits }} visits</strong></li>{% endfor %}
+          </ul>
+        {% endif %}
+      </section>
+
+      <section class="gc-card ga-panel">
+        <div class="gc-card-heading"><div><h2>Traffic Sources</h2><p>Classified sources for campaign sessions.</p></div></div>
+        <div class="ga-donut-row">
+          <div class="ga-donut" data-donut="source"></div>
+          <div class="ga-donut-legend">
+            {% for row in sources %}
+              <span><i class="gc-swatch gc-swatch-{{ row.tone }}"></i>{{ row.label }} <strong>{{ row.count }}</strong></span>
+            {% empty %}
+              <span>No source data</span>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="gc-card gccamp-table-card">
+      <div class="gc-card-heading">
+        <div><h2>Landing Pages</h2><p>Pages where campaign visits started.</p></div>
+      </div>
+      {% if landings %}
+        <div class="gccamp-table-wrap">
+          <table class="gccamp-table">
+            <thead><tr><th>Landing Page</th><th>Visits</th><th>Visitors</th></tr></thead>
+            <tbody>
+              {% for row in landings %}
+                <tr><td><code>{{ row.landing_path }}</code></td><td>{{ row.visits }}</td><td>{{ row.visitors }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="gccamp-table-empty">No landing pages recorded for this campaign.</div>
+      {% endif %}
+    </section>
+  </div>
+
+  <div id="gccamp-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  {{ charts.traffic|json_script:"gccamp-chart-data" }}
+  {{ devices|json_script:"gccamp-device-data" }}
+  {{ sources|json_script:"gccamp-source-data" }}
+  <script src="{% static 'js/growth_campaigns.js' %}"></script>
+{% endblock %}

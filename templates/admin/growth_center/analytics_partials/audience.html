@@ -1,0 +1,85 @@
+{% include "admin/growth_center/analytics_partials/kpis.html" %}
+
+<section class="gc-card ga-chart-card ga-chart-card-wide">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Audience Trend</h2>
+      <p>New versus returning sessions across the selected period.</p>
+    </div>
+    <div class="gc-legend" aria-label="Audience legend">
+      <span><i class="gc-swatch gc-swatch-new"></i>New</span>
+      <span><i class="gc-swatch gc-swatch-returning"></i>Returning</span>
+    </div>
+  </div>
+  <div class="ga-dual-chart" data-chart="growth">
+    <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Audience trend chart"></svg>
+    <div class="gc-tooltip ga-tooltip" hidden></div>
+  </div>
+</section>
+
+<div class="ga-detail-grid">
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Session Duration</h2>
+        <p>Only sessions with a reliable end beacon are counted.</p>
+      </div>
+    </div>
+    <div class="ga-bar-list">
+      {% for row in audience.duration_bands %}
+        <div class="ga-bar-row">
+          <span>{{ row.label }}</span>
+          <span class="ga-bar-track"><i style="width: {{ row.count|floatformat:0 }}%"></i></span>
+          <strong>{{ row.count }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Pages Per Session</h2>
+        <p>How many pages visitors viewed before leaving.</p>
+      </div>
+    </div>
+    <div class="ga-bar-list">
+      {% for row in audience.pages_bands %}
+        <div class="ga-bar-row">
+          <span>{{ row.label }}</span>
+          <span class="ga-bar-track"><i style="width: {{ row.count|floatformat:0 }}%"></i></span>
+          <strong>{{ row.count }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<section class="gc-card ga-panel">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Visitor Behavior</h2>
+      <p>Entry pages, exit pages, and navigation paths derived from real page-view sequences.</p>
+    </div>
+  </div>
+  <div class="ga-three-grid">
+    <div>
+      <h3>Entry pages</h3>
+      <ul class="ga-list">
+        {% for row in behavior.entry_pages %}<li><span>{{ row.title }}</span><strong>{{ row.count }}</strong></li>{% empty %}<li class="ga-list-empty">No entry pages recorded.</li>{% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h3>Exit pages</h3>
+      <ul class="ga-list">
+        {% for row in behavior.exit_pages %}<li><span>{{ row.title }}</span><strong>{{ row.count }}</strong></li>{% empty %}<li class="ga-list-empty">No exit pages recorded.</li>{% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h3>Navigation paths</h3>
+      <ul class="ga-list">
+        {% for row in behavior.navigation %}<li><span>{{ row.from_title }} → {{ row.to_title }}</span><strong>{{ row.count }}</strong></li>{% empty %}<li class="ga-list-empty">No multi-page navigation recorded.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>

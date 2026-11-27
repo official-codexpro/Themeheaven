@@ -1,0 +1,23 @@
+{% include "admin/growth_center/analytics_partials/kpis.html" %}
+
+<section class="gc-card ga-panel">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Geography</h2>
+      <p>Country-level sessions from trusted host-provided headers only.</p>
+    </div>
+  </div>
+  <div class="ga-table-wrap">
+    <table class="gc-table ga-table">
+      <thead><tr><th scope="col">Country</th><th scope="col">Sessions</th><th scope="col">Unique visitors</th><th scope="col">Share</th></tr></thead>
+      <tbody>
+        {% for row in geography %}
+          <tr><td>{{ row.label }}</td><td>{{ row.sessions }}</td><td>{{ row.visitors }}</td><td>{{ row.percent|floatformat:1 }}%</td></tr>
+        {% empty %}
+          <tr><td colspan="4" class="gc-table-empty">No reliable country data has been provided by the hosting environment. No locations are estimated.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="gc-note ga-note">City-level and IP-derived locations are not collected.</p>
+</section>

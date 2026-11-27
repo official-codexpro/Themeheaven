@@ -1,0 +1,40 @@
+{% include "admin/growth_center/analytics_partials/kpis.html" %}
+
+<section class="gc-card ga-chart-card ga-chart-card-wide">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Traffic Trends</h2>
+      <p>Daily, weekly, or monthly totals based on the selected date range.</p>
+    </div>
+    <span class="ga-chart-hint">Showing {{ metric }}</span>
+  </div>
+  <div class="ga-chart" data-chart="traffic">
+    <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Traffic trends chart"></svg>
+    <div class="gc-tooltip ga-tooltip" hidden></div>
+  </div>
+</section>
+
+<div class="ga-detail-grid">
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Session Volume</h2>
+        <p>Sessions and unique visitors by period.</p>
+      </div>
+    </div>
+    <div class="ga-dual-chart" data-chart="growth">
+      <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Sessions and visitors chart"></svg>
+      <div class="gc-tooltip ga-tooltip" hidden></div>
+    </div>
+  </section>
+
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Traffic Source Share</h2>
+        <p>Select a source to filter every analytics report.</p>
+      </div>
+    </div>
+    {% include "admin/growth_center/analytics_partials/source_rows.html" %}
+  </section>
+</div>

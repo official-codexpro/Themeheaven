@@ -1,0 +1,51 @@
+<section class="gc-card ga-panel">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Landing Pages</h2>
+      <p>First page visitors viewed in each tracked session.</p>
+    </div>
+    <span class="ga-chart-hint">{{ landing_page.paginator.count }} landing page(s)</span>
+  </div>
+  <div class="ga-table-wrap">
+    <table class="gc-table ga-table ga-sortable-table">
+      <thead>
+        <tr>
+          <th scope="col"><button type="button" data-sort="path">Landing page</button></th>
+          <th scope="col"><button type="button" data-sort="visitors">Visitors</button></th>
+          <th scope="col"><button type="button" data-sort="sessions">Sessions</button></th>
+          <th scope="col"><button type="button" data-sort="bounce">Bounce rate</button></th>
+          <th scope="col"><button type="button" data-sort="time">Avg. session</button></th>
+          <th scope="col">Conversion rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in landing_page %}
+          <tr>
+            <td>
+              <button type="button" class="ga-page-link" data-page-path="{{ row.path }}">
+                <strong>{{ row.title }}</strong>
+                <span>{{ row.path }}</span>
+              </button>
+            </td>
+            <td>{{ row.visitors }}</td>
+            <td>{{ row.sessions }}</td>
+            <td>{{ row.bounce_rate|floatformat:1 }}%</td>
+            <td>{{ row.avg_duration_display }}</td>
+            <td><span class="ga-unavailable" title="Conversion tracking is not enabled">—</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="gc-table-empty">No landing pages recorded for this selection.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if landing_page.paginator.num_pages > 1 %}
+    <nav class="ga-pagination" aria-label="Landing pages pagination">
+      {% if landing_page.has_previous %}<button type="button" data-page="{{ landing_page.previous_page_number }}" data-pagination="landing">Previous</button>{% endif %}
+      {% for number in landing_page.paginator.page_range %}
+        <button type="button" data-page="{{ number }}" data-pagination="landing" {% if number == landing_page.number %}class="is-active" aria-current="page"{% endif %}>{{ number }}</button>
+      {% endfor %}
+      {% if landing_page.has_next %}<button type="button" data-page="{{ landing_page.next_page_number }}" data-pagination="landing">Next</button>{% endif %}
+    </nav>
+  {% endif %}
+</section>

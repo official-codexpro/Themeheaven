@@ -1,0 +1,50 @@
+<div class="gc-header ga-header">
+  <div>
+    <p class="gc-eyebrow">GROWTH CENTER</p>
+    <h1>Marketing Analytics</h1>
+    <p class="gc-summary">{{ summary_text }}</p>
+  </div>
+  <button type="button" class="gc-button ga-refresh" aria-label="Refresh analytics">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+    Refresh
+  </button>
+</div>
+
+{% include "admin/growth_center/analytics_partials/filters.html" %}
+
+<nav class="ga-subnav" aria-label="Analytics sections">
+  {% for key, label in sections %}
+    <a href="?section={{ key }}" class="ga-section-link {% if section == key %}is-active{% endif %}" data-section="{{ key }}" {% if section == key %}aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% if not has_data %}
+  <div class="ga-empty-state" role="status">
+    <strong>No analytics recorded yet.</strong>
+    <span>Analytics will appear here after public visitors browse the website. Internal admin visits, bots, and private pages are not counted.</span>
+  </div>
+{% endif %}
+
+{% if section == 'overview' %}
+  {% include "admin/growth_center/analytics_partials/overview.html" %}
+{% elif section == 'traffic' %}
+  {% include "admin/growth_center/analytics_partials/traffic.html" %}
+{% elif section == 'acquisition' %}
+  {% include "admin/growth_center/analytics_partials/acquisition.html" %}
+{% elif section == 'audience' %}
+  {% include "admin/growth_center/analytics_partials/audience.html" %}
+{% elif section == 'pages' %}
+  {% include "admin/growth_center/analytics_partials/pages.html" %}
+{% elif section == 'landing' %}
+  {% include "admin/growth_center/analytics_partials/landing.html" %}
+{% elif section == 'devices' %}
+  {% include "admin/growth_center/analytics_partials/devices.html" %}
+{% else %}
+  {% include "admin/growth_center/analytics_partials/geography.html" %}
+{% endif %}
+
+{{ charts.traffic|json_script:"ga-traffic-data" }}
+{{ charts.growth|json_script:"ga-growth-data" }}
+{{ traffic_sources|json_script:"ga-source-data" }}
+{{ device_breakdown|json_script:"ga-device-data" }}
+{% if page_detail %}{{ page_detail.charts.traffic|json_script:"ga-page-data" }}{% endif %}

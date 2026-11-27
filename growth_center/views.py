@@ -5,9 +5,14 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
-from .forms import PageSEOForm, SEOSettingsForm
-from .models import PageSEO
+from .campaign_urls import build_campaign_url
+from .campaigns import build_campaign_context, build_campaign_detail_context
+from .forms import CampaignForm, PageSEOForm, SEOSettingsForm
+from .models import AnalyticsSession, Campaign, PageSEO, PageView
 from .page_registry import discover_pages, get_managed_page
 from .page_seo import (
     build_page_seo_context,
@@ -21,18 +26,26 @@ from .seo_health import seo_health_summary
 from .seo_settings import get_seo_settings, reset_seo_settings
 from .services import build_analytics_context
 from .sitemaps import PublicSitemap
+from .tracking import decode_tracking_token
 from .validators import SAFE_ROBOTS_TXT, sanitize_text
 
 
 @staff_member_required
 def analytics_dashboard(request):
     context = build_analytics_context(request)
+    campaign_urls = {
+        campaign.utm_campaign: reverse('admin:growth-center-campaign-detail', args=[campaign.campaign_key])
+        for campaign in Campaign.objects.all()
+    }
+    for row in context['acquisition']['campaigns']:
+        row['url'] = campaign_urls.get(row.get('utm_campaign'))
+    context['campaign_links'] = campaign_urls
     context = {**admin.site.each_context(request), **context}
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
         return JsonResponse({
             'html': render_to_string(
-                'admin/growth_center/dashboard_content.html',
+                'admin/growth_center/analytics_content.html',
                 context,
                 request=request,
             ),
@@ -43,7 +56,147 @@ def analytics_dashboard(request):
             },
         })
 
-    return render(request, 'admin/growth_center/dashboard.html', context)
+    return render(request, 'admin/growth_center/analytics.html', context)
+
+
+@staff_member_required
+def campaigns_dashboard(request):
+    context = build_campaign_context(request)
+    context = {**admin.site.each_context(request), **context}
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+        return JsonResponse({
+            'html': render_to_string(
+                'admin/growth_center/campaigns_content.html',
+                context,
+                request=request,
+            ),
+            'range': {
+                'key': context['range']['key'],
+                'start': context['range']['start_iso'],
+                'end': context['range']['end_iso'],
+            },
+        })
+
+    return render(request, 'admin/growth_center/campaigns.html', context)
+
+
+@staff_member_required
+def campaign_editor(request, campaign_key=None):
+    campaign = None
+    if campaign_key:
+        campaign = Campaign.objects.filter(campaign_key=campaign_key).first()
+        if not campaign:
+            messages.error(request, 'That campaign no longer exists.')
+            return redirect('admin:growth-center-campaigns')
+
+    if request.method == 'POST':
+        form = CampaignForm(request.POST, instance=campaign)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            if not instance.pk:
+                instance.created_by = request.user
+            instance.save()
+            messages.success(request, f'Campaign “{instance.name}” saved successfully.')
+            return redirect('admin:growth-center-campaign-detail', instance.campaign_key)
+        messages.error(request, 'Please correct the highlighted campaign fields.')
+    else:
+        form = CampaignForm(instance=campaign)
+
+    preview_values = form.data if form.is_bound else {
+        'destination_url': campaign.destination_url if campaign else '',
+        'utm_source': campaign.utm_source if campaign else '',
+        'utm_medium': campaign.utm_medium if campaign else '',
+        'utm_campaign': campaign.utm_campaign if campaign else '',
+        'utm_term': campaign.utm_term if campaign else '',
+        'utm_content': campaign.utm_content if campaign else '',
+    }
+    preview, _error = build_campaign_url(
+        preview_values.get('destination_url'),
+        preview_values.get('utm_source'),
+        preview_values.get('utm_medium'),
+        preview_values.get('utm_campaign'),
+        preview_values.get('utm_term'),
+        preview_values.get('utm_content'),
+    )
+
+    context = {
+        'title': f'Edit {campaign.name}' if campaign else 'Create Campaign',
+        'form': form,
+        'campaign': campaign,
+        'is_edit': bool(campaign),
+        'url_preview': preview,
+    }
+    context.update(admin.site.each_context(request))
+    return render(request, 'admin/growth_center/campaign_editor.html', context)
+
+
+@staff_member_required
+def campaign_detail(request, campaign_key):
+    campaign = Campaign.objects.filter(campaign_key=campaign_key).first()
+    if not campaign:
+        messages.error(request, 'That campaign no longer exists.')
+        return redirect('admin:growth-center-campaigns')
+
+    context = build_campaign_detail_context(request, campaign)
+    context = {**admin.site.each_context(request), **context}
+    return render(request, 'admin/growth_center/campaign_detail.html', context)
+
+
+@staff_member_required
+@require_POST
+def campaign_action(request, campaign_key):
+    campaign = Campaign.objects.filter(campaign_key=campaign_key).first()
+    if not campaign:
+        messages.error(request, 'That campaign no longer exists.')
+        return redirect('admin:growth-center-campaigns')
+
+    action = request.POST.get('action')
+    if action == 'duplicate':
+        base = f'{campaign.utm_campaign}-copy'
+        candidate = base
+        counter = 2
+        while Campaign.objects.filter(utm_campaign__iexact=candidate).exists():
+            candidate = f'{base}-{counter}'
+            counter += 1
+        copy = Campaign(
+            name=f'{campaign.name} (Copy)',
+            description=campaign.description,
+            objective=campaign.objective,
+            destination_url=campaign.destination_url,
+            utm_source=campaign.utm_source,
+            utm_medium=campaign.utm_medium,
+            utm_campaign=candidate,
+            utm_term=campaign.utm_term,
+            utm_content=campaign.utm_content,
+            start_date=campaign.start_date,
+            end_date=campaign.end_date,
+            status='Draft',
+            notes=campaign.notes,
+            created_by=request.user,
+        )
+        copy.save()
+        messages.success(request, f'Duplicated campaign as “{copy.name}”.')
+        return redirect('admin:growth-center-campaign-detail', copy.campaign_key)
+
+    if action in {'pause', 'resume', 'archive'}:
+        target = {'pause': 'Paused', 'resume': 'Active', 'archive': 'Archived'}[action]
+        campaign.status = target
+        campaign.save(update_fields=['status', 'updated_at'])
+        messages.success(request, f'Campaign status changed to {target}.')
+        return redirect('admin:growth-center-campaign-detail', campaign.campaign_key)
+
+    if action == 'delete':
+        if request.POST.get('confirm') != '1':
+            messages.error(request, 'Confirm campaign deletion before removing it.')
+            return redirect('admin:growth-center-campaign-detail', campaign.campaign_key)
+        name = campaign.name
+        campaign.delete()
+        messages.success(request, f'Campaign “{name}” deleted.')
+        return redirect('admin:growth-center-campaigns')
+
+    messages.error(request, 'Unknown campaign action.')
+    return redirect('admin:growth-center-campaign-detail', campaign.campaign_key)
 
 
 @staff_member_required
@@ -249,3 +402,41 @@ def sitemap_view(request):
             'priority': sitemap.priority(item),
         })
     return render(request, 'sitemap.xml', {'urlset': urls}, content_type='application/xml')
+
+
+@require_POST
+def analytics_beacon(request):
+    payload = decode_tracking_token(request.POST.get('token'))
+    if not payload:
+        return HttpResponse(status=204)
+
+    session = AnalyticsSession.objects.filter(
+        session_key=payload['s'],
+        visitor__visitor_key=payload['v'],
+        ended_at__isnull=True,
+    ).first()
+    if not session:
+        return HttpResponse(status=204)
+
+    now = timezone.now()
+    try:
+        client_seconds = max(0, int(request.POST.get('duration_ms', 0)) // 1000)
+    except (TypeError, ValueError):
+        client_seconds = 0
+    client_seconds = min(client_seconds, 86400)
+    maximum_seconds = max(0, int((now - session.started_at).total_seconds()))
+    duration_seconds = min(client_seconds, maximum_seconds)
+    if not duration_seconds:
+        duration_seconds = max(0, int((session.last_seen_at - session.started_at).total_seconds()))
+
+    last_view = PageView.objects.filter(session=session, path=payload['p']).order_by('-viewed_at').first()
+    if last_view and last_view.duration_seconds is None:
+        view_duration = min(client_seconds, max(0, int((now - last_view.viewed_at).total_seconds())))
+        PageView.objects.filter(pk=last_view.pk).update(duration_seconds=view_duration)
+
+    AnalyticsSession.objects.filter(pk=session.pk, ended_at__isnull=True).update(
+        ended_at=now,
+        duration_seconds=min(duration_seconds, maximum_seconds),
+        exit_path=payload['p'][:500],
+    )
+    return HttpResponse(status=204)

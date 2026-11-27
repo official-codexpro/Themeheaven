@@ -1,6 +1,8 @@
 import os
 import uuid
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -22,6 +24,7 @@ class Visitor(models.Model):
     visitor_key = models.CharField(max_length=64, unique=True, db_index=True)
     first_seen = models.DateTimeField(default=timezone.now, db_index=True)
     last_seen = models.DateTimeField(default=timezone.now)
+    country_code = models.CharField(max_length=2, blank=True, db_index=True)
 
     class Meta:
         ordering = ('-last_seen',)
@@ -31,21 +34,42 @@ class Visitor(models.Model):
 
 
 class AnalyticsSession(models.Model):
+    DEVICE_CHOICES = (
+        ('Desktop', 'Desktop'),
+        ('Mobile', 'Mobile'),
+        ('Tablet', 'Tablet'),
+    )
+
     session_key = models.CharField(max_length=64, unique=True, db_index=True)
     visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE, related_name='sessions')
     started_at = models.DateTimeField(default=timezone.now, db_index=True)
     last_seen_at = models.DateTimeField(default=timezone.now)
+    ended_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    duration_seconds = models.PositiveIntegerField(null=True, blank=True)
     page_view_count = models.PositiveIntegerField(default=0)
     is_returning = models.BooleanField(default=False, db_index=True)
     source_category = models.CharField(max_length=32, default='Direct', db_index=True)
     source_label = models.CharField(max_length=120, blank=True)
-    landing_path = models.CharField(max_length=500, blank=True)
+    referrer_host = models.CharField(max_length=253, blank=True)
+    utm_source = models.CharField(max_length=120, blank=True)
+    utm_medium = models.CharField(max_length=120, blank=True)
+    utm_campaign = models.CharField(max_length=120, blank=True)
+    utm_term = models.CharField(max_length=120, blank=True)
+    utm_content = models.CharField(max_length=120, blank=True)
+    landing_path = models.CharField(max_length=500, blank=True, db_index=True)
+    exit_path = models.CharField(max_length=500, blank=True, db_index=True)
+    device_category = models.CharField(max_length=16, default='Desktop', choices=DEVICE_CHOICES, db_index=True)
+    browser_category = models.CharField(max_length=20, default='Other', db_index=True)
+    country_code = models.CharField(max_length=2, blank=True, db_index=True)
 
     class Meta:
         ordering = ('-started_at',)
         indexes = [
             models.Index(fields=['visitor', '-started_at']),
             models.Index(fields=['source_category', '-started_at']),
+            models.Index(fields=['device_category', '-started_at']),
+            models.Index(fields=['landing_path', '-started_at']),
+            models.Index(fields=['country_code', '-started_at']),
         ]
 
     def __str__(self):
@@ -56,17 +80,84 @@ class PageView(models.Model):
     session = models.ForeignKey(AnalyticsSession, on_delete=models.CASCADE, related_name='page_views')
     visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE, related_name='page_views')
     path = models.CharField(max_length=500, db_index=True)
+    title = models.CharField(max_length=220, blank=True)
+    from_path = models.CharField(max_length=500, blank=True, db_index=True)
     viewed_at = models.DateTimeField(default=timezone.now, db_index=True)
+    duration_seconds = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ('-viewed_at',)
         indexes = [
             models.Index(fields=['path', '-viewed_at']),
             models.Index(fields=['session', 'path', '-viewed_at']),
+            models.Index(fields=['from_path', 'path', '-viewed_at']),
         ]
 
     def __str__(self):
         return f'{self.path} at {self.viewed_at:%Y-%m-%d %H:%M}'
+
+
+class Campaign(models.Model):
+    STATUS_CHOICES = (
+        ('Draft', 'Draft'),
+        ('Active', 'Active'),
+        ('Paused', 'Paused'),
+        ('Completed', 'Completed'),
+        ('Archived', 'Archived'),
+    )
+
+    OBJECTIVE_CHOICES = (
+        ('traffic', 'Website Traffic'),
+        ('leads', 'Lead Generation'),
+        ('sales', 'Sales'),
+        ('awareness', 'Brand Awareness'),
+        ('engagement', 'Engagement'),
+    )
+
+    campaign_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    objective = models.CharField(max_length=24, choices=OBJECTIVE_CHOICES, default='traffic')
+    destination_url = models.URLField(max_length=500)
+    utm_source = models.CharField(max_length=120, db_index=True)
+    utm_medium = models.CharField(max_length=120, db_index=True)
+    utm_campaign = models.CharField(max_length=120, unique=True, db_index=True)
+    utm_term = models.CharField(max_length=120, blank=True)
+    utm_content = models.CharField(max_length=120, blank=True)
+    start_date = models.DateField(null=True, blank=True, db_index=True)
+    end_date = models.DateField(null=True, blank=True, db_index=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='Draft', db_index=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='campaigns',
+    )
+
+    class Meta:
+        ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['utm_campaign', 'utm_source', 'utm_medium']),
+            models.Index(fields=['utm_source', '-created_at']),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        super().clean()
+        if self.start_date and self.end_date and self.end_date < self.start_date:
+            raise ValidationError({'end_date': 'End date must be on or after the start date.'})
+
+    def save(self, *args, **kwargs):
+        if not self.campaign_key:
+            self.campaign_key = f'CMP-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
 
 
 class SEOSettings(models.Model):

@@ -83,6 +83,7 @@ def is_public_canonical_path(path):
         '/__debug__/',
         '/products/preview/',
         '/products/download/',
+        '/analytics/',
     )
     if text in {'/robots.txt', '/sitemap.xml', '/favicon.ico'}:
         return False

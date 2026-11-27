@@ -1,0 +1,137 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_campaigns.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-campaigns" class="gc-shell gccamp-editor-shell" data-dashboard-url="{% url 'admin:growth-center-campaigns' %}">
+    <div class="gc-header ga-header gccamp-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / CAMPAIGNS</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">
+          {% if is_edit %}Update this campaign’s UTM setup and schedule.{% else %}Create a campaign and generate its trackable URL.{% endif %}
+        </p>
+      </div>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-campaigns' %}">Back to Campaigns</a>
+    </div>
+
+    <div class="ga-detail-grid">
+      <section class="gc-card gccamp-builder-card">
+        <div class="gc-card-heading">
+          <div>
+            <h2>Campaign Details</h2>
+            <p>All fields are stored with the campaign and used for attribution.</p>
+          </div>
+        </div>
+
+        <form class="gccamp-form" method="post">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="gccamp-form-errors" role="alert">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="gccamp-form-grid">
+            <label class="gccamp-field">
+              <span>Campaign Name *</span>
+              {{ form.name }}
+              {{ form.name.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>Objective</span>
+              {{ form.objective }}
+              {{ form.objective.errors }}
+            </label>
+            <label class="gccamp-field gccamp-field-wide">
+              <span>Destination URL *</span>
+              {{ form.destination_url }}
+              {{ form.destination_url.errors }}
+              <small>{{ form.destination_url.help_text }}</small>
+            </label>
+            <label class="gccamp-field">
+              <span>UTM Source *</span>
+              {{ form.utm_source }}
+              {{ form.utm_source.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>UTM Medium *</span>
+              {{ form.utm_medium }}
+              {{ form.utm_medium.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>UTM Campaign *</span>
+              {{ form.utm_campaign }}
+              {{ form.utm_campaign.errors }}
+              <small>{{ form.utm_campaign.help_text }}</small>
+            </label>
+            <label class="gccamp-field">
+              <span>UTM Term</span>
+              {{ form.utm_term }}
+              {{ form.utm_term.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>UTM Content</span>
+              {{ form.utm_content }}
+              {{ form.utm_content.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>Status</span>
+              {{ form.status }}
+              {{ form.status.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>Start Date</span>
+              {{ form.start_date }}
+              {{ form.start_date.errors }}
+            </label>
+            <label class="gccamp-field">
+              <span>End Date</span>
+              {{ form.end_date }}
+              {{ form.end_date.errors }}
+            </label>
+            <label class="gccamp-field gccamp-field-wide">
+              <span>Description</span>
+              {{ form.description }}
+              {{ form.description.errors }}
+            </label>
+            <label class="gccamp-field gccamp-field-wide">
+              <span>Internal Notes</span>
+              {{ form.notes }}
+              {{ form.notes.errors }}
+            </label>
+          </div>
+
+          <div class="gccamp-form-actions">
+            <button type="submit" class="gc-button">Save Campaign</button>
+            {% if is_edit %}
+              <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-campaign-detail' campaign.campaign_key %}">Cancel</a>
+            {% else %}
+              <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-campaigns' %}">Cancel</a>
+            {% endif %}
+          </div>
+        </form>
+      </section>
+
+      <section class="gc-card gccamp-preview-card">
+        <div class="gc-card-heading">
+          <div>
+            <h2>Trackable URL</h2>
+            <p>Updates as UTM fields change.</p>
+          </div>
+        </div>
+        <div class="gccamp-preview-box" data-url-preview><code>{{ url_preview }}</code></div>
+        <div class="gccamp-preview-actions">
+          <button type="button" class="gc-button" data-copy-preview>Copy URL</button>
+          <a class="gc-button gc-link-button" data-open-preview href="{{ url_preview }}" {% if not url_preview %}aria-disabled="true"{% endif %}>Open</a>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div id="gccamp-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_campaigns.js' %}"></script>
+{% endblock %}

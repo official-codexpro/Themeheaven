@@ -1,0 +1,14 @@
+<div class="gc-kpi-grid ga-kpi-grid">
+  {% for key, kpi in kpis.items %}
+    <article class="gc-card gc-kpi ga-kpi" data-kpi="{{ key }}">
+      <div class="ga-kpi-top">
+        <span>{{ kpi.label }}</span>
+        <button type="button" class="ga-info" data-tooltip="{{ kpi.help }}" aria-label="About {{ kpi.label }}">i</button>
+      </div>
+      <strong>{{ kpi.display }}</strong>
+      <p class="gc-comparison gc-{{ kpi.comparison.direction }} {{ kpi.comparison.tone }}">
+        {{ kpi.comparison.label }} <span>{{ kpi.direction_label }}</span>
+      </p>
+    </article>
+  {% endfor %}
+</div>

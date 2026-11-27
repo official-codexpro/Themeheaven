@@ -1,0 +1,11 @@
+<div class="ga-split">
+  <div class="ga-donut" data-donut="source" aria-hidden="true"></div>
+  <div class="ga-breakdown">
+    {% for row in traffic_sources %}
+      <button type="button" class="ga-breakdown-row {% if source == row.category %}is-active{% endif %}" data-source="{{ row.category }}">
+        <span class="ga-breakdown-label"><i class="gc-dot gc-tone-{{ row.tone }}"></i>{{ row.category }}</span>
+        <span class="ga-breakdown-value">{{ row.count|floatformat:0 }} · {{ row.percent|floatformat:1 }}%</span>
+      </button>
+    {% endfor %}
+  </div>
+</div>

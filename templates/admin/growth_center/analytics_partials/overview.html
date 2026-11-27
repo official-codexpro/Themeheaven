@@ -1,0 +1,58 @@
+{% include "admin/growth_center/analytics_partials/kpis.html" %}
+
+<div class="ga-chart-grid">
+  <section class="gc-card ga-chart-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Traffic Overview</h2>
+        <p>Visitors, sessions, and page views over the selected period.</p>
+      </div>
+      <span class="ga-chart-hint">Metric: {{ metric }}</span>
+    </div>
+    <div class="ga-chart" data-chart="traffic">
+      <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Traffic over time chart"></svg>
+      <div class="gc-tooltip ga-tooltip" hidden></div>
+    </div>
+  </section>
+
+  <section class="gc-card ga-chart-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Visitor Growth</h2>
+        <p>New and returning visitor sessions.</p>
+      </div>
+      <div class="gc-legend" aria-label="Visitor growth legend">
+        <span><i class="gc-swatch gc-swatch-new"></i>New</span>
+        <span><i class="gc-swatch gc-swatch-returning"></i>Returning</span>
+      </div>
+    </div>
+    <div class="ga-dual-chart" data-chart="growth">
+      <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="New and returning visitors chart"></svg>
+      <div class="gc-tooltip ga-tooltip" hidden></div>
+    </div>
+  </section>
+</div>
+
+<div class="ga-detail-grid">
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Traffic Sources</h2>
+        <p>Sessions by acquisition channel.</p>
+      </div>
+      <a class="ga-panel-link" href="?section=acquisition">View acquisition</a>
+    </div>
+    {% include "admin/growth_center/analytics_partials/source_rows.html" %}
+  </section>
+
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Device Breakdown</h2>
+        <p>Sessions by device category.</p>
+      </div>
+      <a class="ga-panel-link" href="?section=devices">View devices</a>
+    </div>
+    {% include "admin/growth_center/analytics_partials/device_rows.html" %}
+  </section>
+</div>

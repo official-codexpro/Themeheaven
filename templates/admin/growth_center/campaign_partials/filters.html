@@ -1,0 +1,59 @@
+<div class="gc-controls ga-controls gccamp-controls" role="group" aria-label="Campaign filters">
+  <label class="gc-field">
+    <span>Date range</span>
+    <select class="gccamp-range-select" aria-label="Campaign date range">
+      {% for value, label in range_choices %}
+        <option value="{{ value }}" {% if range.key == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <div class="gc-field gccamp-custom-range" {% if range.key != 'custom' %}hidden{% endif %}>
+    <label for="gccamp-start">From</label>
+    <input id="gccamp-start" class="gccamp-start-date" type="date" value="{{ range.start_iso }}">
+    <label for="gccamp-end">To</label>
+    <input id="gccamp-end" class="gccamp-end-date" type="date" value="{{ range.end_iso }}">
+    <button type="button" class="gc-button gccamp-date-apply">Apply</button>
+  </div>
+
+  <label class="gc-field">
+    <span>Status</span>
+    <select class="gccamp-status-select" aria-label="Filter by campaign status">
+      <option value="all" {% if status == 'all' %}selected{% endif %}>All statuses</option>
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="gc-field">
+    <span>Search</span>
+    <input class="gccamp-search-input" type="search" value="{{ query }}" placeholder="Name or UTM value" aria-label="Search campaigns">
+  </label>
+
+  <label class="gc-field">
+    <span>Table sort</span>
+    <select class="gccamp-sort-select" aria-label="Campaign table sort">
+      {% for value, label in sorts %}
+        <option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="gc-field">
+    <span>Chart period</span>
+    <select class="gccamp-grain-select" aria-label="Campaign chart period">
+      {% for value, label in grain_choices %}
+        <option value="{{ value }}" {% if grain == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="ga-check">
+    <input type="checkbox" class="gccamp-compare" {% if compare %}checked{% endif %}>
+    <span>Compare with previous period</span>
+  </label>
+
+  <a class="gc-button" href="{% url 'admin:growth-center-campaign-create' %}">New Campaign</a>
+  <button type="button" class="gc-button gc-link-button gccamp-reset">Reset</button>
+</div>

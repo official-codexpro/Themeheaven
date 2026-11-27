@@ -1,0 +1,89 @@
+<div class="gc-controls ga-controls" role="group" aria-label="Analytics filters">
+  <label class="gc-field">
+    <span>Date range</span>
+    <select class="ga-range-select" aria-label="Date range">
+      {% for value, label in range_choices %}
+        <option value="{{ value }}" {% if range.key == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <div class="gc-field ga-custom-range" {% if range.key != 'custom' %}hidden{% endif %}>
+    <label for="ga-start">From</label>
+    <input id="ga-start" class="ga-start-date" type="date" value="{{ range.start_iso }}">
+    <label for="ga-end">To</label>
+    <input id="ga-end" class="ga-end-date" type="date" value="{{ range.end_iso }}">
+    <button type="button" class="gc-button ga-date-apply">Apply</button>
+  </div>
+
+  <label class="ga-check">
+    <input type="checkbox" class="ga-compare" {% if compare %}checked{% endif %}>
+    <span>Compare with previous period</span>
+  </label>
+
+  <details class="ga-advanced" {% if source or device or landing or query %}open{% endif %}>
+    <summary>More filters</summary>
+    <div class="ga-advanced-grid">
+      <label class="gc-field">
+        <span>Device</span>
+        <select class="ga-device-select" aria-label="Filter by device">
+          <option value="">All devices</option>
+          {% for choice in device_choices %}
+            <option value="{{ choice }}" {% if device == choice %}selected{% endif %}>{{ choice }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="gc-field">
+        <span>Source</span>
+        <select class="ga-source-select" aria-label="Filter by traffic source">
+          <option value="">All sources</option>
+          {% for choice in source_choices %}
+            <option value="{{ choice }}" {% if source == choice %}selected{% endif %}>{{ choice }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="gc-field">
+        <span>Landing page</span>
+        <select class="ga-landing-select" aria-label="Filter by landing page">
+          <option value="">All landing pages</option>
+          {% for choice in landing_choices %}
+            <option value="{{ choice }}" {% if landing == choice %}selected{% endif %}>{{ choice }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="gc-field">
+        <span>Search pages</span>
+        <input class="ga-search-input" type="search" value="{{ query }}" placeholder="Title or path" aria-label="Search pages">
+      </label>
+    </div>
+  </details>
+
+  <label class="gc-field">
+    <span>Traffic metric</span>
+    <select class="ga-metric-select" aria-label="Traffic metric">
+      {% for value, label in metric_choices %}
+        <option value="{{ value }}" {% if metric == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="gc-field">
+    <span>Chart period</span>
+    <select class="ga-grain-select" aria-label="Chart period">
+      {% for value, label in grain_choices %}
+        <option value="{{ value }}" {% if grain == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="gc-field">
+    <span>Table sort</span>
+    <select class="ga-sort-select" aria-label="Table sort">
+      {% for value, label in sort_choices %}
+        <option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="button" class="gc-button gc-link-button ga-reset">Reset</button>
+</div>

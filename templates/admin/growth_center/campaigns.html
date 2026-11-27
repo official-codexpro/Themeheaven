@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_campaigns.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-campaigns" class="gc-shell ga-shell gccamp-shell" data-dashboard-url="{% url 'admin:growth-center-campaigns' %}">
+    {% include "admin/growth_center/campaigns_content.html" %}
+  </div>
+  <div id="gccamp-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_campaigns.js' %}"></script>
+{% endblock %}

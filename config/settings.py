@@ -77,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.footer_links',
                 'growth_center.context_processors.seo',
+                'growth_center.context_processors.analytics_tracking',
             ],
         },
     },

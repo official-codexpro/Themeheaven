@@ -1,6 +1,9 @@
+from urllib.parse import urlsplit
+
 from django import forms
 
-from .models import PageSEO, SEOSettings
+from .campaign_urls import strip_utm_params
+from .models import Campaign, PageSEO, SEOSettings
 from .seo import normalize_domain
 from .validators import (
     SAFE_ROBOTS_TXT,
@@ -303,3 +306,129 @@ class PageSEOForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class CampaignForm(forms.ModelForm):
+    class Meta:
+        model = Campaign
+        fields = (
+            'name',
+            'description',
+            'objective',
+            'destination_url',
+            'utm_source',
+            'utm_medium',
+            'utm_campaign',
+            'utm_term',
+            'utm_content',
+            'start_date',
+            'end_date',
+            'status',
+            'notes',
+        )
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'gccamp-input', 'placeholder': 'Summer Sale 2026', 'maxlength': '150'}),
+            'description': forms.Textarea(attrs={'class': 'gccamp-textarea', 'rows': 3, 'maxlength': '1000'}),
+            'objective': forms.Select(attrs={'class': 'gccamp-select'}),
+            'destination_url': forms.URLInput(attrs={
+                'class': 'gccamp-input',
+                'data-builder': 'destination',
+                'placeholder': 'https://themehaven.in/products/wordpress/',
+            }),
+            'utm_source': forms.TextInput(attrs={
+                'class': 'gccamp-input',
+                'data-builder': 'source',
+                'placeholder': 'google',
+                'maxlength': '120',
+            }),
+            'utm_medium': forms.TextInput(attrs={
+                'class': 'gccamp-input',
+                'data-builder': 'medium',
+                'placeholder': 'cpc',
+                'maxlength': '120',
+            }),
+            'utm_campaign': forms.TextInput(attrs={
+                'class': 'gccamp-input',
+                'data-builder': 'campaign',
+                'placeholder': 'summer_sale_2026',
+                'maxlength': '120',
+            }),
+            'utm_term': forms.TextInput(attrs={
+                'class': 'gccamp-input',
+                'data-builder': 'term',
+                'placeholder': 'premium wordpress theme',
+                'maxlength': '120',
+            }),
+            'utm_content': forms.TextInput(attrs={
+                'class': 'gccamp-input',
+                'data-builder': 'content',
+                'placeholder': 'hero_button',
+                'maxlength': '120',
+            }),
+            'start_date': forms.DateInput(attrs={'class': 'gccamp-input', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'gccamp-input', 'type': 'date'}),
+            'status': forms.Select(attrs={'class': 'gccamp-select'}),
+            'notes': forms.Textarea(attrs={'class': 'gccamp-textarea', 'rows': 3}),
+        }
+        help_texts = {
+            'destination_url': 'Full http(s) page URL. Existing query parameters are preserved.',
+            'utm_campaign': 'Used to attribute visits in Analytics. Must be unique across campaigns.',
+            'utm_term': 'Optional keyword, mainly for paid search campaigns.',
+            'utm_content': 'Optional label for ads, creatives, buttons, or variations.',
+        }
+
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name'), 150)
+
+    def clean_description(self):
+        return sanitize_text(self.cleaned_data.get('description'), 1000)
+
+    def clean_objective(self):
+        return self.cleaned_data.get('objective') or 'traffic'
+
+    def clean_destination_url(self):
+        value = strip_utm_params(self.cleaned_data.get('destination_url'))
+        parsed = urlsplit(value)
+        if parsed.scheme not in {'http', 'https'} or not parsed.netloc:
+            raise forms.ValidationError('Use a full http(s) URL with a domain.')
+        return value
+
+    def clean_utm_source(self):
+        value = sanitize_text(self.cleaned_data.get('utm_source'), 120)
+        if not value:
+            raise forms.ValidationError('UTM Source is required.')
+        return value
+
+    def clean_utm_medium(self):
+        value = sanitize_text(self.cleaned_data.get('utm_medium'), 120)
+        if not value:
+            raise forms.ValidationError('UTM Medium is required.')
+        return value
+
+    def clean_utm_campaign(self):
+        value = sanitize_text(self.cleaned_data.get('utm_campaign'), 120)
+        if not value:
+            raise forms.ValidationError('UTM Campaign is required.')
+        queryset = Campaign.objects.filter(utm_campaign__iexact=value)
+        if self.instance and self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise forms.ValidationError('A campaign with this UTM Campaign already exists.')
+        return value
+
+    def clean_utm_term(self):
+        return sanitize_text(self.cleaned_data.get('utm_term'), 120)
+
+    def clean_utm_content(self):
+        return sanitize_text(self.cleaned_data.get('utm_content'), 120)
+
+    def clean_notes(self):
+        return sanitize_text(self.cleaned_data.get('notes'), 2000)
+
+    def clean(self):
+        cleaned = super().clean()
+        start = cleaned.get('start_date')
+        end = cleaned.get('end_date')
+        if start and end and end < start:
+            self.add_error('end_date', 'End date must be on or after the start date.')
+        return cleaned

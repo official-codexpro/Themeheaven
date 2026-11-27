@@ -1,0 +1,43 @@
+<div class="gc-header ga-header gccamp-header">
+  <div>
+    <p class="gc-eyebrow">GROWTH CENTER</p>
+    <h1>Campaigns / UTM Manager</h1>
+    <p class="gc-summary">{{ summary_text }}</p>
+  </div>
+  <div class="gccamp-header-actions">
+    <button type="button" class="gc-button gccamp-refresh" aria-label="Refresh campaigns">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+{% include "admin/growth_center/campaign_partials/filters.html" %}
+
+<nav class="ga-subnav" aria-label="Campaign sections">
+  {% for key, label in sections %}
+    <a href="?section={{ key }}" class="ga-section-link {% if section == key %}is-active{% endif %}" data-section="{{ key }}" {% if section == key %}aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% if not campaign_count %}
+  <div class="ga-empty-state" role="status">
+    <strong>No campaigns created yet.</strong>
+    <span>Create a campaign or use the URL Builder below to generate a trackable link.</span>
+  </div>
+{% elif not has_data %}
+  <div class="ga-empty-state" role="status">
+    <strong>No campaign visits recorded yet.</strong>
+    <span>Campaign performance appears here when visitors open links containing your saved UTM Campaign value.</span>
+  </div>
+{% endif %}
+
+{% if section == 'overview' %}
+  {% include "admin/growth_center/campaign_partials/overview.html" %}
+{% elif section == 'campaigns' %}
+  {% include "admin/growth_center/campaign_partials/campaign_list.html" %}
+{% else %}
+  {% include "admin/growth_center/campaign_partials/builder.html" %}
+{% endif %}
+
+{{ chart|json_script:"gccamp-chart-data" }}

@@ -1,0 +1,5 @@
+{% load static %}
+{% if growth_tracking and growth_tracking.enabled %}
+  {{ growth_tracking|json_script:"growth-analytics-config" }}
+  <script src="{% static 'js/growth_tracker.js' %}" defer></script>
+{% endif %}

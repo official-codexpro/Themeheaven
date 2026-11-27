@@ -1,0 +1,87 @@
+{% if page_detail %}
+  <section class="gc-card ga-panel ga-page-detail">
+    <div class="gc-card-heading">
+      <div>
+        <h2>{{ page_detail.title }}</h2>
+        <p>{{ page_detail.path }}</p>
+      </div>
+      <button type="button" class="gc-button ga-clear-page">Back to all pages</button>
+    </div>
+    <div class="ga-mini-kpis">
+      <div><span>Page views</span><strong>{{ page_detail.metrics.page_views }}</strong></div>
+      <div><span>Unique visitors</span><strong>{{ page_detail.metrics.unique_visitors }}</strong></div>
+      <div><span>Avg. time on page</span><strong>{{ page_detail.avg_time_display }}</strong></div>
+      <div><span>Bounce rate</span><strong>{{ page_detail.metrics.bounce_rate|floatformat:1 }}%</strong></div>
+    </div>
+    <div class="ga-chart ga-chart-compact" data-chart="page">
+      <svg viewBox="0 0 720 240" preserveAspectRatio="none" role="img" aria-label="Page traffic chart"></svg>
+      <div class="gc-tooltip ga-tooltip" hidden></div>
+    </div>
+    <div class="ga-table-wrap">
+      <table class="gc-table ga-table">
+        <thead><tr><th scope="col">Source</th><th scope="col">Sessions</th><th scope="col">Share</th></tr></thead>
+        <tbody>
+          {% for row in page_detail.sources %}
+            {% if row.count %}
+              <tr><td>{{ row.category }}</td><td>{{ row.count }}</td><td>{{ row.percent|floatformat:1 }}%</td></tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endif %}
+
+<section class="gc-card ga-panel">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Top Pages</h2>
+      <p>Engagement for individual public pages. Select a page for its own report.</p>
+    </div>
+    <span class="ga-chart-hint">{{ pages_page.paginator.count }} page(s)</span>
+  </div>
+  <div class="ga-table-wrap">
+    <table class="gc-table ga-table ga-sortable-table">
+      <thead>
+        <tr>
+          <th scope="col"><button type="button" data-sort="path">Page</button></th>
+          <th scope="col"><button type="button" data-sort="views">Page views</button></th>
+          <th scope="col"><button type="button" data-sort="visitors">Unique visitors</button></th>
+          <th scope="col"><button type="button" data-sort="sessions">Sessions</button></th>
+          <th scope="col"><button type="button" data-sort="time">Avg. time</button></th>
+          <th scope="col"><button type="button" data-sort="bounce">Bounce rate</button></th>
+          <th scope="col"><button type="button" data-sort="exit">Exit rate</button></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in pages_page %}
+          <tr>
+            <td>
+              <button type="button" class="ga-page-link" data-page-path="{{ row.path }}">
+                <strong>{{ row.title }}</strong>
+                <span>{{ row.path }}</span>
+              </button>
+            </td>
+            <td>{{ row.views }}</td>
+            <td>{{ row.visitors }}</td>
+            <td>{{ row.sessions }}</td>
+            <td>{{ row.avg_time_display }}</td>
+            <td>{{ row.bounce_rate|floatformat:1 }}%</td>
+            <td>{{ row.exit_rate|floatformat:1 }}%</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="gc-table-empty">No page views recorded for this selection.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if pages_page.paginator.num_pages > 1 %}
+    <nav class="ga-pagination" aria-label="Pages pagination">
+      {% if pages_page.has_previous %}<button type="button" data-page="{{ pages_page.previous_page_number }}">Previous</button>{% endif %}
+      {% for number in pages_page.paginator.page_range %}
+        <button type="button" data-page="{{ number }}" {% if number == pages_page.number %}class="is-active" aria-current="page"{% endif %}>{{ number }}</button>
+      {% endfor %}
+      {% if pages_page.has_next %}<button type="button" data-page="{{ pages_page.next_page_number }}">Next</button>{% endif %}
+    </nav>
+  {% endif %}
+</section>

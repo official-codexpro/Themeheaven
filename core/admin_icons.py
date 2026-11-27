@@ -19,6 +19,7 @@ MODEL_ICON_NAMES = {
     ('products', 'exceldashboard'): 'excel',
     ('products', 'wordpresstheme'): 'wordpress',
     ('growth_center', 'analytics'): 'bar-chart',
+    ('growth_center', 'campaigns'): 'megaphone',
     ('growth_center', 'seosettings'): 'search',
     ('growth_center', 'pageseo'): 'file-search',
 }
@@ -57,6 +58,11 @@ _LUCIDE_PATHS = {
         '<rect x="7" y="10" width="3" height="5" rx="1"/>'
         '<rect x="12" y="6" width="3" height="9" rx="1"/>'
         '<rect x="17" y="8" width="3" height="7" rx="1"/>'
+    ),
+    'megaphone': (
+        '<path d="m3 11 18-5v12L3 14v-3z"/>'
+        '<path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'
+        '<path d="M15.5 8.5a4 4 0 0 1 0 7"/>'
     ),
     'search': '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     'file-search': (

@@ -1,0 +1,79 @@
+<div class="gc-kpi-grid ga-kpi-grid gccamp-kpi-grid">
+  <article class="gc-card gc-kpi ga-kpi">
+    <div class="ga-kpi-top"><span>Total Campaigns</span></div>
+    <strong>{{ campaign_count }}</strong>
+    <p class="gccamp-kpi-note">Saved campaign records</p>
+  </article>
+  <article class="gc-card gc-kpi ga-kpi">
+    <div class="ga-kpi-top"><span>Active Campaigns</span></div>
+    <strong>{{ active_count }}</strong>
+    <p class="gccamp-kpi-note">Currently marked Active</p>
+  </article>
+  <article class="gc-card gc-kpi ga-kpi">
+    <div class="ga-kpi-top"><span>Total Campaign Visits</span></div>
+    <strong>{{ visits_count }}</strong>
+    <p class="gccamp-kpi-note">Selected date range</p>
+  </article>
+  <article class="gc-card gc-kpi ga-kpi">
+    <div class="ga-kpi-top"><span>Total Visitors</span></div>
+    <strong>{{ visitors_count }}</strong>
+    <p class="gccamp-kpi-note">Distinct visitors with campaign UTM</p>
+  </article>
+  <article class="gc-card gc-kpi ga-kpi">
+    <div class="ga-kpi-top"><span>Campaigns Created This Month</span></div>
+    <strong>{{ created_this_month }}</strong>
+    <p class="gccamp-kpi-note">New records this calendar month</p>
+  </article>
+  <article class="gc-card gc-kpi ga-kpi">
+    <div class="ga-kpi-top"><span>Top Performing Campaign</span></div>
+    <strong class="gccamp-kpi-title">{{ top_campaign.campaign.name|default:"—" }}</strong>
+    <p class="gccamp-kpi-note">{% if top_campaign %}{{ top_campaign.visits }} visits · {{ top_campaign.visitors }} visitors{% else %}No attributed visits yet{% endif %}</p>
+  </article>
+</div>
+
+<div class="ga-chart-grid">
+  <section class="gc-card ga-chart-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Campaign Traffic</h2>
+        <p>Visits, visitors, and page views attributed to saved campaigns.</p>
+      </div>
+      <div class="gc-legend" aria-label="Campaign traffic legend">
+        <span><i class="gc-swatch gc-swatch-new"></i>Visitors</span>
+        <span><i class="gc-swatch gc-swatch-returning"></i>Visits</span>
+        <span><i class="gc-swatch gc-swatch-views"></i>Page Views</span>
+      </div>
+    </div>
+    <div class="ga-chart" data-chart="campaign-traffic">
+      <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Campaign traffic over time chart"></svg>
+      <div class="gc-tooltip ga-tooltip" hidden></div>
+    </div>
+  </section>
+
+  <section class="gc-card ga-panel gccamp-quick-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Quick Actions</h2>
+        <p>Create, manage, and measure campaigns.</p>
+      </div>
+    </div>
+    <div class="gccamp-quick-grid">
+      <a class="gccamp-quick-action" href="{% url 'admin:growth-center-campaign-create' %}">
+        <strong>Create campaign</strong>
+        <span>Save a new UTM campaign</span>
+      </a>
+      <button type="button" class="gccamp-quick-action" data-section="builder">
+        <strong>Build UTM URL</strong>
+        <span>Generate a trackable link</span>
+      </button>
+      <button type="button" class="gccamp-quick-action" data-section="campaigns">
+        <strong>Manage campaigns</strong>
+        <span>Edit, pause, duplicate, or archive</span>
+      </button>
+      <a class="gccamp-quick-action" href="{% url 'admin:growth-center-analytics' %}?section=acquisition">
+        <strong>View in Analytics</strong>
+        <span>Open campaign acquisition report</span>
+      </a>
+    </div>
+  </section>
+</div>

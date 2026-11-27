@@ -1,0 +1,103 @@
+<section class="gc-card gccamp-table-card">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Campaign Management</h2>
+      <p>{{ campaigns.paginator.count }} campaign{% if campaigns.paginator.count != 1 %}s{% endif %} matched. Performance uses the selected date range.</p>
+    </div>
+    <a class="gc-button" href="{% url 'admin:growth-center-campaign-create' %}">New Campaign</a>
+  </div>
+
+  {% if campaigns.paginator.count %}
+    <div class="gccamp-table-wrap">
+      <table class="gccamp-table">
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Status</th>
+            <th>UTM Source / Medium</th>
+            <th>Visits</th>
+            <th>Visitors</th>
+            <th>Views</th>
+            <th>Bounce</th>
+            <th>Avg. Duration</th>
+            <th>Trackable URL</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in campaigns %}
+            <tr>
+              <td>
+                <a class="gccamp-name-link" href="{% url 'admin:growth-center-campaign-detail' row.campaign.campaign_key %}">{{ row.campaign.name }}</a>
+                <span class="gccamp-cell-note">{{ row.campaign.utm_campaign }}</span>
+              </td>
+              <td><span class="gccamp-status gccamp-status-{{ row.campaign.status|lower }}">{{ row.campaign.status }}</span></td>
+              <td>
+                <strong>{{ row.campaign.utm_source }}</strong>
+                <span class="gccamp-cell-note">{{ row.campaign.utm_medium }}</span>
+              </td>
+              <td>{{ row.visits }}</td>
+              <td>{{ row.visitors }}</td>
+              <td>{{ row.views }}</td>
+              <td>{{ row.bounce_rate }}%</td>
+              <td>{{ row.avg_duration_display }}</td>
+              <td>
+                <div class="gccamp-url-cell">
+                  <span title="{{ row.url }}">{{ row.url }}</span>
+                  <button type="button" class="gccamp-icon-button" data-copy-url="{{ row.url }}" aria-label="Copy URL for {{ row.campaign.name }}">Copy</button>
+                </div>
+              </td>
+              <td>
+                <div class="gccamp-row-actions">
+                  <a href="{% url 'admin:growth-center-campaign-detail' row.campaign.campaign_key %}">View</a>
+                  <a href="{% url 'admin:growth-center-campaign-edit' row.campaign.campaign_key %}">Edit</a>
+                  <form method="post" action="{% url 'admin:growth-center-campaign-action' row.campaign.campaign_key %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="duplicate">
+                    <button type="submit">Duplicate</button>
+                  </form>
+                  {% if row.campaign.status == 'Paused' or row.campaign.status == 'Archived' or row.campaign.status == 'Completed' %}
+                    <form method="post" action="{% url 'admin:growth-center-campaign-action' row.campaign.campaign_key %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="resume">
+                      <button type="submit">Resume</button>
+                    </form>
+                  {% else %}
+                    <form method="post" action="{% url 'admin:growth-center-campaign-action' row.campaign.campaign_key %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="pause">
+                      <button type="submit">Pause</button>
+                    </form>
+                  {% endif %}
+                  <form method="post" action="{% url 'admin:growth-center-campaign-action' row.campaign.campaign_key %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="archive">
+                    <button type="submit">Archive</button>
+                  </form>
+                  <form method="post" action="{% url 'admin:growth-center-campaign-action' row.campaign.campaign_key %}" data-confirm="Delete “{{ row.campaign.name }}” permanently?">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="confirm" value="1">
+                    <button type="submit" class="gccamp-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="gccamp-pagination" aria-label="Campaign pagination">
+      {% if campaigns.has_previous %}
+        <a href="{% if query_params %}?{{ query_params }}&page={{ campaigns.previous_page_number }}{% else %}?page={{ campaigns.previous_page_number }}{% endif %}">Previous</a>
+      {% endif %}
+      <span>Page {{ campaigns.number }} of {{ campaigns.paginator.num_pages }}</span>
+      {% if campaigns.has_next %}
+        <a href="{% if query_params %}?{{ query_params }}&page={{ campaigns.next_page_number }}{% else %}?page={{ campaigns.next_page_number }}{% endif %}">Next</a>
+      {% endif %}
+    </nav>
+  {% else %}
+    <div class="gccamp-table-empty">No campaigns match the current filters.</div>
+  {% endif %}
+</section>

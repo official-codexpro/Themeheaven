@@ -1,0 +1,61 @@
+{% include "admin/growth_center/analytics_partials/kpis.html" %}
+
+<div class="ga-detail-grid">
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Acquisition Channels</h2>
+        <p>All traffic sources recorded from referrers and UTM parameters.</p>
+      </div>
+    </div>
+    {% include "admin/growth_center/analytics_partials/source_rows.html" %}
+  </section>
+
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Top Referrers</h2>
+        <p>External hosts that sent visitors to the site.</p>
+      </div>
+    </div>
+    <div class="ga-table-wrap">
+      <table class="gc-table ga-table">
+        <thead><tr><th scope="col">Referrer</th><th scope="col">Sessions</th><th scope="col">Share</th></tr></thead>
+        <tbody>
+          {% for row in acquisition.referrers %}
+            <tr><td>{{ row.label }}</td><td>{{ row.count }}</td><td>{{ row.percent|floatformat:1 }}%</td></tr>
+          {% empty %}
+            <tr><td colspan="3" class="gc-table-empty">No referrer data recorded for this selection.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<section class="gc-card ga-panel">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Campaign Attribution</h2>
+      <p>UTM source, medium, and campaign combinations from tracked links.</p>
+    </div>
+  </div>
+  <div class="ga-table-wrap">
+    <table class="gc-table ga-table">
+      <thead><tr><th scope="col">Campaign</th><th scope="col">Sessions</th><th scope="col">Share</th></tr></thead>
+      <tbody>
+        {% for row in acquisition.campaigns %}
+          <tr>
+            <td>
+              {% if row.url %}<a href="{{ row.url }}">{{ row.label }}</a>{% else %}{{ row.label }}{% endif %}
+            </td>
+            <td>{{ row.count }}</td>
+            <td>{{ row.percent|floatformat:1 }}%</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3" class="gc-table-empty">No UTM campaign data recorded for this selection.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

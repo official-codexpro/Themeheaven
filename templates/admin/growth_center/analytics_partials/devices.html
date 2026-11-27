@@ -1,0 +1,27 @@
+{% include "admin/growth_center/analytics_partials/kpis.html" %}
+
+<div class="ga-detail-grid">
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Device Breakdown</h2>
+        <p>Desktop, mobile, and tablet sessions from user-agent classification.</p>
+      </div>
+    </div>
+    {% include "admin/growth_center/analytics_partials/device_rows.html" %}
+  </section>
+
+  <section class="gc-card ga-panel">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Device Filter</h2>
+        <p>Filter every report to one device category.</p>
+      </div>
+    </div>
+    <div class="ga-filter-summary">
+      <span>Current filter</span>
+      <strong>{{ device|default:"All devices" }}</strong>
+      <p>Use the device selector above or select a segment in the breakdown.</p>
+    </div>
+  </section>
+</div>
