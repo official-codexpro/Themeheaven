@@ -1,0 +1,88 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a> &rsaquo;
+  <a href="{{ index_url }}">Settings</a> &rsaquo; {{ category.name }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="module">
+    <h1>{{ category.name }}</h1>
+    <p class="quiet">{{ category.description }}</p>
+  </div>
+
+  {% if warnings %}
+    <div class="module" style="border-left: 4px solid #ba2121; padding-left: 12px; margin-bottom: 18px;">
+      <h2>Security notices</h2>
+      <ul>
+        {% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if restart_issues %}
+    <div class="module" style="border-left: 4px solid #e8a33d; padding-left: 12px; margin-bottom: 18px;">
+      <h2>Restart required</h2>
+      <ul>
+        {% for issue in restart_issues %}<li>{{ issue }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if form %}
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="module" style="border-left: 4px solid #ba2121; padding-left: 12px; margin-bottom: 18px;">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      <fieldset class="module aligned">
+        {% for field in form %}
+          <div class="form-row{% if field.errors %} errors{% endif %}">
+            {{ field.label_tag }}
+            <div class="readonly">{{ field }}</div>
+            {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}
+          </div>
+        {% endfor %}
+      </fieldset>
+
+      <div class="submit-row">
+        <input type="submit" value="{% translate 'Save' %}" class="default">
+      </div>
+    </form>
+  {% endif %}
+
+  {% if info_rows %}
+    <div class="module">
+      <table style="width: 100%;">
+        <caption>Current configuration</caption>
+        <thead>
+          <tr>
+            <th scope="col">Setting</th>
+            <th scope="col">Value</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in info_rows %}
+            <tr>
+              <th scope="row">{{ row.0 }}</th>
+              <td>{{ row.1 }}</td>
+              <td class="quiet">{{ row.2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <p><a href="{{ index_url }}">&larr; Back to Settings</a></p>
+</div>
+{% endblock %}

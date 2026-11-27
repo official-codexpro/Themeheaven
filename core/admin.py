@@ -217,12 +217,16 @@ class AppearanceSettingsAdmin(admin.ModelAdmin):
 
 @admin.register(ErrorPageSettings)
 class ErrorPageSettingsAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'heading', 'background_color')
+    list_display = ('__str__', 'enabled', 'heading', 'background_color')
     readonly_fields = ('gif_preview',)
     fieldsets = (
-        ('404 Page Content', {
-            'fields': ('heading', 'message', 'supporting_message'),
+        ('404 Page Configuration', {
+            'fields': ('enabled', 'heading', 'message', 'supporting_message'),
             'description': 'Leave a text field empty to use its default wording on the error page.',
+        }),
+        ('Button Settings', {
+            'fields': ('home_button_enabled', 'home_button_text'),
+            'description': 'Control the Back to Home button shown on the custom 404 page.',
         }),
         ('Visual Settings', {
             'fields': ('gif', 'gif_preview', 'background_color'),

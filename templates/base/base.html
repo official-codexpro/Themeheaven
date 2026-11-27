@@ -8,25 +8,39 @@
     <!-- ================= SEO DEFAULTS ================= -->
 
     <title>
-      {% block title %}ThemeHaven — Premium Digital Products{% endblock %}
+      {% block title %}{{ seo.title|default:'ThemeHaven — Premium Digital Products' }}{% endblock %}
     </title>
 
     <meta
       name="description"
-      content="{% block meta_description %}Discover premium WordPress themes and professional Excel dashboards at ThemeHaven. Digital products designed to elevate your work.{% endblock %}"
+      content="{% block meta_description %}{{ seo.description|default:'Discover premium WordPress themes and professional Excel dashboards at ThemeHaven. Digital products designed to elevate your work.' }}{% endblock %}"
     />
+
+    {% if seo.keywords %}
+      <meta name="keywords" content="{{ seo.keywords }}" />
+    {% endif %}
 
     <meta
       name="robots"
-      content="{% block meta_robots %}index, follow{% endblock %}"
+      content="{% block meta_robots %}{{ seo.robots|default:'index, follow' }}{% endblock %}"
     />
 
-    <meta name="author" content="ThemeHaven" />
+    {% block google_verification %}
+      {% if seo.google_verification_token %}
+        <meta name="google-site-verification" content="{{ seo.google_verification_token }}" />
+      {% endif %}
+    {% endblock %}
+
+    <meta name="author" content="{{ seo.site_name|default:'ThemeHaven' }}" />
 
     <meta name="theme-color" content="#080511" />
     <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}" />
 
-    {% block canonical %} {% endblock %}
+    {% block canonical %}
+      {% if seo.canonical_url %}
+        <link rel="canonical" href="{{ seo.canonical_url }}" />
+      {% endif %}
+    {% endblock %}
 
     <!-- Open Graph -->
 
@@ -35,19 +49,19 @@
       content="{% block og_type %}website{% endblock %}"
     />
 
-    <meta property="og:site_name" content="ThemeHaven" />
+    <meta property="og:site_name" content="{{ seo.site_name|default:'ThemeHaven' }}" />
 
     <meta
       property="og:title"
-      content="{% block og_title %}ThemeHaven — Premium Digital Products{% endblock %}"
+      content="{% block og_title %}{{ seo.title|default:'ThemeHaven — Premium Digital Products' }}{% endblock %}"
     />
 
     <meta
       property="og:description"
-      content="{% block og_description %}Discover premium WordPress themes and professional Excel dashboards.{% endblock %}"
+      content="{% block og_description %}{{ seo.description|default:'Discover premium WordPress themes and professional Excel dashboards.' }}{% endblock %}"
     />
 
-    <meta property="og:image" content="{% block og_image %}{% endblock %}" />
+    <meta property="og:image" content="{% block og_image %}{{ seo.image }}{% endblock %}" />
 
     <!-- Twitter Card -->
 
@@ -55,17 +69,17 @@
 
     <meta
       name="twitter:title"
-      content="{% block twitter_title %}ThemeHaven — Premium Digital Products{% endblock %}"
+      content="{% block twitter_title %}{{ seo.title|default:'ThemeHaven — Premium Digital Products' }}{% endblock %}"
     />
 
     <meta
       name="twitter:description"
-      content="{% block twitter_description %}Discover premium WordPress themes and Excel dashboards.{% endblock %}"
+      content="{% block twitter_description %}{{ seo.description|default:'Discover premium WordPress themes and Excel dashboards.' }}{% endblock %}"
     />
 
     <meta
       name="twitter:image"
-      content="{% block twitter_image %}{% endblock %}"
+      content="{% block twitter_image %}{{ seo.image }}{% endblock %}"
     />
 
     <!-- ================= FONT ================= -->

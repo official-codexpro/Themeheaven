@@ -1,0 +1,283 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_seo.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gc-shell gcseo-shell" id="seo-settings" data-seo-editor data-dirty-label="You have unsaved changes.">
+    <div class="gc-header">
+      <div>
+        <p class="gc-eyebrow">Growth Center</p>
+        <h1>SEO Settings</h1>
+        <p class="gc-summary">Manage your website's global search engine optimization, indexing, metadata, and search visibility.</p>
+      </div>
+      <div class="gcseo-save-state" data-dirty-state hidden>Unsaved changes</div>
+    </div>
+
+    <section class="gc-card gcseo-health">
+      <div class="gc-card-heading">
+        <div>
+          <h2>SEO Health / Configuration Summary</h2>
+          <p>{{ health.readiness_label }}</p>
+        </div>
+        <div class="gcseo-readiness">
+          <strong>{{ health.readiness_percent }}%</strong>
+          <span>configuration completeness</span>
+        </div>
+      </div>
+      <div class="gcseo-checks">
+        {% for check in health.checks %}
+          <div class="gcseo-check gcseo-status-{{ check.status }}">
+            <span class="gcseo-status-dot"></span>
+            <div>
+              <strong>{{ check.label }}</strong>
+              <span>{{ check.status|title }}</span>
+              <p>{{ check.detail }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if form.non_field_errors %}
+      <div class="gcseo-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" data-seo-form>
+      {% csrf_token %}
+      <input type="hidden" name="reset" value="1" data-reset-input hidden>
+
+      <nav class="gcseo-tabs" role="tablist" aria-label="SEO settings sections">
+        <button type="button" class="gcseo-tab is-active" data-seo-tab="metadata" aria-selected="true">Metadata & Preview</button>
+        <button type="button" class="gcseo-tab" data-seo-tab="visibility" aria-selected="false">Indexing & Canonical</button>
+        <button type="button" class="gcseo-tab" data-seo-tab="discovery" aria-selected="false">Sitemap & Robots</button>
+        <button type="button" class="gcseo-tab" data-seo-tab="verification" aria-selected="false">Verification</button>
+      </nav>
+
+      <div class="gcseo-panel is-active" data-seo-panel="metadata" role="tabpanel">
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Global SEO Metadata</h2>
+              <p>Defaults used by public pages that do not define their own SEO metadata.</p>
+            </div>
+          </div>
+          <div class="gcseo-form-grid">
+            <div class="gcseo-field">
+              <label for="{{ form.seo_title.id_for_label }}">Website SEO Title</label>
+              {{ form.seo_title }}
+              {{ form.seo_title.errors }}
+              <div class="gcseo-counter" data-counter-for="title"><span data-current>{{ instance.seo_title|length }}</span> / 60 recommended</div>
+              <p class="gcseo-help">{{ form.seo_title.help_text }}</p>
+            </div>
+
+            <div class="gcseo-field">
+              <label for="{{ form.meta_description.id_for_label }}">Global Meta Description</label>
+              {{ form.meta_description }}
+              {{ form.meta_description.errors }}
+              <div class="gcseo-counter" data-counter-for="description"><span data-current>{{ instance.meta_description|length }}</span> / 160 recommended</div>
+              <p class="gcseo-help">{{ form.meta_description.help_text }}</p>
+            </div>
+
+            <div class="gcseo-field">
+              <label for="{{ form.site_name.id_for_label }}">Website Name</label>
+              {{ form.site_name }}
+              {{ form.site_name.errors }}
+              <p class="gcseo-help">{{ form.site_name.help_text }}</p>
+            </div>
+
+            <div class="gcseo-field">
+              <label for="{{ form.meta_keywords.id_for_label }}">Meta Keywords</label>
+              {{ form.meta_keywords }}
+              {{ form.meta_keywords.errors }}
+              <p class="gcseo-help">{{ form.meta_keywords.help_text }}</p>
+            </div>
+
+            <div class="gcseo-field gcseo-field-wide">
+              <label for="{{ form.default_image.id_for_label }}">Default SEO Image</label>
+              {{ form.default_image }}
+              {{ form.default_image.errors }}
+              <div class="gcseo-image-row">
+                <img data-image-preview src="{% if instance.default_image %}{{ instance.default_image.url }}{% else %}{{ preview.favicon_url }}{% endif %}" alt="Default SEO image preview">
+                <label class="gcseo-check"><input type="checkbox" name="remove_default_image" id="id_remove_default_image" {% if form.remove_default_image.value %}checked{% endif %}> {{ form.remove_default_image.label }}</label>
+              </div>
+              <p class="gcseo-help">{{ form.default_image.help_text }}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Google Search Preview</h2>
+              <p>Live preview of the default result. Google may display it differently.</p>
+            </div>
+          </div>
+          <div class="gcseo-google-preview">
+            <div class="gcseo-preview-domain">
+              <img src="{{ preview.favicon_url }}" alt="" aria-hidden="true">
+              <span data-preview-domain>{{ preview.domain }}</span>
+            </div>
+            <h3 data-preview-title>{{ preview.title }}</h3>
+            <p data-preview-description>{{ preview.description }}</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="gcseo-panel" data-seo-panel="visibility" role="tabpanel">
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Search Engine Visibility</h2>
+              <p>Global defaults. Future page-specific SEO settings will override these values.</p>
+            </div>
+            <span class="gcseo-pill" data-visibility-status>{% if instance.index_enabled %}Indexing enabled{% else %}Global noindex{% endif %}</span>
+          </div>
+          <div class="gcseo-form-grid">
+            <label class="gcseo-switch">
+              <input type="checkbox" name="index_enabled" {% if form.index_enabled.value %}checked{% endif %}>
+              <span class="gcseo-switch-track"><span></span></span>
+              <span><strong>Allow search engine indexing</strong><small>{{ form.index_enabled.help_text }}</small></span>
+            </label>
+            {{ form.index_enabled.errors }}
+            <label class="gcseo-switch">
+              <input type="checkbox" name="follow_enabled" {% if form.follow_enabled.value %}checked{% endif %}>
+              <span class="gcseo-switch-track"><span></span></span>
+              <span><strong>Allow link following</strong><small>{{ form.follow_enabled.help_text }}</small></span>
+            </label>
+            {{ form.follow_enabled.errors }}
+          </div>
+          <div class="gcseo-priority">
+            <strong>Override priority</strong>
+            <span>1. Page-specific SEO (future Task 3) → 2. Global SEO defaults → 3. Safe system fallback</span>
+          </div>
+        </section>
+
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Canonical URL Configuration</h2>
+              <p>Canonical metadata only. Existing routes and redirects are unchanged.</p>
+            </div>
+          </div>
+          <div class="gcseo-form-grid">
+            <div class="gcseo-field">
+              <label for="{{ form.primary_domain.id_for_label }}">Website Primary Domain</label>
+              {{ form.primary_domain }}
+              {{ form.primary_domain.errors }}
+              <p class="gcseo-help">Examples: <code>themehaven.in</code> or <code>https://www.themehaven.in</code>.</p>
+            </div>
+            <div class="gcseo-field">
+              <label for="{{ form.preferred_www.id_for_label }}">www Preference</label>
+              {{ form.preferred_www }}
+              {{ form.preferred_www.errors }}
+              <p class="gcseo-help">{{ form.preferred_www.help_text }}</p>
+            </div>
+            <div class="gcseo-field">
+              <label for="{{ form.canonical_behavior.id_for_label }}">Canonical Behavior</label>
+              {{ form.canonical_behavior }}
+              {{ form.canonical_behavior.errors }}
+              <p class="gcseo-help">{{ form.canonical_behavior.help_text }}</p>
+            </div>
+            <div class="gcseo-field">
+              <label for="{{ form.trailing_slash_behavior.id_for_label }}">Trailing Slash</label>
+              {{ form.trailing_slash_behavior }}
+              {{ form.trailing_slash_behavior.errors }}
+              <p class="gcseo-help">{{ form.trailing_slash_behavior.help_text }}</p>
+            </div>
+            <label class="gcseo-switch">
+              <input type="checkbox" name="prefer_https" {% if form.prefer_https.value %}checked{% endif %}>
+              <span class="gcseo-switch-track"><span></span></span>
+              <span><strong>Prefer HTTPS</strong><small>{{ form.prefer_https.help_text }}</small></span>
+            </label>
+            {{ form.prefer_https.errors }}
+          </div>
+        </section>
+      </div>
+
+      <div class="gcseo-panel" data-seo-panel="discovery" role="tabpanel">
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Sitemap Settings</h2>
+              <p>Dynamic XML sitemap built from public, indexable pages.</p>
+            </div>
+          </div>
+          <label class="gcseo-switch">
+            <input type="checkbox" name="sitemap_enabled" {% if form.sitemap_enabled.value %}checked{% endif %}>
+            <span class="gcseo-switch-track"><span></span></span>
+            <span><strong>Enable sitemap</strong><small>Serve a valid XML sitemap at the URL below.</small></span>
+          </label>
+          {{ form.sitemap_enabled.errors }}
+          <div class="gcseo-endpoint">
+            <a href="{{ sitemap_url }}" target="_blank" rel="noopener">{{ sitemap_url }}</a>
+            <span class="gcseo-pill">{% if instance.sitemap_enabled %}Enabled{% else %}Disabled{% endif %}</span>
+          </div>
+        </section>
+
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Robots.txt Configuration</h2>
+              <p>Dynamic endpoint with safe defaults and crawl-blocking validation.</p>
+            </div>
+          </div>
+          <label class="gcseo-switch">
+            <input type="checkbox" name="robots_txt_enabled" {% if form.robots_txt_enabled.value %}checked{% endif %}>
+            <span class="gcseo-switch-track"><span></span></span>
+            <span><strong>Enable custom robots.txt</strong><small>{{ form.robots_txt_enabled.help_text }}</small></span>
+          </label>
+          {{ form.robots_txt_enabled.errors }}
+          <div class="gcseo-field gcseo-field-wide">
+            <label for="{{ form.robots_txt_content.id_for_label }}">robots.txt content</label>
+            {{ form.robots_txt_content }}
+            {{ form.robots_txt_content.errors }}
+            <p class="gcseo-help">{{ form.robots_txt_content.help_text }}</p>
+          </div>
+          <div class="gcseo-robots-preview">
+            <div class="gcseo-preview-heading">
+              <strong>Live preview</strong>
+              <div>
+                <button type="button" class="gc-button gc-link-button" data-robots-default>Reset to safe default</button>
+                <a class="gc-button" href="{{ robots_url }}" target="_blank" rel="noopener">Open live robots.txt</a>
+              </div>
+            </div>
+            <pre data-robots-preview>{{ robots_preview }}</pre>
+          </div>
+        </section>
+      </div>
+
+      <div class="gcseo-panel" data-seo-panel="verification" role="tabpanel">
+        <section class="gc-card gcseo-card">
+          <div class="gc-card-heading">
+            <div>
+              <h2>Search Console Integration</h2>
+              <p>HTML meta-tag verification only. No Google API connection is used.</p>
+            </div>
+          </div>
+          <div class="gcseo-form-grid">
+            <div class="gcseo-field gcseo-field-wide">
+              <label for="{{ form.google_verification_token.id_for_label }}">Google Verification Token</label>
+              {{ form.google_verification_token }}
+              {{ form.google_verification_token.errors }}
+              <p class="gcseo-help">{{ form.google_verification_token.help_text }}</p>
+              <code class="gcseo-token-preview">&lt;meta name="google-site-verification" content="{{ instance.google_verification_token }}" /&gt;</code>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="gcseo-actions">
+        <span class="gcseo-save-state" data-footer-dirty-state hidden>Unsaved changes</span>
+        <button type="button" class="gc-button gcseo-reset" data-reset-button>Reset to safe defaults</button>
+        <button type="submit" class="gc-button gc-button-primary">Save SEO Settings</button>
+      </div>
+    </form>
+  </div>
+  {{ seo_config|json_script:"gcseo-config" }}
+  <script src="{% static 'js/growth_seo.js' %}"></script>
+{% endblock %}

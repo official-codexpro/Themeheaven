@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a> &rsaquo; Settings
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="module">
+    <h1>Settings</h1>
+    <p class="quiet">Manage backend and system configuration for this Django project. Changes are saved to the database and are scoped to system administration only.</p>
+  </div>
+
+  {% if warnings %}
+    <div class="module" style="border-left: 4px solid #ba2121; padding-left: 12px; margin-bottom: 18px;">
+      <h2>Security notices</h2>
+      <ul>
+        {% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="module">
+    <table style="width: 100%;">
+      <caption>Settings categories</caption>
+      <thead>
+        <tr>
+          <th scope="col">Category</th>
+          <th scope="col">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+          <tr>
+            <th scope="row"><a href="{% url 'admin:system-settings-category' category.slug %}">{{ category.name }}</a></th>
+            <td>{{ category.description }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p><a href="{% url 'admin:index' %}">&larr; Back to Admin Home</a></p>
+</div>
+{% endblock %}

@@ -34,6 +34,26 @@ def validate_gif_upload(upload):
         raise ValidationError('The uploaded file is not a valid GIF image.')
 
 
+def validate_admin_logo(upload):
+    allowed = {'.png', '.jpg', '.jpeg', '.webp', '.gif'}
+    if os.path.splitext(upload.name.lower())[1] not in allowed:
+        raise ValidationError('Upload a PNG, JPG, WebP, or GIF image. SVG logos are not allowed.')
+    if upload.size > 512 * 1024:
+        raise ValidationError('Admin logos must be 512 KB or smaller.')
+
+    try:
+        from PIL import Image
+
+        position = upload.tell()
+        with Image.open(upload) as image:
+            if (image.format or '').lower() not in {'png', 'jpeg', 'webp', 'gif'}:
+                raise ValidationError('Upload a valid PNG, JPG, WebP, or GIF image.')
+            image.verify()
+        upload.seek(position)
+    except (OSError, ValueError):
+        raise ValidationError('The uploaded logo is not a valid image.')
+
+
 def validate_whatsapp_phone(value):
     if not value:
         return

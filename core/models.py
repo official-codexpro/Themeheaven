@@ -1,3 +1,4 @@
+import os
 import uuid
 
 from django.conf import settings
@@ -6,7 +7,7 @@ from django.db import models
 
 from .storage import appearance_svg_storage, whatsapp_svg_storage
 from .svg_sanitizer import SvgValidationError, sanitize_svg
-from .validators import HEX_COLOR, validate_gif_upload, validate_hex_color, validate_svg_upload, validate_whatsapp_phone
+from .validators import HEX_COLOR, validate_admin_logo, validate_gif_upload, validate_hex_color, validate_svg_upload, validate_whatsapp_phone
 
 DEFAULT_WHATSAPP_MESSAGE = 'Hi ThemeHaven! I need help regarding themes and templates.'
 
@@ -396,6 +397,11 @@ _error_page_settings_cache = None
 class ErrorPageSettings(models.Model):
     id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
 
+    enabled = models.BooleanField(
+        'Enable Custom 404 Page',
+        default=True,
+        help_text='Turn off to return a plain 404 response without the custom page.',
+    )
     gif = models.ImageField(
         '404 GIF',
         upload_to=error_page_gif_path,
@@ -410,19 +416,21 @@ class ErrorPageSettings(models.Model):
         validators=[validate_hex_color],
         help_text='Use a hex color such as #ffffff.',
     )
-    heading = models.CharField('404 Heading', max_length=80, blank=True, default='404')
+    heading = models.CharField('404 Heading', max_length=80, blank=True, default='Page Not Found')
     message = models.CharField(
         '404 Message',
         max_length=200,
         blank=True,
-        default='Oops! This page seems to have wandered off.',
+        default="The page you're looking for doesn't exist, has been moved, or may be temporarily unavailable.",
     )
     supporting_message = models.CharField(
         '404 Supporting Message',
         max_length=240,
         blank=True,
-        default="The page you're looking for doesn't exist or may have been moved.",
+        default='Check the address or use one of the buttons below to keep browsing.',
     )
+    home_button_enabled = models.BooleanField('Show Home Button', default=True)
+    home_button_text = models.CharField('Home Button Text', max_length=40, default='Back to Home')
 
     class Meta:
         verbose_name = '404 Error Page Settings'
@@ -468,3 +476,137 @@ class ErrorPageSettings(models.Model):
 def clear_error_page_settings_cache():
     global _error_page_settings_cache
     _error_page_settings_cache = None
+
+
+def system_admin_logo_path(instance, filename):
+    return f'system/admin/logo-{uuid.uuid4().hex}{os.path.splitext(filename)[1].lower()}'
+
+
+COMMON_TIMEZONES = (
+    'UTC',
+    'America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+    'America/New_York', 'America/Sao_Paulo', 'America/Toronto',
+    'Asia/Dubai', 'Asia/Hong_Kong', 'Asia/Jakarta', 'Asia/Karachi',
+    'Asia/Kolkata', 'Asia/Seoul', 'Asia/Shanghai', 'Asia/Singapore',
+    'Asia/Tokyo', 'Australia/Brisbane', 'Australia/Melbourne', 'Australia/Sydney',
+    'Europe/Amsterdam', 'Europe/Berlin', 'Europe/London', 'Europe/Madrid',
+    'Europe/Paris', 'Europe/Rome', 'Europe/Warsaw', 'Europe/Zurich',
+    'Pacific/Auckland', 'Pacific/Honolulu',
+)
+
+
+def timezone_choices():
+    return [(zone, zone) for zone in COMMON_TIMEZONES]
+
+
+LANGUAGE_CHOICES = (
+    ('en-us', 'English (US)'),
+    ('en-gb', 'English (UK)'),
+    ('hi', 'Hindi'),
+    ('es-es', 'Spanish'),
+    ('fr', 'French'),
+    ('de', 'German'),
+)
+
+ENVIRONMENT_CHOICES = (
+    ('development', 'Development'),
+    ('staging', 'Staging'),
+    ('production', 'Production'),
+)
+
+
+class SystemSettings(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+
+    admin_site_name = models.CharField('Admin Site Name', max_length=80, default='themehaven.in')
+    admin_header = models.CharField('Admin Header', max_length=80, default='themehaven.in')
+    admin_browser_title = models.CharField('Admin Browser Title', max_length=80, default='themehaven.in')
+    admin_welcome_text = models.TextField('Admin Welcome Text', max_length=500, blank=True)
+    admin_logo = models.ImageField(
+        'Admin Logo',
+        upload_to=system_admin_logo_path,
+        validators=[validate_admin_logo],
+        blank=True,
+        help_text='Optional PNG, JPG, WebP, or GIF up to 512 KB. SVG is not accepted.',
+    )
+
+    allowed_hosts = models.TextField(
+        'Allowed Hosts',
+        max_length=500,
+        blank=True,
+        help_text='One host per line. Requires a server restart. Leave empty to keep the environment configuration.',
+    )
+    time_zone = models.CharField('Time Zone', max_length=64, choices=timezone_choices, default='UTC')
+    language_code = models.CharField('Language Code', max_length=10, choices=LANGUAGE_CHOICES, default='en-us')
+    site_base_url = models.URLField('Site Base URL', blank=True, help_text='Used for the admin “View site” link.')
+    environment = models.CharField('Environment', max_length=12, choices=ENVIRONMENT_CHOICES, default='development')
+    app_version = models.CharField('Application Version', max_length=40, blank=True)
+
+    secure_ssl_redirect = models.BooleanField('Force HTTPS Redirect', default=False)
+    session_cookie_secure = models.BooleanField('Secure Session Cookie', default=False)
+    csrf_cookie_secure = models.BooleanField('Secure CSRF Cookie', default=False)
+    hsts_enabled = models.BooleanField('Enable HSTS', default=True)
+    hsts_seconds = models.PositiveIntegerField('HSTS Max Age (seconds)', default=31536000, validators=[MinValueValidator(60), MaxValueValidator(63072000)])
+    hsts_include_subdomains = models.BooleanField('HSTS Include Subdomains', default=True)
+    hsts_preload = models.BooleanField('HSTS Preload', default=False)
+
+    session_expire_at_browser_close = models.BooleanField('Expire Session at Browser Close', default=True)
+    session_cookie_age = models.PositiveIntegerField('Session Cookie Age (seconds)', default=1209600, validators=[MinValueValidator(60), MaxValueValidator(31536000)])
+
+    cache_timeout = models.PositiveIntegerField('Settings Cache Timeout (seconds)', default=300, validators=[MinValueValidator(1), MaxValueValidator(86400)])
+    page_size = models.PositiveIntegerField('Default Page Size', default=8, validators=[MinValueValidator(1), MaxValueValidator(48)])
+    max_page_size = models.PositiveIntegerField('Maximum Page Size', default=48, validators=[MinValueValidator(1), MaxValueValidator(100)])
+
+    class Meta:
+        verbose_name = 'System Settings'
+        verbose_name_plural = 'System Settings'
+
+    def __str__(self):
+        return 'System Settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        previous_file = None
+        if not self._state.adding:
+            existing = type(self).objects.filter(pk=1).first()
+            if existing and existing.admin_logo and existing.admin_logo.name != self.admin_logo.name:
+                previous_file = existing.admin_logo
+
+        super().save(*args, **kwargs)
+        clear_system_settings_cache()
+
+        if previous_file and previous_file.name != self.admin_logo.name:
+            previous_file.delete(save=False)
+
+    def delete(self, *args, **kwargs):
+        if self.admin_logo:
+            self.admin_logo.delete(save=False)
+        clear_system_settings_cache()
+        return super().delete(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        from .system_settings import get_system_settings
+
+        return get_system_settings()
+
+
+class SystemSettingsChange(models.Model):
+    changed_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    category = models.CharField(max_length=40)
+    changes = models.TextField()
+
+    class Meta:
+        verbose_name = 'System Settings Change'
+        verbose_name_plural = 'System Settings Changes'
+        ordering = ('-changed_at',)
+
+    def __str__(self):
+        return f'{self.category} settings changed at {self.changed_at:%Y-%m-%d %H:%M}'
+
+
+def clear_system_settings_cache():
+    from .system_settings import clear_system_settings_cache as clear
+
+    clear()

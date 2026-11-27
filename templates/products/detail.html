@@ -3,7 +3,7 @@
 
 {% block title %}{{ product.title }} — ThemeHaven{% endblock %}
 {% block meta_description %}{{ product.short_description }}{% endblock %}
-{% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}" />{% endblock %}
+{% block canonical %}<link rel="canonical" href="{{ canonical_url }}" />{% endblock %}
 {% block og_title %}{{ product.title }} — ThemeHaven{% endblock %}
 {% block og_description %}{{ product.short_description }}{% endblock %}
 {% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ product.thumbnail.url }}{% endblock %}

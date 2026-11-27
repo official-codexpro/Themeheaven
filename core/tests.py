@@ -13,8 +13,9 @@ from django.urls import reverse
 
 from core.admin import AppearanceSettingsAdmin, ErrorPageSettingsAdmin
 from core.context_processors import footer_links
-from core.models import AppearanceSettings, ErrorPageSettings, FooterSettings, clear_error_page_settings_cache
+from core.models import AppearanceSettings, ErrorPageSettings, FooterSettings, SystemSettings, SystemSettingsChange, clear_error_page_settings_cache
 from core.storage import appearance_svg_storage, whatsapp_svg_storage
+from core.system_settings import clear_system_settings_cache, get_page_size
 from core.svg_sanitizer import sanitize_svg
 from core.validators import validate_hex_color, validate_svg_upload, validate_whatsapp_phone
 
@@ -502,10 +503,13 @@ class ErrorPageTests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, '404.html')
         html = response.content.decode()
-        self.assertIn('--page-bg: #ffffff', html)
-        self.assertIn('Oops! This page seems to have wandered off.', html)
-        self.assertIn("The page you&#x27;re looking for doesn&#x27;t exist or may have been moved.", html)
+        self.assertIn('[data-theme="light"] .themehaven-404 { background-color: #ffffff; }', html)
+        self.assertIn('>404</span>', html)
+        self.assertIn('Page Not Found', html)
+        self.assertIn("doesn&#x27;t exist, has been moved, or may be temporarily unavailable.", html)
         self.assertIn('href="/"', html)
+        self.assertIn('id="themehub-navbar"', html)
+        self.assertIn('id="site-footer"', html)
         self.assertNotIn('Django tried these URL patterns', html)
 
     def test_admin_settings_are_reflected_on_404_page(self):
@@ -517,10 +521,49 @@ class ErrorPageTests(TestCase):
         settings_obj.save()
 
         html = self._missing_page().content.decode()
-        self.assertIn('--page-bg: #fff4e6', html)
-        self.assertIn('<h1>Lost?</h1>', html)
+        self.assertIn('[data-theme="light"] .themehaven-404 { background-color: #fff4e6; }', html)
+        self.assertIn('Lost?', html)
         self.assertIn('That link went missing.', html)
         self.assertIn('Try the homepage instead.', html)
+
+    def test_home_button_can_be_hidden_and_relabeled(self):
+        settings_obj = ErrorPageSettings.load()
+        settings_obj.home_button_enabled = False
+        settings_obj.home_button_text = 'Return Home'
+        settings_obj.save()
+        self.assertNotIn('Return Home', self._missing_page().content.decode())
+
+        settings_obj.home_button_enabled = True
+        settings_obj.save()
+        self.assertIn('Return Home', self._missing_page().content.decode())
+
+    def test_custom_404_can_be_disabled_without_changing_status(self):
+        settings_obj = ErrorPageSettings.load()
+        settings_obj.enabled = False
+        settings_obj.save()
+
+        response = self._missing_page()
+        self.assertEqual(response.status_code, 404)
+        html = response.content.decode()
+        self.assertNotIn('themehaven-404', html)
+        self.assertIn('<h1>Page not found</h1>', html)
+
+    def test_go_back_button_has_safe_fallback(self):
+        html = self._missing_page().content.decode()
+        self.assertIn('data-go-back', html)
+        self.assertIn('data-fallback-url="/"', html)
+        self.assertIn('window.history.length > 1', html)
+        self.assertIn('window.location.href = button.dataset.fallbackUrl', html)
+
+    def test_theme_rules_support_light_and_dark(self):
+        html = self._missing_page().content.decode()
+        self.assertIn('[data-theme="light"] .themehaven-404', html)
+        self.assertIn('[data-theme="dark"] .themehaven-404', html)
+
+    def test_valid_urls_are_unaffected(self):
+        with override_settings(DEBUG=False):
+            self.assertEqual(self.client.get('/').status_code, 200)
+            self.assertEqual(self.client.get('/support/').status_code, 200)
 
     def test_settings_are_singleton(self):
         settings_obj = ErrorPageSettings.load()
@@ -554,7 +597,9 @@ class ErrorPageTests(TestCase):
         with override_settings(DEBUG=True):
             response = self.client.get('/this-page-does-not-exist/')
         self.assertEqual(response.status_code, 404)
-        self.assertNotIn('Oops! This page seems to have wandered off.', response.content.decode())
+        html = response.content.decode()
+        self.assertNotIn('Page Not Found — ThemeHaven', html)
+        self.assertNotIn('themehaven-404', html)
 
     def test_admin_change_page_renders_preview_and_color_picker(self):
         ErrorPageSettings.load()
@@ -564,6 +609,8 @@ class ErrorPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Current GIF Preview')
         self.assertContains(response, 'type="color"')
+        self.assertContains(response, 'Enable Custom 404 Page')
+        self.assertContains(response, 'Home Button Text')
 
     def test_handler500_remains_default(self):
         from django.conf import settings
@@ -572,3 +619,165 @@ class ErrorPageTests(TestCase):
 
         self.assertFalse(hasattr(config.urls, 'handler500'))
         self.assertFalse((settings.BASE_DIR / 'templates' / '500.html').exists())
+
+
+class SystemSettingsPanelTests(TestCase):
+    def setUp(self):
+        clear_system_settings_cache()
+        self.user = get_user_model().objects.create_superuser('system-admin', 'system@example.com', 'password')
+        self.client.force_login(self.user)
+
+    def tearDown(self):
+        clear_system_settings_cache()
+
+    def test_settings_index_is_superuser_only(self):
+        response = self.client.get(reverse('admin:system-settings-index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Admin Branding')
+        self.assertContains(response, 'System Information')
+
+        staff = get_user_model().objects.create_user('staff-only', 'staff@example.com', 'password', is_staff=True)
+        self.client.force_login(staff)
+        self.assertEqual(self.client.get(reverse('admin:system-settings-index')).status_code, 403)
+        self.assertNotIn('>Settings</a>', self.client.get(reverse('admin:index')).content.decode())
+
+    def test_settings_appears_once_in_core_admin_sidebar(self):
+        html = self.client.get(reverse('admin:system-settings-index')).content.decode()
+        nav = html.split('id="nav-sidebar"', 1)[1].split('</nav>', 1)[0]
+        self.assertEqual(nav.count('>Settings</a>'), 1)
+        self.assertIn(reverse('admin:system-settings-index'), nav)
+
+    def test_admin_branding_changes_apply_to_admin_immediately(self):
+        response = self.client.post(reverse('admin:system-settings-category', args=['admin-branding']), {
+            'admin_site_name': 'Themes Admin',
+            'admin_header': 'ThemeHaven Control Center',
+            'admin_browser_title': 'ThemeHaven Backend',
+            'admin_welcome_text': 'Welcome back to ThemeHaven.',
+            'admin_logo': '',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        instance = SystemSettings.load()
+        self.assertEqual(instance.admin_header, 'ThemeHaven Control Center')
+
+        html = self.client.get(reverse('admin:index')).content.decode()
+        self.assertIn('ThemeHaven Control Center', html)
+        self.assertIn('Welcome back to ThemeHaven.', html)
+        self.assertTrue(SystemSettingsChange.objects.filter(category='Admin Branding').exists())
+
+    def test_performance_changes_apply_to_pagination_and_are_audited(self):
+        response = self.client.post(reverse('admin:system-settings-category', args=['performance']), {
+            'cache_timeout': '120',
+            'page_size': '12',
+            'max_page_size': '48',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_page_size(), 12)
+
+        change = SystemSettingsChange.objects.get(category='Performance & Cache')
+        self.assertIn('page_size', change.changes)
+        self.assertEqual(change.user, self.user)
+
+    def test_security_form_blocks_unsafe_production_values(self):
+        settings_obj = SystemSettings.objects.create(pk=1, environment='production')
+        clear_system_settings_cache()
+
+        response = self.client.post(reverse('admin:system-settings-category', args=['security']), {
+            'hsts_seconds': '31536000',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'HTTPS redirect must stay enabled in Production.')
+        self.assertContains(response, 'HTTPS redirect (live)')
+        settings_obj.refresh_from_db()
+        self.assertFalse(settings_obj.secure_ssl_redirect)
+
+    def test_read_only_categories_show_diagnostics_without_secrets(self):
+        from django.conf import settings
+
+        html = self.client.get(reverse('admin:system-settings-category', args=['email'])).content.decode()
+        self.assertIn('Credentials are never displayed or editable here.', html)
+        self.assertNotIn(settings.SECRET_KEY, html)
+
+        html = self.client.get(reverse('admin:system-settings-category', args=['system'])).content.decode()
+        self.assertIn('DEBUG status', html)
+        self.assertIn('Cache backend', html)
+        self.assertNotIn(settings.SECRET_KEY, html)
+
+    def test_admin_logo_rejects_svg_and_displays_valid_image(self):
+        from PIL import Image
+
+        from core.validators import validate_admin_logo
+
+        with self.assertRaises(ValidationError):
+            validate_admin_logo(SimpleUploadedFile('logo.svg', b'<svg xmlns="http://www.w3.org/2000/svg"></svg>'))
+
+        media_root = tempfile.TemporaryDirectory()
+        with override_settings(MEDIA_ROOT=media_root.name):
+            buffer = io.BytesIO()
+            Image.new('RGB', (40, 40), (30, 90, 160)).save(buffer, format='PNG')
+            response = self.client.post(reverse('admin:system-settings-category', args=['admin-branding']), {
+                'admin_site_name': 'Themes Admin',
+                'admin_header': 'Themes Admin',
+                'admin_browser_title': 'Themes Admin',
+                'admin_welcome_text': '',
+                'admin_logo': SimpleUploadedFile('logo.png', buffer.getvalue(), content_type='image/png'),
+            })
+            self.assertEqual(response.status_code, 302)
+
+            instance = SystemSettings.objects.get(pk=1)
+            self.assertIn('system/admin/logo-', instance.admin_logo.name)
+            html = self.client.get(reverse('admin:index')).content.decode()
+            self.assertIn(instance.admin_logo.url, html)
+        media_root.cleanup()
+
+
+class CoreAdminMenuTests(TestCase):
+    def setUp(self):
+        clear_system_settings_cache()
+        self.user = get_user_model().objects.create_superuser('menu-admin', 'menu@example.com', 'password')
+        self.client.force_login(self.user)
+
+    def tearDown(self):
+        clear_system_settings_cache()
+
+    @staticmethod
+    def core_model_names(apps):
+        return [
+            model['name']
+            for app in apps
+            if app['app_label'] == 'core'
+            for model in app['models']
+        ]
+
+    def test_core_menu_label_and_order_are_consistent(self):
+        expected = ['Redirection Settings', 'Appearance Settings', 'Settings', 'Footer Settings']
+        request = RequestFactory().get('/admin/')
+        request.user = self.user
+
+        self.assertEqual(self.core_model_names(admin.site.get_app_list(request)), expected)
+        self.assertEqual(self.core_model_names(admin.site.each_context(request)['available_apps']), expected)
+
+        html = self.client.get(reverse('admin:system-settings-index')).content.decode()
+        nav = html.split('id="nav-sidebar"', 1)[1].split('</nav>', 1)[0]
+        self.assertEqual([
+            'Redirection Settings', 'Appearance Settings', 'Settings', 'Footer Settings'
+        ], [name for name in expected if f'>{name}</a>' in nav])
+        self.assertNotIn('Appearance &amp; Theme Settings</a>', nav)
+
+    def test_staff_sidebar_uses_new_label_without_settings_item(self):
+        from django.contrib.auth.models import Permission
+
+        staff = get_user_model().objects.create_user('menu-staff', 'menu-staff@example.com', 'password', is_staff=True)
+        staff.user_permissions.set(Permission.objects.all())
+        request = RequestFactory().get('/admin/')
+        request.user = staff
+
+        expected = ['Redirection Settings', 'Appearance Settings', 'Footer Settings']
+        self.assertEqual(self.core_model_names(admin.site.get_app_list(request)), expected)
+        self.assertEqual(self.core_model_names(admin.site.each_context(request)['available_apps']), expected)
+
+    def test_admin_page_metadata_is_unchanged(self):
+        self.assertEqual(AppearanceSettings._meta.verbose_name, 'Appearance & Theme Settings')
+        self.assertEqual(AppearanceSettings._meta.verbose_name_plural, 'Appearance & Theme Settings')
+        self.assertEqual(ErrorPageSettings._meta.verbose_name, '404 Error Page Settings')
+        self.assertEqual(ErrorPageSettings._meta.verbose_name_plural, '404 Error Page Settings')

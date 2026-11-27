@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    #site-name a { display: inline-flex; align-items: center; gap: 10px; }
+    .themehaven-admin-logo { max-height: 34px; max-width: 160px; object-fit: contain; }
+    .app-growth_center { --growth-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v18h18'/%3E%3Cpath d='M8 16v-5'/%3E%3Cpath d='M13 16V8'/%3E%3Cpath d='M18 16v-8'/%3E%3C/svg%3E"); }
+    .app-growth_center caption a.section,
+    .app-growth_center th[scope="row"] a { display: inline-flex; align-items: center; gap: 8px; }
+    .app-growth_center caption a.section::before,
+    .app-growth_center th[scope="row"] a::before { content: ""; width: 15px; height: 15px; flex: 0 0 15px; background-color: currentColor; -webkit-mask: var(--growth-icon) no-repeat center / contain; mask: var(--growth-icon) no-repeat center / contain; }
+    .app-growth_center .model-seosettings { --growth-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E"); }
+  </style>
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}">
+    {% if system_settings.admin_logo %}
+      <img src="{{ system_settings.admin_logo.url }}" alt="{{ system_settings.admin_site_name }}" class="themehaven-admin-logo">
+    {% endif %}
+    <span>{{ site_header|default:_('Django administration') }}</span>
+  </a>
+</div>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

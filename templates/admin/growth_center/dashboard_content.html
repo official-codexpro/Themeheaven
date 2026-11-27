@@ -1,0 +1,218 @@
+<div class="gc-header">
+  <div>
+    <p class="gc-eyebrow">Growth Center</p>
+    <h1>Marketing Analytics</h1>
+    <p class="gc-summary">{{ summary_text }}</p>
+  </div>
+  <button type="button" class="gc-button gc-refresh" aria-label="Refresh analytics">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+    Refresh
+  </button>
+</div>
+
+<div class="gc-controls" role="group" aria-label="Analytics filters">
+  <label class="gc-field">
+    <span>Date range</span>
+    <select class="gc-range-select" aria-label="Date range">
+      {% for value, label in range_choices %}
+        <option value="{{ value }}" {% if range.key == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <div class="gc-field gc-custom-range" {% if range.key != 'custom' %}hidden{% endif %}>
+    <label for="gc-start">From</label>
+    <input id="gc-start" class="gc-start-date" type="date" value="{{ range.start_iso }}">
+    <label for="gc-end">To</label>
+    <input id="gc-end" class="gc-end-date" type="date" value="{{ range.end_iso }}">
+    <button type="button" class="gc-button gc-date-apply">Apply</button>
+  </div>
+
+  <label class="gc-field">
+    <span>Chart period</span>
+    <select class="gc-grain-select" aria-label="Chart period">
+      {% for value, label in grain_choices %}
+        <option value="{{ value }}" {% if grain == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label class="gc-field">
+    <span>Traffic source</span>
+    <select class="gc-source-select" aria-label="Traffic source">
+      <option value="" {% if not source %}selected{% endif %}>All sources</option>
+      {% for choice in source_choices %}
+        <option value="{{ choice }}" {% if source == choice %}selected{% endif %}>{{ choice }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="button" class="gc-button gc-link-button gc-reset">Reset</button>
+</div>
+
+<div class="gc-kpi-grid">
+  <article class="gc-card gc-kpi">
+    <div class="gc-kpi-top"><span>Total Visitors</span><span class="gc-kpi-icon gc-icon-users"></span></div>
+    <strong>{{ kpis.visitors.display }}</strong>
+    <p class="gc-comparison gc-{{ kpis.visitors.comparison.direction }}">
+      {{ kpis.visitors.comparison.label }} <span>vs previous period</span>
+    </p>
+    <p class="gc-kpi-note">Visitor sessions in the selected date range.</p>
+  </article>
+  <article class="gc-card gc-kpi">
+    <div class="gc-kpi-top"><span>Unique Visitors</span><span class="gc-kpi-icon gc-icon-person"></span></div>
+    <strong>{{ kpis.unique_visitors.display }}</strong>
+    <p class="gc-comparison gc-{{ kpis.unique_visitors.comparison.direction }}">
+      {{ kpis.unique_visitors.comparison.label }} <span>vs previous period</span>
+    </p>
+    <p class="gc-kpi-note">Distinct privacy-safe visitor identifiers.</p>
+  </article>
+  <article class="gc-card gc-kpi">
+    <div class="gc-kpi-top"><span>Page Views</span><span class="gc-kpi-icon gc-icon-eye"></span></div>
+    <strong>{{ kpis.page_views.display }}</strong>
+    <p class="gc-comparison gc-{{ kpis.page_views.comparison.direction }}">
+      {{ kpis.page_views.comparison.label }} <span>vs previous period</span>
+    </p>
+    <p class="gc-kpi-note">Tracked public HTML page views.</p>
+  </article>
+  <article class="gc-card gc-kpi">
+    <div class="gc-kpi-top"><span>Bounce Rate</span><span class="gc-kpi-icon gc-icon-bounce"></span></div>
+    <strong>{{ kpis.bounce_rate.display }}</strong>
+    <p class="gc-comparison gc-{{ kpis.bounce_rate.comparison.direction }}">
+      {{ kpis.bounce_rate.comparison.label }} <span>vs previous period</span>
+    </p>
+    <p class="gc-kpi-note">{{ bounce.bounced_sessions }} of {{ bounce.total_sessions }} sessions viewed one page.</p>
+  </article>
+</div>
+
+{% if not has_data %}
+  <div class="gc-empty" role="status">
+    <strong>No analytics recorded yet.</strong>
+    <span>Once public visitors browse the site, live metrics, charts, sources, and top pages will appear here.</span>
+  </div>
+{% endif %}
+
+<div class="gc-chart-grid">
+  <section class="gc-card gc-chart-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Traffic Overview</h2>
+        <p>Visitors and page views over the selected period.</p>
+      </div>
+      <div class="gc-legend" aria-label="Traffic chart legend">
+        <span><i class="gc-swatch gc-swatch-visitors"></i>Visitors</span>
+        <span><i class="gc-swatch gc-swatch-views"></i>Page Views</span>
+      </div>
+    </div>
+    <div class="gc-chart" data-chart="traffic">
+      <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Traffic overview line chart"></svg>
+      <div class="gc-tooltip" hidden></div>
+    </div>
+  </section>
+
+  <section class="gc-card gc-chart-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Visitor Growth</h2>
+        <p>New and returning visitor sessions.</p>
+      </div>
+      <div class="gc-legend" aria-label="Visitor growth chart legend">
+        <span><i class="gc-swatch gc-swatch-new"></i>New</span>
+        <span><i class="gc-swatch gc-swatch-returning"></i>Returning</span>
+      </div>
+    </div>
+    <div class="gc-chart" data-chart="growth">
+      <svg viewBox="0 0 720 260" preserveAspectRatio="none" role="img" aria-label="Visitor growth line chart"></svg>
+      <div class="gc-tooltip" hidden></div>
+    </div>
+  </section>
+</div>
+
+<div class="gc-detail-grid">
+  <section class="gc-card gc-source-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Traffic Sources</h2>
+        <p>Where sessions originated. Select a source to filter the dashboard.</p>
+      </div>
+    </div>
+    <div class="gc-source-list">
+      {% for row in traffic_sources %}
+        <button type="button" class="gc-source-row {% if source == row.category %}is-active{% endif %}" data-source="{{ row.category }}">
+          <span class="gc-source-label"><i class="gc-dot gc-tone-{{ row.tone }}"></i>{{ row.category }}</span>
+          <span class="gc-source-bar"><i class="gc-tone-{{ row.tone }}" style="width: {{ row.percent|floatformat:1 }}%"></i></span>
+          <span class="gc-source-value">{{ row.count }} · {{ row.percent|floatformat:1 }}%</span>
+        </button>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="gc-card gc-bounce-card">
+    <div class="gc-card-heading">
+      <div>
+        <h2>Engagement & Bounce</h2>
+        <p>Session-level engagement based on tracked page views.</p>
+      </div>
+    </div>
+    <div class="gc-bounce-figure">
+      <strong>{{ bounce.rate|floatformat:1 }}%</strong>
+      <span>Bounce rate</span>
+    </div>
+    <div class="gc-bounce-track"><i style="width: {{ bounce.rate|floatformat:1 }}%"></i></div>
+    <dl class="gc-detail-list">
+      <div><dt>Bounced sessions</dt><dd>{{ bounce.bounced_sessions }}</dd></div>
+      <div><dt>Total sessions</dt><dd>{{ bounce.total_sessions }}</dd></div>
+      <div><dt>Avg. time on page</dt><dd>—</dd></div>
+    </dl>
+    <p class="gc-note">A bounce is a session with one tracked page view. Average time on page is not shown because server-side tracking cannot reliably detect the final page exit.</p>
+  </section>
+</div>
+
+<section class="gc-card gc-pages-card">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Top Pages</h2>
+      <p>Best-performing public pages in the selected date range.</p>
+    </div>
+    <label class="gc-field gc-field-inline">
+      <span>Sort by</span>
+      <select class="gc-sort-select" aria-label="Sort top pages">
+        {% for value, label in sort_choices %}
+          <option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+  <div class="gc-table-wrap">
+    <table class="gc-table">
+      <thead>
+        <tr>
+          <th scope="col">Page title</th>
+          <th scope="col">Path</th>
+          <th scope="col">Page views</th>
+          <th scope="col">Unique visitors</th>
+          <th scope="col">Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for page in top_pages %}
+          <tr>
+            <td><strong>{{ page.title }}</strong></td>
+            <td><a href="{{ page.path }}" target="_blank" rel="noopener">{{ page.path }}</a></td>
+            <td>{{ page.views }}</td>
+            <td>{{ page.visitors }}</td>
+            <td>
+              <span class="gc-share"><i style="width: {{ page.percent|floatformat:1 }}%"></i></span>
+              {{ page.percent|floatformat:1 }}%
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="gc-table-empty">No page views recorded for this selection.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{{ charts.traffic|json_script:"gc-traffic-data" }}
+{{ charts.growth|json_script:"gc-growth-data" }}

@@ -1,17 +1,20 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 
-from products.catalogue import PAGE_SIZE, visible_products
+from products.catalogue import visible_products
 from products.models import ExcelDashboard, WordPressTheme
 
 from .models import ErrorPageSettings
+from .system_settings import get_page_size
 
 
 def home(request):
     query = (request.GET.get('q') or '').strip()
     wordpress_queryset = visible_products(WordPressTheme, query, request.user)
     excel_queryset = visible_products(ExcelDashboard, query, request.user)
-    wordpress_products = list(wordpress_queryset[:PAGE_SIZE])
-    excel_products = list(excel_queryset[:PAGE_SIZE])
+    page_size = get_page_size()
+    wordpress_products = list(wordpress_queryset[:page_size])
+    excel_products = list(excel_queryset[:page_size])
     value_points = [
         ('Premium Quality', 'Explore a curated collection of polished designs.', 'M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3z'),
         ('Instant Downloads', 'Get digital products without waiting for delivery.', 'M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3'),
@@ -33,6 +36,13 @@ def support(request):
 
 def custom_404(request, exception):
     error_page = ErrorPageSettings.load()
+    if not error_page.enabled:
+        return HttpResponse(
+            '<!doctype html><html lang="en"><head><title>Page not found</title></head>'
+            '<body><h1>Page not found</h1><p>The requested page could not be found.</p></body></html>',
+            status=404,
+            content_type='text/html; charset=utf-8',
+        )
     return render(request, '404.html', {'error_page': error_page}, status=404)
 
 

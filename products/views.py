@@ -7,7 +7,10 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 
-from .catalogue import PAGE_SIZE, visible_products
+from core.system_settings import get_page_size
+from growth_center.seo import build_canonical_url
+
+from .catalogue import visible_products
 from .models import ExcelDashboard, WordPressTheme
 
 
@@ -25,7 +28,7 @@ def _offset(request):
 def _batch(request, model, kind):
     queryset = visible_products(model, _query(request), request.user)
     offset = _offset(request)
-    products = list(queryset[offset:offset + PAGE_SIZE])
+    products = list(queryset[offset:offset + get_page_size()])
     html = ''.join(
         render_to_string(
             'products/partials/card.html',
@@ -58,6 +61,7 @@ def wordpress_detail(request, slug):
     return render(request, 'products/detail.html', {
         'product': product,
         'kind': 'wordpress',
+        'canonical_url': build_canonical_url(request, product.get_absolute_url()),
         'can_download': request.user.is_authenticated and request.user.is_staff,
         'download_url': product.get_absolute_url(),
     })
@@ -71,6 +75,7 @@ def excel_detail(request, slug):
     return render(request, 'products/detail.html', {
         'product': product,
         'kind': 'excel',
+        'canonical_url': build_canonical_url(request, product.get_absolute_url()),
         'can_download': request.user.is_authenticated and request.user.is_staff,
         'download_url': product.get_absolute_url(),
     })

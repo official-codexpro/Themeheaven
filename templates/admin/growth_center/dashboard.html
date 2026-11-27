@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-dashboard" class="gc-shell" data-dashboard-url="{% url 'admin:growth-center-analytics' %}">
+    {% include "admin/growth_center/dashboard_content.html" %}
+  </div>
+  <script src="{% static 'js/growth_center.js' %}"></script>
+{% endblock %}
