@@ -303,6 +303,11 @@ class AppearanceFrontendTests(TestCase):
             media_block,
         )
 
+    def test_footer_anchors_use_theme_text_color(self):
+        html = self.client.get('/').content.decode()
+        self.assertIn('#site-footer a * { color: var(--text-primary) !important; }', html)
+        self.assertNotIn('main a:not(.btn), #site-footer a:not(.btn) { color: var(--link-color); }', html)
+
     def test_home_product_cards_have_no_background_shadow(self):
         source = get_template('products/partials/card.html').template.source
         self.assertNotIn('shadow-[var(--shadow-card)]', source)

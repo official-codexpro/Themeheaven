@@ -66,7 +66,13 @@
     border-color: var(--border-color);
     border-radius: var(--global-radius);
   }
-  main a:not(.btn), #site-footer a:not(.btn) { color: var(--link-color); }
+  main a:not(.btn) { color: var(--link-color); }
+  #site-footer a,
+  #site-footer a * { color: var(--text-primary) !important; }
+  #site-footer a:hover,
+  #site-footer a:hover *,
+  #site-footer a:focus-visible,
+  #site-footer a:focus-visible * { color: var(--text-primary) !important; }
 
   .theme-pull-slot {
     --desktop-button-size: {{ appearance.desktop.button_size }};
