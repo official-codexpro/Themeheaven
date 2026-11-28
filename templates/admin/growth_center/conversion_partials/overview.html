@@ -1,0 +1,76 @@
+<div class="gct-grid gct-overview-grid">
+  <section class="gc-card gct-panel gct-chart-panel">
+    <div class="gct-panel-head">
+      <div><h2>Conversions over time</h2><p>Recorded events only · {{ chart.grain }} buckets</p></div>
+    </div>
+    <div class="gct-chart">
+      {% for point in chart.points %}
+        <div class="gct-chart-row">
+          <span class="gct-chart-label">{{ point.label }}</span>
+          <div class="gct-chart-track"><div class="gct-chart-bar" style="width: {% widthratio point.events chart.max 100 %}%"></div></div>
+          <strong>{{ point.events }}</strong>
+        </div>
+      {% empty %}
+        <p class="gct-empty">No conversions recorded in this range.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="gc-card gct-panel">
+    <div class="gct-panel-head"><div><h2>Event types</h2><p>Actual recorded event mix</p></div></div>
+    <ul class="gct-rank-list">
+      {% for row in breakdowns.type %}
+        <li><span>{{ row.label }}</span><strong>{{ row.events }}</strong></li>
+      {% empty %}
+        <li><span>No events yet</span><strong>0</strong></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="gc-card gct-panel">
+    <div class="gct-panel-head"><div><h2>Traffic sources</h2><p>Attribution reused from analytics sessions</p></div></div>
+    <ul class="gct-rank-list">
+      {% for row in breakdowns.source %}
+        <li><span>{{ row.label }}</span><strong>{{ row.events }}</strong></li>
+      {% empty %}
+        <li><span>No attributed conversions</span><strong>0</strong></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="gc-card gct-panel">
+    <div class="gct-panel-head"><div><h2>Campaigns</h2><p>UTM attribution from existing campaign tracking</p></div></div>
+    <ul class="gct-rank-list">
+      {% for row in breakdowns.campaign %}
+        <li><span>{{ row.label }}</span><strong>{{ row.events }}</strong></li>
+      {% empty %}
+        <li><span>No campaign-attributed conversions</span><strong>0</strong></li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="gc-card gct-panel gct-recent-panel">
+  <div class="gct-panel-head"><div><h2>Latest conversion events</h2><p>Privacy-safe identifiers only</p></div><a class="gc-button gc-link-button" href="?section=debugger">Open debugger</a></div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Event</th><th>Type</th><th>Path</th><th>Source / campaign</th><th>Visitor</th><th>Recorded</th></tr></thead>
+      <tbody>
+        {% for event in recent_events %}
+          <tr>
+            <td><a href="{% url 'admin:growth-center-conversion-event-detail' event.key %}">{{ event.name }}</a></td>
+            <td>{{ event.event_type }}</td>
+            <td>{{ event.path }}</td>
+            <td>{{ event.source }} / {{ event.campaign }}</td>
+            <td>{{ event.visitor }}</td>
+            <td>{{ event.occurred_at }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="gc-table-empty">No conversion events recorded yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="gct-notice">{{ privacy_note }}</div>

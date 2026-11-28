@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_conversion.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-conversion" class="gc-shell ga-shell gct-shell" data-dashboard-url="{% url 'admin:growth-center-conversion' %}">
+    <div id="growth-conversion-content">
+      {% include "admin/growth_center/conversion_content.html" %}
+    </div>
+  </div>
+  <div id="gct-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_conversion.js' %}"></script>
+{% endblock %}

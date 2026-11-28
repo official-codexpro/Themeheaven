@@ -1,0 +1,73 @@
+<section class="gc-card gcm-table-card">
+  <div class="gc-card-heading">
+    <div><h2>Content briefs</h2><p>{{ briefs.page.paginator.count }} briefs · reuse structured outlines across similar pieces</p></div>
+    <div class="gcm-header-actions">
+      <a class="gc-button" href="{% url 'admin:growth-center-content-brief-create' %}">Create Brief</a>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=templates">Start from a template</a>
+    </div>
+  </div>
+
+  {% if briefs.page.object_list %}
+    <div class="gcm-table-wrap">
+      <table class="gcm-table">
+        <thead><tr><th>Brief</th><th>Target content</th><th>Keywords</th><th>Reusable</th><th>Updated</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for brief in briefs.page.object_list %}
+            <tr>
+              <td>
+                <strong>{{ brief.working_title }}</strong>
+                <small>{{ brief.content_type }} · {{ brief.topic|default:'No topic' }}</small>
+                {% if brief.objective %}<small>{{ brief.objective|truncatechars:150 }}</small>{% endif %}
+                {% if brief.suggested_headings %}<small>{{ brief.suggested_headings|truncatechars:120 }}</small>{% endif %}
+              </td>
+              <td>
+                {% if brief.content %}
+                  <a href="{% url 'admin:growth-center-content-detail' brief.content.content_key %}">{{ brief.content.title }}</a>
+                {% else %}
+                  <span class="gcm-muted">Not linked</span>
+                {% endif %}
+              </td>
+              <td>
+                {{ brief.primary_keyword|default:'—' }}
+                {% if brief.secondary_keywords %}<small>{{ brief.secondary_keywords|truncatechars:120 }}</small>{% endif %}
+              </td>
+              <td>
+                {% if brief.is_reusable %}<span class="gcm-status gcm-status-approved">Reusable</span>{% else %}<span class="gcm-status gcm-status-draft">Single use</span>{% endif %}
+              </td>
+              <td>{{ brief.updated_at|date:'d M Y' }}<small>{{ brief.brief_key }}</small></td>
+              <td>
+                <div class="gcm-row-actions">
+                  <a href="{% url 'admin:growth-center-content-brief-edit' brief.brief_key %}">Edit</a>
+                  <form method="post" action="{% url 'admin:growth-center-content-brief-action' brief.brief_key %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="duplicate">Duplicate</button>
+                    <button type="submit" name="action" value="toggle_reusable">{% if brief.is_reusable %}Make single use{% else %}Make reusable{% endif %}</button>
+                  </form>
+                  <form method="post" action="{% url 'admin:growth-center-content-brief-action' brief.brief_key %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="delete" class="gcm-danger" data-confirm="Delete the brief “{{ brief.working_title }}”?">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gcm-pagination">
+      {% if briefs.page.has_previous %}
+        <a class="gc-button gc-link-button" href="{% if briefs.querystring %}?{{ briefs.querystring|safe }}&page={{ briefs.page.previous_page_number }}{% else %}?section=briefs&page={{ briefs.page.previous_page_number }}{% endif %}" data-page="{{ briefs.page.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span>Page {{ briefs.page.number }} of {{ briefs.page.paginator.num_pages }}</span>
+      {% if briefs.page.has_next %}
+        <a class="gc-button gc-link-button" href="{% if briefs.querystring %}?{{ briefs.querystring|safe }}&page={{ briefs.page.next_page_number }}{% else %}?section=briefs&page={{ briefs.page.next_page_number }}{% endif %}" data-page="{{ briefs.page.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="gcm-empty-inline">
+      <p>No briefs match the current filters. Briefs capture the objective, audience, keyword, and outline before drafting.</p>
+      <a class="gc-button" href="{% url 'admin:growth-center-content-brief-create' %}">Create your first brief</a>
+    </div>
+  {% endif %}
+</section>

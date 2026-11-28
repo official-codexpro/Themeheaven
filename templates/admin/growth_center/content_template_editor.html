@@ -1,0 +1,62 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_social_media.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_content_marketing.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-content-marketing" class="gc-shell ga-shell gcm-shell gcm-editor-shell">
+    <div class="gc-header ga-header gcm-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / CONTENT TEMPLATES</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">Store a structure that prefills content and brief editors with consistent headings, CTAs, and SEO notes.</p>
+      </div>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=templates">Cancel</a>
+    </div>
+
+    <form class="gcm-editor-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>Template details</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field"><span>{{ form.name.label }}</span>{{ form.name }}{{ form.name.errors }}</label>
+          <label class="gcm-field"><span>{{ form.content_type.label }}</span>{{ form.content_type }}{{ form.content_type.errors }}</label>
+          {% if is_edit %}<div class="gcm-field"><span>Template key</span><strong>{{ template.template_key }}</strong></div>{% endif %}
+          <label class="gcm-field gcm-field-wide"><span>{{ form.notes.label }}</span>{{ form.notes }}{{ form.notes.errors }}</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>Structure</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field gcm-field-wide"><span>{{ form.structure.label }}</span>{{ form.structure }}{{ form.structure.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.headings.label }}</span>{{ form.headings }}{{ form.headings.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.brief_fields.label }}</span>{{ form.brief_fields }}{{ form.brief_fields.errors }}</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>Conversion &amp; SEO</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field gcm-field-wide"><span>{{ form.cta.label }}</span>{{ form.cta }}{{ form.cta.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.seo_checklist.label }}</span>{{ form.seo_checklist }}{{ form.seo_checklist.errors }}</label>
+        </div>
+      </fieldset>
+
+      <div class="gcm-form-actions">
+        <button type="submit" class="gc-button">Save template</button>
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=templates">Cancel</a>
+      </div>
+    </form>
+  </div>
+  <div id="gcm-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_content_marketing.js' %}"></script>
+{% endblock %}

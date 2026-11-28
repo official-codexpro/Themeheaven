@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_conversion.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gc-shell ga-shell gct-shell gct-editor-shell">
+    <div class="gc-header ga-header gct-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / CONVERSION FUNNEL</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">Steps are evaluated in order against real recorded events and page views.</p>
+      </div>
+      <div class="gct-header-actions">
+        <a class="gc-button gc-link-button" href="?section=funnels">Cancel</a>
+      </div>
+    </div>
+
+    <form class="gct-editor-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <fieldset class="gc-card gct-panel gct-form-panel">
+        <legend>Funnel details</legend>
+        <div class="gct-form-grid">
+          {% for field in form %}
+            <label class="gct-field"><span>{{ field.label }}</span>{{ field }}{{ field.errors }}</label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset class="gc-card gct-panel gct-form-panel">
+        <legend>Ordered steps</legend>
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+        <div class="gct-formset">
+          {% for step_form in formset %}
+            <div class="gct-formset-row">
+              {{ step_form.id }}
+              <div class="gct-form-grid">
+                {% for field in step_form %}
+                  {% if field.name != 'id' and field.name != 'DELETE' %}
+                    <label class="gct-field"><span>{{ field.label }}</span>{{ field }}{{ field.errors }}</label>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <label class="gct-delete-field">{{ step_form.DELETE }} Remove</label>
+            </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <div class="gct-form-actions"><button type="submit" class="gc-button">Save funnel</button></div>
+    </form>
+  </div>
+{% endblock %}

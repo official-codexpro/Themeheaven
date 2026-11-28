@@ -1,0 +1,28 @@
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head">
+    <div><h2>Recorded events</h2><p>Every row comes from a real tracked event; no inferred or estimated conversions.</p></div>
+  </div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Event</th><th>Type</th><th>Goal</th><th>Path</th><th>Source / campaign</th><th>Visitor</th><th>Recorded</th></tr></thead>
+      <tbody>
+        {% for event in debug_events.page %}
+          <tr>
+            <td><a href="{% url 'admin:growth-center-conversion-event-detail' event.key %}">{{ event.name }}</a></td>
+            <td>{{ event.event_type }}</td>
+            <td>{{ event.goal }}</td>
+            <td>{{ event.path }}</td>
+            <td>{{ event.source }} / {{ event.campaign }}</td>
+            <td>{{ event.visitor }}</td>
+            <td>{{ event.occurred_at }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="gc-table-empty">No events match the current filters.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "admin/growth_center/conversion_partials/pagination.html" with paging=debug_events param='debug_page' %}
+</section>
+
+<div class="gct-notice">{{ privacy_note }}</div>

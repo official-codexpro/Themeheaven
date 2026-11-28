@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from core import views
+from growth_center.conversion_views import analytics_conversion
 from growth_center.views import analytics_beacon, robots_txt, sitemap_view
 
 handler404 = 'core.views.custom_404'
@@ -28,6 +29,7 @@ urlpatterns = [
     path('robots.txt', robots_txt, name='robots_txt'),
     path('sitemap.xml', sitemap_view, name='sitemap'),
     path('analytics/beacon/', analytics_beacon, name='analytics_beacon'),
+    path('conversion/beacon/', analytics_conversion, name='analytics_conversion'),
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('support/', views.support, name='support'),

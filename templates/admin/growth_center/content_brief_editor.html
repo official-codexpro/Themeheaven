@@ -1,0 +1,82 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_social_media.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_content_marketing.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-content-marketing" class="gc-shell ga-shell gcm-shell gcm-editor-shell">
+    <div class="gc-header ga-header gcm-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / CONTENT BRIEFS</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">Define the goal, audience, keyword target, and outline before drafting a content piece.</p>
+      </div>
+      <div class="gcm-header-actions">
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=briefs">Cancel</a>
+      </div>
+    </div>
+
+    <form class="gcm-editor-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>Brief foundation</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field gcm-field-wide"><span>{{ form.working_title.label }}</span>{{ form.working_title }}{{ form.working_title.errors }}</label>
+          <label class="gcm-field"><span>{{ form.content.label }}</span>{{ form.content }}{{ form.content.errors }}</label>
+          <label class="gcm-field"><span>{{ form.content_type.label }}</span>{{ form.content_type }}{{ form.content_type.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.objective.label }}</span>{{ form.objective }}{{ form.objective.errors }}</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>Audience &amp; intent</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field"><span>{{ form.target_audience.label }}</span>{{ form.target_audience }}{{ form.target_audience.errors }}</label>
+          <label class="gcm-field"><span>{{ form.search_intent.label }}</span>{{ form.search_intent }}{{ form.search_intent.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.audience_pain_points.label }}</span>{{ form.audience_pain_points }}{{ form.audience_pain_points.errors }}</label>
+          <label class="gcm-field"><span>{{ form.desired_length.label }}</span>{{ form.desired_length }}{{ form.desired_length.errors }}</label>
+          <label class="gcm-field gcm-check-field"><span>{{ form.is_reusable.label }}</span>{{ form.is_reusable }}{{ form.is_reusable.errors }}</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>Keywords &amp; structure</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field"><span>{{ form.primary_keyword.label }}</span>{{ form.primary_keyword }}{{ form.primary_keyword.errors }}</label>
+          <label class="gcm-field"><span>{{ form.secondary_keywords.label }}</span>{{ form.secondary_keywords }}{{ form.secondary_keywords.errors }}</label>
+          <label class="gcm-field"><span>{{ form.topic.label }}</span>{{ form.topic }}{{ form.topic.errors }}</label>
+          <label class="gcm-field"><span>{{ form.proposed_slug.label }}</span>{{ form.proposed_slug }}{{ form.proposed_slug.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.suggested_headings.label }}</span>{{ form.suggested_headings }}{{ form.suggested_headings.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.outline.label }}</span>{{ form.outline }}{{ form.outline.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.questions_to_answer.label }}</span>{{ form.questions_to_answer }}{{ form.questions_to_answer.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.cta.label }}</span>{{ form.cta }}{{ form.cta.errors }}</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="gc-card gcm-form-section">
+        <legend>References &amp; notes</legend>
+        <div class="gcm-form-grid">
+          <label class="gcm-field gcm-field-wide"><span>{{ form.internal_links.label }}</span>{{ form.internal_links }}{{ form.internal_links.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.external_references.label }}</span>{{ form.external_references }}{{ form.external_references.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.competitor_urls.label }}</span>{{ form.competitor_urls }}{{ form.competitor_urls.errors }}</label>
+          <label class="gcm-field gcm-field-wide"><span>{{ form.notes.label }}</span>{{ form.notes }}{{ form.notes.errors }}</label>
+        </div>
+      </fieldset>
+
+      <div class="gcm-form-actions">
+        <button type="submit" class="gc-button">Save brief</button>
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=briefs">Cancel</a>
+      </div>
+    </form>
+  </div>
+  <div id="gcm-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_content_marketing.js' %}"></script>
+{% endblock %}

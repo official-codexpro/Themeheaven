@@ -1,0 +1,50 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_conversion.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gc-shell ga-shell gct-shell">
+    <div class="gc-header ga-header gct-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / EVENT DETAIL</p>
+        <h1>{{ event.name }}</h1>
+        <p class="gc-summary"><code>{{ event.event_key }}</code> · {{ event.occurred_at }}</p>
+      </div>
+      <div class="gct-header-actions">
+        <a class="gc-button gc-link-button" href="?section=debugger">Back to debugger</a>
+      </div>
+    </div>
+
+    <div class="gct-grid gct-detail-grid">
+      <section class="gc-card gct-panel">
+        <div class="gct-panel-head"><div><h2>Event</h2><p>Recorded conversion data</p></div></div>
+        <dl class="gct-detail-list">
+          <div><dt>Type</dt><dd>{{ event.get_event_type_display }}</dd></div>
+          <div><dt>Path</dt><dd>{{ event.path|default:"—" }}</dd></div>
+          <div><dt>Goal</dt><dd>{{ event.goal.name|default:"—" }}</dd></div>
+          <div><dt>Source label</dt><dd>{{ event.source_label|default:"—" }}</dd></div>
+          <div><dt>Category</dt><dd>{{ event.category|default:"—" }}</dd></div>
+          <div><dt>Visitor</dt><dd>{{ privacy_safe_visitor }}</dd></div>
+          <div><dt>Session</dt><dd>{{ privacy_safe_session }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="gc-card gct-panel">
+        <div class="gct-panel-head"><div><h2>Attribution snapshot</h2><p>Reused from the existing analytics session</p></div></div>
+        <dl class="gct-detail-list">
+          {% for key, value in attribution.items %}
+            <div><dt>{{ key }}</dt><dd>{{ value }}</dd></div>
+          {% endfor %}
+        </dl>
+      </section>
+    </div>
+
+    <div class="gct-notice">{{ privacy_note }}</div>
+  </div>
+{% endblock %}

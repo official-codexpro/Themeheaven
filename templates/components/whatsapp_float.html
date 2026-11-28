@@ -1,6 +1,9 @@
 {% if whatsapp_float.enabled %}
   <a
     href="{{ whatsapp_float.url }}"
+    data-track-event="whatsapp_click"
+    data-track-name="whatsapp_float"
+    data-track-type="external_link_click"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Chat with ThemeHaven on WhatsApp"

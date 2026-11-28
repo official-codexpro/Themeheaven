@@ -1,0 +1,33 @@
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head">
+    <div><h2>Conversion goals</h2><p>Goals match real event names or page visits from recorded analytics sessions.</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-conversion-goal-create' %}">Add goal</a>
+  </div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Goal</th><th>Type</th><th>Match</th><th>Status</th><th>Completions</th><th>Rate</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for item in goals %}
+            <tr>
+              <td><strong>{{ item.name }}</strong>{% if item.description %}<br><small>{{ item.description }}</small>{% endif %}</td>
+              <td>{{ item.goal_type }}</td>
+              <td>{{ item.event_name|default:item.target_page|default:item.target_url|default:"—" }}</td>
+              <td><span class="gct-status gct-status-{{ item.status|lower }}">{{ item.status }}</span></td>
+              <td>{{ item.performance.completions|default:0 }}</td>
+              <td>{{ item.performance.rate|default:0 }}%</td>
+              <td class="gct-actions">
+                <a href="{% url 'admin:growth-center-conversion-goal-edit' item.goal_key %}">Edit</a>
+                <form method="post" action="{% url 'admin:growth-center-conversion-goal-action' item.goal_key %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="toggle">
+                  <button type="submit">{% if item.status == 'Active' %}Pause{% else %}Activate{% endif %}</button>
+                </form>
+              </td>
+            </tr>
+        {% empty %}
+          <tr><td colspan="7" class="gc-table-empty">No goals yet. Create a goal from a real event name or page path.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

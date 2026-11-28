@@ -1,0 +1,143 @@
+<section class="gc-card">
+  <div class="gc-card-heading">
+    <div>
+      <h2>Content performance</h2>
+      <p>{{ date_range.label }} · {{ date_range.start|date:'d M Y' }} – {{ date_range.end|date:'d M Y' }}</p>
+    </div>
+  </div>
+  <div class="gcm-quick-filters">
+    <div class="gcm-quick-group">
+      <span>Range</span>
+      {% for key, label in range_choices %}
+        <a href="{% url 'admin:growth-center-content' %}?section=performance&date_range={{ key }}" class="gcm-chip {% if filters.date_range == key %}is-active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="gcm-kpi-grid gcm-performance-kpis">
+    {% for kpi in performance.kpis %}
+      <div class="gcm-kpi">
+        <span>{{ kpi.label }}</span>
+        <strong>{{ kpi.value }}</strong>
+        {% if kpi.comparison %}<small class="{{ kpi.comparison.tone }}">{{ kpi.comparison.label }} vs previous period</small>{% else %}<small>Current period</small>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="gcm-card-copy">
+    <strong>{{ performance.attribution_note }}</strong>
+    {% if not performance.search_console_connected %}
+      <p class="gcm-muted">Search Console is unavailable in this installation. No search rankings, impressions, or click-through rates are shown.</p>
+    {% endif %}
+  </div>
+</section>
+
+{{ performance.chart.traffic|json_script:"gcm-traffic-data" }}
+
+<div class="gcm-chart-grid">
+  <section class="gc-card gcm-chart-card">
+    <div class="gc-card-heading">
+      <div><h2>Traffic over time</h2><p>{{ date_range.label }} · real Analytics sessions for published content</p></div>
+      <div class="gcm-legend">
+        <span><i class="gcm-swatch gcm-swatch-sessions"></i>Sessions</span>
+        <span><i class="gcm-swatch gcm-swatch-visitors"></i>Visitors</span>
+        <span><i class="gcm-swatch gcm-swatch-views"></i>Page views</span>
+      </div>
+    </div>
+    <div class="gcm-traffic-chart" data-traffic-bars>
+      <p class="gcm-muted">Traffic bars load from the selected date range.</p>
+    </div>
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Engagement</h2><p>Sessions and page views matched to published content paths and UTM values.</p></div></div>
+    <div class="gcm-metrics-grid">
+      <div><span>Sessions</span><strong>{{ performance.metrics.total_sessions }}</strong></div>
+      <div><span>Unique visitors</span><strong>{{ performance.metrics.unique_visitors }}</strong></div>
+      <div><span>Page views</span><strong>{{ performance.metrics.page_views }}</strong></div>
+      <div><span>Pages per session</span><strong>{{ performance.metrics.pages_per_session }}</strong></div>
+      <div><span>Bounce rate</span><strong>{{ performance.metrics.bounce_rate }}%</strong></div>
+      <div><span>Average duration</span><strong>{{ performance.metrics.avg_duration_seconds }} sec</strong></div>
+    </div>
+  </section>
+</div>
+
+<div class="gcm-chart-grid">
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Traffic sources</h2><p>Source categories recorded with real sessions.</p></div></div>
+    {% if performance.sources %}
+      <div class="gcm-source-list">
+        {% for source in performance.sources %}
+          <div class="gcm-source-row">
+            <span class="gcm-source-label"><i class="gc-dot gc-tone-{{ source.tone }}"></i>{{ source.category }}</span>
+            <span class="gcm-source-bar"><i class="gc-tone-{{ source.tone }}" style="width: {{ source.percent }}%"></i></span>
+            <span class="gcm-source-value">{{ source.count }} · {{ source.percent }}%</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="gcm-muted">No sessions recorded for this date range.</p>
+    {% endif %}
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Campaign attribution</h2><p>UTM campaigns attached to content visits.</p></div></div>
+    {% if performance.campaigns %}
+      <div class="gcm-pipeline-list">
+        {% for campaign in performance.campaigns %}
+          <div class="gcm-pipeline-row">
+            <div class="gcm-pipeline-label"><span>{{ campaign.name }}</span><strong>{{ campaign.visits }}</strong></div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="gcm-muted">No campaign-tagged visits reached published content in this range.</p>
+    {% endif %}
+  </section>
+</div>
+
+<div class="gcm-chart-grid">
+  <section class="gc-card gcm-table-card">
+    <div class="gc-card-heading"><div><h2>Top content</h2><p>Published pieces with the most sessions.</p></div></div>
+    {% if performance.top %}
+      <div class="gcm-table-wrap">
+        <table class="gcm-table">
+          <thead><tr><th>Content</th><th>Visits</th><th>Organic</th><th>Change</th></tr></thead>
+          <tbody>
+            {% for row in performance.top %}
+              <tr>
+                <td><a href="{% url 'admin:growth-center-content-detail' row.key %}">{{ row.title }}</a><small>{{ row.content_type }}</small></td>
+                <td>{{ row.visits }}</td>
+                <td>{{ row.organic_visits }}</td>
+                <td class="{{ row.change.tone }}">{{ row.change.label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="gcm-muted">No published content has recorded visits yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="gc-card gcm-table-card">
+    <div class="gc-card-heading"><div><h2>Declining content</h2><p>Published pieces with visits down from the previous period.</p></div></div>
+    {% if performance.declining %}
+      <div class="gcm-table-wrap">
+        <table class="gcm-table">
+          <thead><tr><th>Content</th><th>Visits</th><th>Change</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for row in performance.declining %}
+              <tr>
+                <td><a href="{% url 'admin:growth-center-content-detail' row.key %}">{{ row.title }}</a></td>
+                <td>{{ row.visits }}</td>
+                <td class="{{ row.change.tone }}">{{ row.change.label }}</td>
+                <td><a href="{% url 'admin:growth-center-content-refresh-create' %}?content={{ row.key }}">Schedule refresh</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="gcm-muted">No published content is declining in this range.</p>
+    {% endif %}
+  </section>
+</div>

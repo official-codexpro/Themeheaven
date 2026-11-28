@@ -1,0 +1,63 @@
+<section class="gc-card gcm-table-card">
+  <div class="gc-card-heading">
+    <div><h2>Content refresh queue</h2><p>{{ refresh_tasks|length }} tasks shown · keep published content accurate and current</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-content-refresh-create' %}">Schedule Refresh</a>
+  </div>
+
+  {% if refresh_tasks %}
+    <div class="gcm-table-wrap">
+      <table class="gcm-table">
+        <thead><tr><th>Content</th><th>Reason</th><th>Due</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for task in refresh_tasks %}
+            <tr>
+              <td>
+                <a href="{% url 'admin:growth-center-content-detail' task.content.content_key %}">{{ task.content.title }}</a>
+                <small>{{ task.refresh_key }}</small>
+              </td>
+              <td>
+                {{ task.reason|default:'No reason recorded'|truncatechars:160 }}
+                {% if task.update_notes %}<small>{{ task.update_notes|truncatechars:140 }}</small>{% endif %}
+                {% if task.completed_at %}<small>Completed {{ task.completed_at|date:'d M Y' }}</small>{% endif %}
+              </td>
+              <td>{% if task.due_date %}{{ task.due_date|date:'d M Y' }}{% else %}—{% endif %}</td>
+              <td>{{ task.priority }}</td>
+              <td><span class="gcm-status gcm-status-{{ task.status|lower|cut:' '|cut:'-' }}">{{ task.status }}</span></td>
+              <td>
+                <div class="gcm-row-actions">
+                  <a href="{% url 'admin:growth-center-content-refresh-edit' task.refresh_key %}">Edit</a>
+                  {% if task.status != 'Completed' %}
+                    <form method="post" action="{% url 'admin:growth-center-content-refresh-action' task.refresh_key %}" class="gcm-complete-form">
+                      {% csrf_token %}
+                      <input type="text" name="notes" placeholder="What changed?" aria-label="Refresh notes for {{ task.content.title }}" required>
+                      <button type="submit" name="action" value="complete">Complete</button>
+                    </form>
+                  {% else %}
+                    <form method="post" action="{% url 'admin:growth-center-content-refresh-action' task.refresh_key %}">
+                      {% csrf_token %}
+                      <button type="submit" name="action" value="reopen">Reopen</button>
+                    </form>
+                  {% endif %}
+                  <form method="post" action="{% url 'admin:growth-center-content-refresh-action' task.refresh_key %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="delete" class="gcm-danger" data-confirm="Delete the refresh task for “{{ task.content.title }}”?">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="gcm-empty-inline">
+      <p>No open refresh tasks. Schedule an update from any published content item or from the performance section.</p>
+      <a class="gc-button" href="{% url 'admin:growth-center-content-refresh-create' %}">Schedule your first refresh</a>
+    </div>
+  {% endif %}
+</section>
+
+<section class="gc-card gcm-notice">
+  <strong>Refresh work is tracked manually.</strong>
+  <span>Complete a task only after the live content has actually been updated, and record what changed in the notes.</span>
+</section>

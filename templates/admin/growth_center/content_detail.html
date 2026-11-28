@@ -1,0 +1,205 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_social_media.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_content_marketing.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-content-marketing" class="gc-shell ga-shell gcm-shell gcm-editor-shell gcm-detail-shell">
+    <div class="gc-header ga-header gcm-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / CONTENT {{ item.content_key }}</p>
+        <h1>{{ item.title }}</h1>
+        <p class="gc-summary">{{ item.description|default:'No description recorded for this content piece.' }}</p>
+      </div>
+      <div class="gcm-header-actions">
+        <a class="gc-button" href="{% url 'admin:growth-center-content-edit' item.content_key %}">Edit content</a>
+        <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=library">Back to library</a>
+      </div>
+    </div>
+
+    <section class="gc-card gcm-notice">
+      <strong>Publishing is manual.</strong>
+      <span>There is no CMS publishing integration in this installation. Published status requires a confirmed live URL in the editor.</span>
+    </section>
+
+    <div class="gcm-detail-grid">
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Content summary</h2><p>Workflow, ownership, and live URL.</p></div></div>
+        <div class="gcm-detail-meta">
+          <div><span>Status</span><strong class="gcm-status gcm-status-{{ item.status|lower|cut:' '|cut:'-' }}">{{ item.status }}</strong></div>
+          <div><span>Type</span><strong>{{ item.content_type }}</strong></div>
+          <div><span>Priority</span><strong>{{ item.priority }}</strong></div>
+          <div><span>Category</span><strong>{% if item.category %}{{ item.category.name }}{% else %}Uncategorized{% endif %}</strong></div>
+          <div><span>Author</span><strong>{{ item.author|default:'Not set' }}</strong></div>
+          <div><span>Owner</span><strong>{{ item.assigned_to|default:'Not assigned' }}</strong></div>
+          <div><span>Target date</span><strong>{% if item.target_publication_date %}{{ item.target_publication_date|date:'d M Y' }}{% else %}—{% endif %}</strong></div>
+          <div><span>Published</span><strong>{% if item.published_at %}{{ item.published_at|date:'d M Y H:i' }}{% else %}Not published{% endif %}</strong></div>
+          <div><span>Campaign</span><strong>{% if item.campaign %}{{ item.campaign.name }}{% else %}Not linked{% endif %}</strong></div>
+          <div><span>Content length</span><strong>{{ word_count }} words · {{ reading_time }} min read</strong></div>
+        </div>
+        {% if item.publication_url %}
+          <div class="gcm-card-copy"><span>Live URL</span><p><a href="{{ item.publication_url }}" target="_blank" rel="noopener noreferrer">{{ item.publication_url }}</a></p></div>
+        {% endif %}
+        <div class="gcm-card-copy">
+          <span>Tags</span>
+          {% if item.tags.all %}
+            <div class="gcm-tag-list">{% for tag in item.tags.all %}<span class="gcm-badge">{{ tag.name }}</span>{% endfor %}</div>
+          {% else %}
+            <p class="gcm-muted">No tags assigned.</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>SEO checklist</h2><p>{{ seo_score }}% complete</p></div></div>
+        {% if checklist %}
+          <ul class="gcm-checklist">
+            {% for entry in checklist %}
+              <li class="{% if entry.done %}is-done{% endif %}"><span>{% if entry.done %}✓{% else %}○{% endif %}</span>{{ entry.label }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="gcm-muted">No SEO checks available.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <section class="gc-card">
+      <div class="gc-card-heading"><div><h2>Analytics</h2><p>{{ attribution_note }}</p></div></div>
+      <div class="gcm-metrics-grid">
+        <div><span>Sessions</span><strong>{{ metrics.total_sessions }}</strong></div>
+        <div><span>Unique visitors</span><strong>{{ metrics.unique_visitors }}</strong></div>
+        <div><span>Page views</span><strong>{{ metrics.page_views }}</strong></div>
+        <div><span>Pages per session</span><strong>{{ metrics.pages_per_session }}</strong></div>
+        <div><span>Bounce rate</span><strong>{{ metrics.bounce_rate }}%</strong></div>
+        <div><span>Average duration</span><strong>{{ metrics.avg_duration_seconds }} sec</strong></div>
+      </div>
+      {% if sources %}
+        <div class="gcm-source-list gcm-detail-sources">
+          {% for source in sources %}
+            <div class="gcm-source-row">
+              <span class="gcm-source-label"><i class="gc-dot gc-tone-{{ source.tone }}"></i>{{ source.category }}</span>
+              <span class="gcm-source-bar"><i class="gc-tone-{{ source.tone }}" style="width: {{ source.percent }}%"></i></span>
+              <span class="gcm-source-value">{{ source.count }} · {{ source.percent }}%</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="gcm-muted">No sessions matched to this content yet.</p>
+      {% endif %}
+      <div class="gcm-card-copy"><p class="gcm-muted">Search Console is not connected, so search rankings and impressions are unavailable.</p></div>
+    </section>
+
+    <section class="gc-card">
+      <div class="gc-card-heading"><div><h2>Body preview</h2><p>Plain text content as stored in the editor.</p></div></div>
+      {% if item.body %}
+        <div class="gcm-body-preview">{{ item.body|linebreaks }}</div>
+      {% else %}
+        <div class="gcm-empty-inline"><p>No body content yet.</p><a class="gc-button" href="{% url 'admin:growth-center-content-edit' item.content_key %}">Add body content</a></div>
+      {% endif %}
+    </section>
+
+    <div class="gcm-detail-grid">
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Briefs</h2><p>{{ briefs|length }} linked briefs</p></div></div>
+        {% if briefs %}
+          <ul class="gcm-detail-list-rows">
+            {% for brief in briefs %}
+              <li>
+                <div class="gcm-pipeline-label"><strong>{{ brief.working_title }}</strong><a href="{% url 'admin:growth-center-content-brief-edit' brief.brief_key %}">Edit</a></div>
+                <small>{{ brief.content_type }} · {{ brief.primary_keyword|default:'No keyword' }} · updated {{ brief.updated_at|date:'d M Y' }}</small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="gcm-muted">No brief linked yet. <a href="{% url 'admin:growth-center-content-brief-create' %}?content={{ item.content_key }}">Create one for this content</a>.</p>
+        {% endif %}
+      </section>
+
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Source ideas</h2><p>{{ related_ideas|length }} ideas that led to this content</p></div></div>
+        {% if related_ideas %}
+          <ul class="gcm-detail-list-rows">
+            {% for idea in related_ideas %}
+              <li>
+                <div class="gcm-pipeline-label"><strong>{{ idea.title }}</strong><span class="gcm-badge">{{ idea.source }}</span></div>
+                <small>{{ idea.topic|default:'No topic' }} · {{ idea.potential_keywords|default:'No keywords' }}</small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="gcm-muted">No source ideas linked. <a href="{% url 'admin:growth-center-content-idea-create' %}">Capture a new idea</a>.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="gcm-detail-grid">
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Social promotion drafts</h2><p>{{ social_posts|length }} drafts linked to this content</p></div></div>
+        {% if social_posts %}
+          <ul class="gcm-detail-list-rows">
+            {% for post in social_posts %}
+              <li>
+                <div class="gcm-pipeline-label"><strong>{{ post.title }}</strong><span class="gcm-status gcm-status-{{ post.status|lower|cut:' '|cut:'-' }}">{{ post.status }}</span></div>
+                <small><a href="{% url 'admin:growth-center-social-post-edit' post.post_key %}">Open in Social Media</a></small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="gcm-muted">No promotion drafts yet.</p>
+        {% endif %}
+        {% if item.campaign_id and item.publication_url %}
+          <form method="post" action="{% url 'admin:growth-center-content-social-promo' item.content_key %}" class="gcm-inline-form">
+            {% csrf_token %}
+            <button type="submit" class="gc-button">Create social promotion draft</button>
+          </form>
+        {% else %}
+          <div class="gcm-inline-notice"><span>Link a campaign and add a publication URL in the editor to create a promotion draft.</span></div>
+        {% endif %}
+      </section>
+
+      <section class="gc-card">
+        <div class="gc-card-heading"><div><h2>Refresh tasks</h2><p>{{ refresh_tasks|length }} tasks for this content</p></div></div>
+        {% if refresh_tasks %}
+          <ul class="gcm-detail-list-rows">
+            {% for task in refresh_tasks %}
+              <li>
+                <div class="gcm-pipeline-label"><strong>{{ task.reason|default:'Content refresh' }}</strong><span class="gcm-status gcm-status-{{ task.status|lower|cut:' '|cut:'-' }}">{{ task.status }}</span></div>
+                <small>Due {% if task.due_date %}{{ task.due_date|date:'d M Y' }}{% else %}not set{% endif %} · <a href="{% url 'admin:growth-center-content-refresh-edit' task.refresh_key %}">Edit task</a></small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="gcm-muted">No refresh tasks scheduled.</p>
+        {% endif %}
+        <div class="gcm-inline-form"><a class="gc-button" href="{% url 'admin:growth-center-content-refresh-create' %}?content={{ item.content_key }}">Schedule refresh</a></div>
+      </section>
+    </div>
+
+    <section class="gc-card gcm-danger-zone">
+      <div class="gc-card-heading"><div><h2>Content actions</h2><p>Move this piece through review and archive or remove it.</p></div></div>
+      <div class="gcm-form-actions">
+        <form method="post" action="{% url 'admin:growth-center-content-action' item.content_key %}">
+          {% csrf_token %}
+          <button type="submit" name="action" value="duplicate" class="gc-button">Duplicate</button>
+          <button type="submit" name="action" value="submit_review" class="gc-button">Submit for review</button>
+          <button type="submit" name="action" value="approve" class="gc-button">Approve</button>
+          <button type="submit" name="action" value="archive" class="gc-button">Archive</button>
+          <button type="submit" name="action" value="mark_published" class="gc-button">Confirm publication</button>
+        </form>
+        <form method="post" action="{% url 'admin:growth-center-content-action' item.content_key %}">
+          {% csrf_token %}
+          <button type="submit" name="action" value="delete" class="gc-button gcm-danger" data-confirm="Delete “{{ item.title }}”? This cannot be undone.">Delete content</button>
+        </form>
+      </div>
+    </section>
+  </div>
+  <div id="gcm-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_content_marketing.js' %}"></script>
+{% endblock %}

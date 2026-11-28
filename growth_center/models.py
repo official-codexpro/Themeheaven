@@ -1,13 +1,30 @@
 import os
 import uuid
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.text import slugify
 
+from .content_constants import (
+    CONTENT_PRIORITIES,
+    CONTENT_STATUSES,
+    CONTENT_TYPES as CONTENT_MARKETING_TYPES,
+    IDEA_SOURCES,
+    REFRESH_STATUSES,
+)
+from .conversion_constants import (
+    COST_PERIODS,
+    FUNNEL_STATUSES,
+    FUNNEL_STEP_TYPES,
+    GOAL_STATUSES,
+    GOAL_TYPES,
+    TRACKING_RULE_STATUSES,
+)
 from .social_platforms import (
     ACCOUNT_STATUSES,
     CONTENT_TYPES,
@@ -359,6 +376,509 @@ class SocialPostTemplate(models.Model):
         if not self.template_key:
             self.template_key = f'SPT-{uuid.uuid4().hex[:10].upper()}'
         super().save(*args, **kwargs)
+
+
+class ContentCategory(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=140, unique=True, blank=True)
+    description = models.CharField(max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)[:140] or f'category-{uuid.uuid4().hex[:8]}'
+        super().save(*args, **kwargs)
+
+
+class ContentTag(models.Model):
+    name = models.CharField(max_length=80, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)[:100] or f'tag-{uuid.uuid4().hex[:8]}'
+        super().save(*args, **kwargs)
+
+
+class MarketingContent(models.Model):
+    STATUS_CHOICES = CONTENT_STATUSES
+    TYPE_CHOICES = CONTENT_MARKETING_TYPES
+    PRIORITY_CHOICES = CONTENT_PRIORITIES
+
+    content_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    title = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=180, blank=True)
+    content_type = models.CharField(max_length=24, choices=TYPE_CHOICES, default='Blog Post', db_index=True)
+    description = models.TextField(blank=True)
+    brief = models.TextField(blank=True)
+    body = models.TextField(blank=True)
+    target_audience = models.CharField(max_length=200, blank=True)
+    search_intent = models.CharField(max_length=120, blank=True)
+    primary_keyword = models.CharField(max_length=120, blank=True, db_index=True)
+    secondary_keywords = models.CharField(max_length=500, blank=True)
+    topic = models.CharField(max_length=120, blank=True, db_index=True)
+    category = models.ForeignKey(ContentCategory, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_items')
+    tags = models.ManyToManyField(ContentTag, blank=True, related_name='content_items')
+    author = models.CharField(max_length=120, blank=True)
+    assigned_to = models.CharField(max_length=120, blank=True)
+    priority = models.CharField(max_length=12, choices=PRIORITY_CHOICES, default='Medium', db_index=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Idea', db_index=True)
+    target_publication_date = models.DateField(null=True, blank=True, db_index=True)
+    published_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    publication_url = models.URLField(max_length=500, blank=True)
+    campaign = models.ForeignKey(Campaign, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_items')
+    social_posts = models.ManyToManyField(SocialPost, blank=True, related_name='content_items')
+    seo_title = models.CharField(max_length=160, blank=True)
+    meta_description = models.TextField(max_length=360, blank=True)
+    canonical_url = models.URLField(max_length=500, blank=True)
+    og_title = models.CharField(max_length=160, blank=True)
+    og_description = models.TextField(max_length=360, blank=True)
+    og_image_alt = models.CharField(max_length=200, blank=True)
+    heading_structure = models.TextField(blank=True)
+    internal_links = models.TextField(blank=True)
+    image_alt_text = models.TextField(blank=True)
+    cta = models.CharField(max_length=300, blank=True)
+    seo_notes = models.TextField(blank=True)
+    internal_notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='marketing_content')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['content_type', '-created_at']),
+            models.Index(fields=['priority', 'status']),
+            models.Index(fields=['target_publication_date', 'status']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.content_key:
+            self.content_key = f'CNT-{uuid.uuid4().hex[:10].upper()}'
+        if not self.slug:
+            self.slug = slugify(self.title)[:180] or f'content-{uuid.uuid4().hex[:8]}'
+        super().save(*args, **kwargs)
+
+    @property
+    def body_text(self):
+        return ' '.join((self.body or '').split())
+
+    @property
+    def word_count(self):
+        return len(self.body_text.split()) if self.body_text else 0
+
+    @property
+    def reading_time(self):
+        return max(1, (self.word_count + 224) // 225) if self.word_count else 0
+
+    @property
+    def is_overdue(self):
+        if not self.target_publication_date or self.status in {'Published', 'Archived'}:
+            return False
+        return self.target_publication_date < timezone.localdate()
+
+    def seo_checklist(self):
+        checks = {
+            'primary_keyword': bool(self.primary_keyword.strip()),
+            'seo_title': bool(self.seo_title.strip()),
+            'meta_description': bool(self.meta_description.strip()),
+            'url_slug': bool(self.slug.strip()) and self.slug != slugify(self.title)[:180],
+            'heading_structure': bool(self.heading_structure.strip()),
+            'internal_links': bool(self.internal_links.strip()),
+            'image_alt_text': bool(self.image_alt_text.strip()),
+            'content_preview': bool(self.body_text),
+            'cta': bool(self.cta.strip()),
+        }
+        return checks
+
+
+class ContentIdea(models.Model):
+    SOURCE_CHOICES = IDEA_SOURCES
+    TYPE_CHOICES = CONTENT_MARKETING_TYPES
+    PRIORITY_CHOICES = CONTENT_PRIORITIES
+
+    idea_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    title = models.CharField(max_length=180)
+    description = models.TextField(blank=True)
+    topic = models.CharField(max_length=120, blank=True, db_index=True)
+    category = models.ForeignKey(ContentCategory, null=True, blank=True, on_delete=models.SET_NULL, related_name='ideas')
+    target_audience = models.CharField(max_length=200, blank=True)
+    potential_keywords = models.CharField(max_length=500, blank=True)
+    content_type = models.CharField(max_length=24, choices=TYPE_CHOICES, default='Blog Post', db_index=True)
+    priority = models.CharField(max_length=12, choices=PRIORITY_CHOICES, default='Medium', db_index=True)
+    notes = models.TextField(blank=True)
+    source = models.CharField(max_length=24, choices=SOURCE_CHOICES, default='Manual', db_index=True)
+    is_used = models.BooleanField(default=False, db_index=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    converted_content = models.ForeignKey(MarketingContent, null=True, blank=True, on_delete=models.SET_NULL, related_name='source_ideas')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_ideas')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['is_used', '-created_at']),
+            models.Index(fields=['source', '-created_at']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.idea_key:
+            self.idea_key = f'IDEA-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+
+class ContentBrief(models.Model):
+    brief_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    content = models.ForeignKey(MarketingContent, null=True, blank=True, on_delete=models.CASCADE, related_name='briefs')
+    working_title = models.CharField(max_length=180)
+    objective = models.TextField(blank=True)
+    target_audience = models.CharField(max_length=200, blank=True)
+    audience_pain_points = models.TextField(blank=True)
+    search_intent = models.CharField(max_length=120, blank=True)
+    primary_keyword = models.CharField(max_length=120, blank=True)
+    secondary_keywords = models.CharField(max_length=500, blank=True)
+    topic = models.CharField(max_length=120, blank=True)
+    proposed_slug = models.SlugField(max_length=180, blank=True)
+    suggested_headings = models.TextField(blank=True)
+    outline = models.TextField(blank=True)
+    questions_to_answer = models.TextField(blank=True)
+    internal_links = models.TextField(blank=True)
+    external_references = models.TextField(blank=True)
+    cta = models.CharField(max_length=300, blank=True)
+    content_type = models.CharField(max_length=24, choices=CONTENT_MARKETING_TYPES, default='Blog Post', db_index=True)
+    desired_length = models.CharField(max_length=80, blank=True)
+    competitor_urls = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    is_reusable = models.BooleanField(default=False, db_index=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_briefs')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.working_title
+
+    def save(self, *args, **kwargs):
+        if not self.brief_key:
+            self.brief_key = f'BRF-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+
+class ContentTemplate(models.Model):
+    template_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    name = models.CharField(max_length=150, unique=True)
+    content_type = models.CharField(max_length=24, choices=CONTENT_MARKETING_TYPES, default='Blog Post', db_index=True)
+    structure = models.TextField(blank=True)
+    headings = models.TextField(blank=True)
+    brief_fields = models.TextField(blank=True)
+    cta = models.CharField(max_length=300, blank=True)
+    seo_checklist = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_templates')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.template_key:
+            self.template_key = f'CTPL-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+
+class ContentRefreshTask(models.Model):
+    STATUS_CHOICES = REFRESH_STATUSES
+    PRIORITY_CHOICES = CONTENT_PRIORITIES
+
+    refresh_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    content = models.ForeignKey(MarketingContent, on_delete=models.CASCADE, related_name='refresh_tasks')
+    reason = models.TextField(blank=True)
+    due_date = models.DateField(null=True, blank=True, db_index=True)
+    priority = models.CharField(max_length=12, choices=PRIORITY_CHOICES, default='Medium', db_index=True)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='Pending', db_index=True)
+    update_notes = models.TextField(blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='content_refresh_tasks')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('due_date', '-created_at')
+
+    def __str__(self):
+        return f'Refresh: {self.content.title}'
+
+    def save(self, *args, **kwargs):
+        if not self.refresh_key:
+            self.refresh_key = f'REF-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+
+class ConversionGoal(models.Model):
+    GOAL_TYPE_CHOICES = GOAL_TYPES
+    STATUS_CHOICES = GOAL_STATUSES
+    EVENT_TYPE_BY_GOAL = {
+        'Page Visit': 'page_visit',
+        'CTA Click': 'cta_click',
+        'Form Submission': 'form_submission',
+        'Custom Event': 'custom_event',
+        'Download': 'download',
+        'External Link Click': 'external_link_click',
+    }
+
+    goal_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    goal_type = models.CharField(max_length=24, choices=GOAL_TYPE_CHOICES, default='CTA Click', db_index=True)
+    event_name = models.CharField(max_length=80, blank=True, db_index=True)
+    target_page = models.CharField(max_length=500, blank=True)
+    target_url = models.URLField(max_length=500, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active', db_index=True)
+    value = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='conversion_goals')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('name',)
+        indexes = [
+            models.Index(fields=['status', 'goal_type']),
+            models.Index(fields=['event_name', 'status']),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.goal_key:
+            self.goal_key = f'GOAL-{uuid.uuid4().hex[:10].upper()}'
+        self.event_name = ' '.join(str(self.event_name or '').split()).lower()[:80]
+        self.target_page = ' '.join(str(self.target_page or '').split())[:500]
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        if self.goal_type != 'Page Visit' and not self.event_name:
+            raise ValidationError({'event_name': 'Enter an event name for this goal type.'})
+        if self.goal_type == 'Page Visit' and not (self.target_page or self.target_url):
+            raise ValidationError({'target_page': 'Enter a target page or URL for a page visit goal.'})
+
+    @staticmethod
+    def _path_value(value):
+        if not value:
+            return ''
+        parsed = urlsplit(str(value))
+        if parsed.scheme in {'http', 'https'}:
+            value = parsed.path
+        return str(value).split('?', 1)[0].split('#', 1)[0].rstrip('/') or '/'
+
+    def matches(self, event_name='', event_type='', path=''):
+        if self.status != 'Active':
+            return False
+        normalized_name = ' '.join(str(event_name or '').split()).lower()
+        if self.goal_type == 'Page Visit':
+            target = self._path_value(self.target_page or self.target_url)
+            return bool(target) and self._path_value(path) == target
+        if normalized_name != self.event_name:
+            return False
+        expected_type = self.EVENT_TYPE_BY_GOAL.get(self.goal_type)
+        return not expected_type or not event_type or event_type == expected_type
+
+
+class ConversionEvent(models.Model):
+    EVENT_TYPE_CHOICES = (
+        ('cta_click', 'CTA Click'),
+        ('form_submission', 'Form Submission'),
+        ('newsletter_signup', 'Newsletter Signup'),
+        ('contact_request', 'Contact Request'),
+        ('lead_generated', 'Lead Generated'),
+        ('download', 'Download'),
+        ('external_link_click', 'External Link Click'),
+        ('phone_click', 'Phone Click'),
+        ('email_click', 'Email Click'),
+        ('page_visit', 'Page Visit'),
+        ('custom_event', 'Custom Event'),
+    )
+
+    event_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    session = models.ForeignKey(AnalyticsSession, on_delete=models.CASCADE, related_name='conversion_events')
+    visitor = models.ForeignKey(Visitor, on_delete=models.CASCADE, related_name='conversion_events')
+    goal = models.ForeignKey(ConversionGoal, null=True, blank=True, on_delete=models.SET_NULL, related_name='events')
+    name = models.CharField(max_length=80, db_index=True)
+    event_type = models.CharField(max_length=24, choices=EVENT_TYPE_CHOICES, default='custom_event', db_index=True)
+    description = models.CharField(max_length=300, blank=True)
+    category = models.CharField(max_length=120, blank=True, db_index=True)
+    source_label = models.CharField(max_length=120, blank=True)
+    path = models.CharField(max_length=500, blank=True, db_index=True)
+    occurred_at = models.DateTimeField(default=timezone.now, db_index=True)
+    dedupe_key = models.CharField(max_length=120, db_index=True)
+    value = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    source_category = models.CharField(max_length=32, default='Direct', db_index=True)
+    utm_source = models.CharField(max_length=120, blank=True, db_index=True)
+    utm_medium = models.CharField(max_length=120, blank=True, db_index=True)
+    utm_campaign = models.CharField(max_length=120, blank=True, db_index=True)
+    utm_term = models.CharField(max_length=120, blank=True)
+    utm_content = models.CharField(max_length=120, blank=True)
+    device_category = models.CharField(max_length=16, default='Desktop', db_index=True)
+    landing_path = models.CharField(max_length=500, blank=True, db_index=True)
+
+    class Meta:
+        ordering = ('-occurred_at',)
+        constraints = [
+            models.UniqueConstraint(fields=['session', 'dedupe_key'], name='unique_conversion_per_session'),
+        ]
+        indexes = [
+            models.Index(fields=['name', '-occurred_at']),
+            models.Index(fields=['event_type', '-occurred_at']),
+            models.Index(fields=['goal', '-occurred_at']),
+            models.Index(fields=['path', '-occurred_at']),
+            models.Index(fields=['source_category', '-occurred_at']),
+            models.Index(fields=['utm_campaign', '-occurred_at']),
+            models.Index(fields=['device_category', '-occurred_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.name} at {self.occurred_at:%Y-%m-%d %H:%M}'
+
+    def save(self, *args, **kwargs):
+        if not self.event_key:
+            self.event_key = f'EVT-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+    @property
+    def privacy_safe_visitor(self):
+        return self.visitor.visitor_key[:12]
+
+    @property
+    def privacy_safe_session(self):
+        return self.session.session_key[:12]
+
+
+class ConversionFunnel(models.Model):
+    STATUS_CHOICES = FUNNEL_STATUSES
+
+    funnel_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active', db_index=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='conversion_funnels')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.funnel_key:
+            self.funnel_key = f'FUN-{uuid.uuid4().hex[:10].upper()}'
+        super().save(*args, **kwargs)
+
+
+class ConversionFunnelStep(models.Model):
+    STEP_TYPE_CHOICES = FUNNEL_STEP_TYPES
+
+    step_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    funnel = models.ForeignKey(ConversionFunnel, on_delete=models.CASCADE, related_name='steps')
+    order = models.PositiveSmallIntegerField(default=1, db_index=True)
+    label = models.CharField(max_length=150)
+    step_type = models.CharField(max_length=16, choices=STEP_TYPE_CHOICES, default='conversion', db_index=True)
+    event_name = models.CharField(max_length=80, blank=True)
+    target_path = models.CharField(max_length=500, blank=True)
+    goal = models.ForeignKey(ConversionGoal, null=True, blank=True, on_delete=models.SET_NULL, related_name='funnel_steps')
+
+    class Meta:
+        ordering = ('order', 'step_key')
+        constraints = [
+            models.UniqueConstraint(fields=['funnel', 'order'], name='unique_funnel_step_order'),
+        ]
+
+    def __str__(self):
+        return f'{self.order}. {self.label}'
+
+    def save(self, *args, **kwargs):
+        if not self.step_key:
+            self.step_key = f'STEP-{uuid.uuid4().hex[:10].upper()}'
+        self.event_name = ' '.join(str(self.event_name or '').split()).lower()[:80]
+        self.target_path = ' '.join(str(self.target_path or '').split())[:500]
+        super().save(*args, **kwargs)
+
+
+class TrackingRule(models.Model):
+    STATUS_CHOICES = TRACKING_RULE_STATUSES
+
+    rule_key = models.CharField(max_length=32, unique=True, editable=False, db_index=True)
+    name = models.CharField(max_length=150)
+    selector = models.CharField(max_length=200, db_index=True)
+    event_type = models.CharField(max_length=24, choices=ConversionEvent.EVENT_TYPE_CHOICES, default='cta_click', db_index=True)
+    event_name = models.CharField(max_length=80, db_index=True)
+    target_path = models.CharField(max_length=500, blank=True)
+    goal = models.ForeignKey(ConversionGoal, null=True, blank=True, on_delete=models.SET_NULL, related_name='tracking_rules')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active', db_index=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='tracking_rules')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.rule_key:
+            self.rule_key = f'RULE-{uuid.uuid4().hex[:10].upper()}'
+        self.event_name = ' '.join(str(self.event_name or '').split()).lower()[:80]
+        super().save(*args, **kwargs)
+
+
+class CampaignCost(models.Model):
+    PERIOD_CHOICES = COST_PERIODS
+
+    campaign = models.OneToOneField(Campaign, on_delete=models.CASCADE, related_name='cost')
+    cost_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    currency = models.CharField(max_length=3, default='INR')
+    cost_period = models.CharField(max_length=12, choices=PERIOD_CHOICES, default='one_time')
+    notes = models.TextField(blank=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='campaign_costs')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('campaign__name',)
+
+    def __str__(self):
+        return f'{self.campaign.name} cost'
 
 
 class SEOSettings(models.Model):

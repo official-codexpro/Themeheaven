@@ -1,0 +1,64 @@
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head">
+    <div><h2>Conversion report</h2><p>Aggregated from recorded events and matching analytics sessions.</p></div>
+  </div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Label</th><th>{{ filters.report }}</th><th>Conversions</th><th>Visitors</th><th>Sessions</th><th>Rate</th></tr></thead>
+      <tbody>
+        {% for row in reports.page %}
+          <tr>
+            <td><strong>{{ row.label }}</strong>{% if row.secondary %}<br><small>{{ row.secondary }}</small>{% endif %}</td>
+            <td>{{ row.key|default:"—" }}</td>
+            <td>{{ row.events }}</td>
+            <td>{{ row.visitors }}</td>
+            <td>{{ row.sessions }}</td>
+            <td>{{ row.rate }}%</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="gc-table-empty">No report rows match the current filters.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "admin/growth_center/conversion_partials/pagination.html" with paging=reports param='report_page' %}
+</section>
+
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head">
+    <div><h2>Campaign cost and ROI</h2><p>Cost data is entered manually; revenue is never invented.</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-conversion-cost-create' %}">Add cost</a>
+  </div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Campaign</th><th>Entered cost</th><th>Range cost</th><th>Conversions</th><th>Leads</th><th>Cost / conversion</th><th>Cost / lead</th><th>Revenue</th><th>ROI</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for row in roi.rows %}
+          <tr>
+            <td><strong>{{ row.campaign }}</strong><br><small>{{ row.period }}</small></td>
+            <td>{{ row.cost }} {{ row.currency }}</td>
+            <td>{{ row.period_cost }} {{ row.currency }}</td>
+            <td>{{ row.conversions }}</td>
+            <td>{{ row.leads }}</td>
+            <td>{% if row.cost_per_conversion %}{{ row.cost_per_conversion }} {{ row.currency }}{% else %}—{% endif %}</td>
+            <td>{% if row.cost_per_lead %}{{ row.cost_per_lead }} {{ row.currency }}{% else %}—{% endif %}</td>
+            <td>Not available</td>
+            <td>Not available</td>
+            <td class="gct-actions">
+              <a href="{% url 'admin:growth-center-conversion-cost-edit' row.id %}">Edit</a>
+              <form method="post" action="{% url 'admin:growth-center-conversion-cost-action' row.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="10" class="gc-table-empty">No campaign cost entered. Cost per conversion and cost per lead stay unavailable until real cost data is added.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="gct-notice">{{ revenue_note }}</div>

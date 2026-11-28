@@ -1,0 +1,69 @@
+<section class="gc-card gcm-table-card">
+  <div class="gc-card-heading">
+    <div><h2>Idea backlog</h2><p>{{ ideas.page.paginator.count }} captured ideas · convert an idea into a content draft when ready</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-content-idea-create' %}">Capture Idea</a>
+  </div>
+
+  {% if ideas.page.object_list %}
+    <div class="gcm-table-wrap">
+      <table class="gcm-table">
+        <thead><tr><th>Idea</th><th>Type &amp; priority</th><th>Source</th><th>Keywords</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for idea in ideas.page.object_list %}
+            <tr>
+              <td>
+                <strong>{{ idea.title }}</strong>
+                <small>{{ idea.topic|default:'No topic' }} · {{ idea.category.name|default:'Uncategorized' }}</small>
+                {% if idea.description %}<small>{{ idea.description|truncatechars:140 }}</small>{% endif %}
+                {% if idea.notes %}<small>Note: {{ idea.notes|truncatechars:120 }}</small>{% endif %}
+              </td>
+              <td>{{ idea.content_type }}<small>{{ idea.priority }} priority</small></td>
+              <td>{{ idea.source }}<small>{{ idea.created_at|date:'d M Y' }}</small></td>
+              <td>{{ idea.potential_keywords|default:'—' }}<small>{{ idea.target_audience|default:'No audience set' }}</small></td>
+              <td>
+                {% if idea.is_used %}
+                  <span class="gcm-status gcm-status-approved">Used</span>
+                  {% if idea.converted_content %}<small><a href="{% url 'admin:growth-center-content-detail' idea.converted_content.content_key %}">Open content</a></small>{% endif %}
+                {% else %}
+                  <span class="gcm-status gcm-status-idea">Available</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="gcm-row-actions">
+                  <a href="{% url 'admin:growth-center-content-idea-edit' idea.idea_key %}">Edit</a>
+                  <form method="post" action="{% url 'admin:growth-center-content-idea-action' idea.idea_key %}">
+                    {% csrf_token %}
+                    {% if idea.is_used %}
+                      <button type="submit" name="action" value="reopen">Reopen</button>
+                    {% else %}
+                      <button type="submit" name="action" value="convert">Convert to content</button>
+                    {% endif %}
+                  </form>
+                  <form method="post" action="{% url 'admin:growth-center-content-idea-action' idea.idea_key %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="delete" class="gcm-danger" data-confirm="Delete the idea “{{ idea.title }}”?">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gcm-pagination">
+      {% if ideas.page.has_previous %}
+        <a class="gc-button gc-link-button" href="{% if ideas.querystring %}?{{ ideas.querystring|safe }}&page={{ ideas.page.previous_page_number }}{% else %}?section=ideas&page={{ ideas.page.previous_page_number }}{% endif %}" data-page="{{ ideas.page.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span>Page {{ ideas.page.number }} of {{ ideas.page.paginator.num_pages }}</span>
+      {% if ideas.page.has_next %}
+        <a class="gc-button gc-link-button" href="{% if ideas.querystring %}?{{ ideas.querystring|safe }}&page={{ ideas.page.next_page_number }}{% else %}?section=ideas&page={{ ideas.page.next_page_number }}{% endif %}" data-page="{{ ideas.page.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="gcm-empty-inline">
+      <p>No ideas match the current filters. Capture customer questions, keyword ideas, or social prompts here.</p>
+      <a class="gc-button" href="{% url 'admin:growth-center-content-idea-create' %}">Capture your first idea</a>
+    </div>
+  {% endif %}
+</section>

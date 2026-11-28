@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_conversion.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="gc-shell ga-shell gct-shell gct-editor-shell">
+    <div class="gc-header ga-header gct-header">
+      <div>
+        <p class="gc-eyebrow">GROWTH CENTER / TRACKING RULE</p>
+        <h1>{{ title }}</h1>
+        <p class="gc-summary">Selectors are validated and applied by delegated JavaScript without changing CTA behavior.</p>
+      </div>
+      <div class="gct-header-actions">
+        <a class="gc-button gc-link-button" href="?section=setup">Cancel</a>
+      </div>
+    </div>
+
+    <form class="gct-editor-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <fieldset class="gc-card gct-panel gct-form-panel">
+        <legend>Rule details</legend>
+        <div class="gct-form-grid">
+          {% for field in form %}
+            <label class="gct-field"><span>{{ field.label }}</span>{{ field }}{{ field.errors }}</label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <div class="gct-form-actions"><button type="submit" class="gc-button">Save rule</button></div>
+    </form>
+  </div>
+{% endblock %}

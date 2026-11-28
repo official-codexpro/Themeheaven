@@ -56,6 +56,24 @@ class CoreConfig(AppConfig):
                 'view_only': False,
             }
 
+        def content_marketing_entry():
+            return {
+                'name': 'Content Marketing',
+                'object_name': 'contentmarketing',
+                'admin_url': reverse('admin:growth-center-content'),
+                'add_url': reverse('admin:growth-center-content-create'),
+                'view_only': False,
+            }
+
+        def conversion_entry():
+            return {
+                'name': 'Conversion Tracking',
+                'object_name': 'conversiontracking',
+                'admin_url': reverse('admin:growth-center-conversion'),
+                'add_url': reverse('admin:growth-center-conversion-goal-create'),
+                'view_only': False,
+            }
+
         def seo_settings_entry():
             return {
                 'name': 'SEO Settings',
@@ -78,7 +96,7 @@ class CoreConfig(AppConfig):
             if not getattr(user, 'is_staff', False):
                 return
             try:
-                entries = [analytics_entry(), campaigns_entry(), social_media_entry(), seo_settings_entry(), page_seo_entry()]
+                entries = [analytics_entry(), campaigns_entry(), social_media_entry(), content_marketing_entry(), conversion_entry(), seo_settings_entry(), page_seo_entry()]
             except NoReverseMatch:
                 return
             for app in apps:
@@ -169,6 +187,34 @@ class CoreConfig(AppConfig):
             return apps
 
         def system_settings_get_urls(self):
+            from growth_center.conversion_views import (
+                conversion_cost_action,
+                conversion_cost_editor,
+                conversion_dashboard,
+                conversion_event_detail,
+                conversion_funnel_action,
+                conversion_funnel_editor,
+                conversion_goal_action,
+                conversion_goal_editor,
+                conversion_rule_action,
+                conversion_rule_editor,
+            )
+            from growth_center.content_views import (
+                content_action,
+                content_brief_action,
+                content_brief_editor,
+                content_calendar_reschedule,
+                content_detail,
+                content_idea_action,
+                content_idea_editor,
+                content_item_editor,
+                content_marketing_dashboard,
+                content_refresh_action,
+                content_refresh_editor,
+                content_social_promotion,
+                content_template_action,
+                content_template_editor,
+            )
             from growth_center.views import (
                 analytics_dashboard,
                 campaign_action,
@@ -267,6 +313,171 @@ class CoreConfig(AppConfig):
                     'growth-center/social/posts/<slug:post_key>/action/',
                     self.admin_view(social_post_action),
                     name='growth-center-social-post-action',
+                ),
+                path(
+                    'growth-center/content/',
+                    self.admin_view(content_marketing_dashboard),
+                    name='growth-center-content',
+                ),
+                path(
+                    'growth-center/content/create/',
+                    self.admin_view(content_item_editor),
+                    name='growth-center-content-create',
+                ),
+                path(
+                    'growth-center/content/calendar/reschedule/',
+                    self.admin_view(content_calendar_reschedule),
+                    name='growth-center-content-calendar-reschedule',
+                ),
+                path(
+                    'growth-center/content/<slug:content_key>/detail/',
+                    self.admin_view(content_detail),
+                    name='growth-center-content-detail',
+                ),
+                path(
+                    'growth-center/content/<slug:content_key>/edit/',
+                    self.admin_view(content_item_editor),
+                    name='growth-center-content-edit',
+                ),
+                path(
+                    'growth-center/content/<slug:content_key>/action/',
+                    self.admin_view(content_action),
+                    name='growth-center-content-action',
+                ),
+                path(
+                    'growth-center/content/<slug:content_key>/social-promo/',
+                    self.admin_view(content_social_promotion),
+                    name='growth-center-content-social-promo',
+                ),
+                path(
+                    'growth-center/content/ideas/create/',
+                    self.admin_view(content_idea_editor),
+                    name='growth-center-content-idea-create',
+                ),
+                path(
+                    'growth-center/content/ideas/<slug:idea_key>/edit/',
+                    self.admin_view(content_idea_editor),
+                    name='growth-center-content-idea-edit',
+                ),
+                path(
+                    'growth-center/content/ideas/<slug:idea_key>/action/',
+                    self.admin_view(content_idea_action),
+                    name='growth-center-content-idea-action',
+                ),
+                path(
+                    'growth-center/content/briefs/create/',
+                    self.admin_view(content_brief_editor),
+                    name='growth-center-content-brief-create',
+                ),
+                path(
+                    'growth-center/content/briefs/<slug:brief_key>/edit/',
+                    self.admin_view(content_brief_editor),
+                    name='growth-center-content-brief-edit',
+                ),
+                path(
+                    'growth-center/content/briefs/<slug:brief_key>/action/',
+                    self.admin_view(content_brief_action),
+                    name='growth-center-content-brief-action',
+                ),
+                path(
+                    'growth-center/content/templates/create/',
+                    self.admin_view(content_template_editor),
+                    name='growth-center-content-template-create',
+                ),
+                path(
+                    'growth-center/content/templates/<slug:template_key>/edit/',
+                    self.admin_view(content_template_editor),
+                    name='growth-center-content-template-edit',
+                ),
+                path(
+                    'growth-center/content/templates/<slug:template_key>/action/',
+                    self.admin_view(content_template_action),
+                    name='growth-center-content-template-action',
+                ),
+                path(
+                    'growth-center/content/refresh/create/',
+                    self.admin_view(content_refresh_editor),
+                    name='growth-center-content-refresh-create',
+                ),
+                path(
+                    'growth-center/content/refresh/<slug:refresh_key>/edit/',
+                    self.admin_view(content_refresh_editor),
+                    name='growth-center-content-refresh-edit',
+                ),
+                path(
+                    'growth-center/content/refresh/<slug:refresh_key>/action/',
+                    self.admin_view(content_refresh_action),
+                    name='growth-center-content-refresh-action',
+                ),
+                path(
+                    'growth-center/conversion/',
+                    self.admin_view(conversion_dashboard),
+                    name='growth-center-conversion',
+                ),
+                path(
+                    'growth-center/conversion/goals/create/',
+                    self.admin_view(conversion_goal_editor),
+                    name='growth-center-conversion-goal-create',
+                ),
+                path(
+                    'growth-center/conversion/goals/<slug:goal_key>/edit/',
+                    self.admin_view(conversion_goal_editor),
+                    name='growth-center-conversion-goal-edit',
+                ),
+                path(
+                    'growth-center/conversion/goals/<slug:goal_key>/action/',
+                    self.admin_view(conversion_goal_action),
+                    name='growth-center-conversion-goal-action',
+                ),
+                path(
+                    'growth-center/conversion/funnels/create/',
+                    self.admin_view(conversion_funnel_editor),
+                    name='growth-center-conversion-funnel-create',
+                ),
+                path(
+                    'growth-center/conversion/funnels/<slug:funnel_key>/edit/',
+                    self.admin_view(conversion_funnel_editor),
+                    name='growth-center-conversion-funnel-edit',
+                ),
+                path(
+                    'growth-center/conversion/funnels/<slug:funnel_key>/action/',
+                    self.admin_view(conversion_funnel_action),
+                    name='growth-center-conversion-funnel-action',
+                ),
+                path(
+                    'growth-center/conversion/tracking/create/',
+                    self.admin_view(conversion_rule_editor),
+                    name='growth-center-conversion-rule-create',
+                ),
+                path(
+                    'growth-center/conversion/tracking/<int:rule_id>/edit/',
+                    self.admin_view(conversion_rule_editor),
+                    name='growth-center-conversion-rule-edit',
+                ),
+                path(
+                    'growth-center/conversion/tracking/<int:rule_id>/action/',
+                    self.admin_view(conversion_rule_action),
+                    name='growth-center-conversion-rule-action',
+                ),
+                path(
+                    'growth-center/conversion/costs/create/',
+                    self.admin_view(conversion_cost_editor),
+                    name='growth-center-conversion-cost-create',
+                ),
+                path(
+                    'growth-center/conversion/costs/<int:cost_id>/edit/',
+                    self.admin_view(conversion_cost_editor),
+                    name='growth-center-conversion-cost-edit',
+                ),
+                path(
+                    'growth-center/conversion/costs/<int:cost_id>/action/',
+                    self.admin_view(conversion_cost_action),
+                    name='growth-center-conversion-cost-action',
+                ),
+                path(
+                    'growth-center/conversion/events/<slug:event_key>/',
+                    self.admin_view(conversion_event_detail),
+                    name='growth-center-conversion-event-detail',
                 ),
                 path(
                     'growth-center/seo-settings/',

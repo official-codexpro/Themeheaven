@@ -21,6 +21,8 @@ MODEL_ICON_NAMES = {
     ('growth_center', 'analytics'): 'bar-chart',
     ('growth_center', 'campaigns'): 'megaphone',
     ('growth_center', 'social'): 'share-2',
+    ('growth_center', 'contentmarketing'): 'file-text',
+    ('growth_center', 'conversiontracking'): 'target',
     ('growth_center', 'seosettings'): 'search',
     ('growth_center', 'pageseo'): 'file-search',
 }
@@ -71,6 +73,16 @@ _LUCIDE_PATHS = {
         '<circle cx="18" cy="19" r="3"/>'
         '<path d="m8.6 13.5 6.8 4"/>'
         '<path d="m15.4 6.5-6.8 4"/>'
+    ),
+    'file-text': (
+        '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>'
+        '<path d="M14 2v6h6"/>'
+        '<path d="M8 13h8M8 17h6"/>'
+    ),
+    'target': (
+        '<circle cx="12" cy="12" r="10"/>'
+        '<circle cx="12" cy="12" r="6"/>'
+        '<circle cx="12" cy="12" r="2"/>'
     ),
     'search': '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
     'file-search': (

@@ -311,12 +311,15 @@ def build_tracking_config(request):
         endpoint = reverse('analytics_beacon')
     except NoReverseMatch:
         endpoint = '/analytics/beacon/'
+    from .conversion import build_conversion_tracking_config
+
     return {
         'enabled': True,
         'endpoint': endpoint,
         'token': build_tracking_token(request),
         'path': request.path_info[:500],
         'csrfToken': get_token(request),
+        'conversion': build_conversion_tracking_config(request),
     }
 
 

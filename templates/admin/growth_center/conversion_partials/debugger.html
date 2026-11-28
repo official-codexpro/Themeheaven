@@ -1,0 +1,29 @@
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head">
+    <div><h2>Event debugger</h2><p>Inspect real event records, attribution snapshots, and privacy-safe identifiers.</p></div>
+  </div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Event key</th><th>Name</th><th>Type</th><th>Path</th><th>Source / medium / campaign</th><th>Device</th><th>Visitor</th><th>Recorded</th></tr></thead>
+      <tbody>
+        {% for event in debug_events.page %}
+          <tr>
+            <td><a href="{% url 'admin:growth-center-conversion-event-detail' event.key %}"><code>{{ event.key }}</code></a></td>
+            <td>{{ event.name }}</td>
+            <td>{{ event.event_type }}</td>
+            <td>{{ event.path }}</td>
+            <td>{{ event.source }} / {{ event.medium }} / {{ event.campaign }}</td>
+            <td>{{ event.device }}</td>
+            <td>{{ event.visitor }}</td>
+            <td>{{ event.occurred_at }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="gc-table-empty">No events recorded in this range. Trigger a tracked CTA or a successful server-side form conversion first.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "admin/growth_center/conversion_partials/pagination.html" with paging=debug_events param='debug_page' %}
+</section>
+
+<div class="gct-notice">{{ privacy_note }}</div>

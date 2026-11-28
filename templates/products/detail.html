@@ -22,11 +22,11 @@
 
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
         {% if can_download %}
-          <a href="{% if kind == 'wordpress' %}{% url 'products:download_wordpress' product.pk %}{% else %}{% url 'products:download_excel' product.pk %}{% endif %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5">Secure Download <span aria-hidden="true">↓</span></a>
+          <a href="{% if kind == 'wordpress' %}{% url 'products:download_wordpress' product.pk %}{% else %}{% url 'products:download_excel' product.pk %}{% endif %}" data-track-event="secure_download" data-track-name="secure_download" data-track-type="download" class="inline-flex items-center justify-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5">Secure Download <span aria-hidden="true">↓</span></a>
         {% else %}
-          <a href="{% url 'support' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5">Request Access <span aria-hidden="true">→</span></a>
+          <a href="{% url 'support' %}" data-track-event="request_access" data-track-name="request_access" data-track-type="cta_click" data-track-path="{% url 'support' %}" class="inline-flex items-center justify-center gap-2 rounded-full bg-[image:var(--accent-gradient)] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(125,30,237,0.24)] transition hover:-translate-y-0.5">Request Access <span aria-hidden="true">→</span></a>
         {% endif %}
-        {% if product.demo_url %}<a href="{{ product.demo_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-3 text-sm font-bold transition hover:border-[var(--border-hover)]">Live Preview <span aria-hidden="true">↗</span></a>{% endif %}
+        {% if product.demo_url %}<a href="{{ product.demo_url }}" data-track-event="live_preview" data-track-name="live_preview" data-track-type="external_link_click" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-3 text-sm font-bold transition hover:border-[var(--border-hover)]">Live Preview <span aria-hidden="true">↗</span></a>{% endif %}
       </div>
 
       <div class="mt-7 grid gap-3 sm:grid-cols-2">

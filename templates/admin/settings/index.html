@@ -15,7 +15,7 @@
   </div>
 
   {% if warnings %}
-    <div class="module" style="border-left: 4px solid #ba2121; padding-left: 12px; margin-bottom: 18px;">
+    <div class="module admin-callout admin-callout--danger">
       <h2>Security notices</h2>
       <ul>
         {% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}
@@ -23,8 +23,8 @@
     </div>
   {% endif %}
 
-  <div class="module">
-    <table style="width: 100%;">
+  <div class="module admin-table-wrap">
+    <table class="admin-table-full">
       <caption>Settings categories</caption>
       <thead>
         <tr>

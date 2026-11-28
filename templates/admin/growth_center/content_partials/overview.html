@@ -1,0 +1,141 @@
+{% if not published_content_count %}
+  <div class="gc-card gcm-empty-state">
+    <h2>No published content yet</h2>
+    <p>Start with a draft, capture the ideas behind it, then confirm the real publication URL when the piece goes live.</p>
+    <a class="gc-button" href="{% url 'admin:growth-center-content-create' %}">Create Content</a>
+  </div>
+{% endif %}
+
+<div class="gcm-overview-grid">
+  <section class="gc-card">
+    <div class="gc-card-heading">
+      <div><h2>Content pipeline</h2><p>{{ kpis.0.value }} pieces across all workflow stages</p></div>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=library">Open library</a>
+    </div>
+    {% if pipeline %}
+      <div class="gcm-pipeline-list">
+        {% for row in pipeline %}
+          <div class="gcm-pipeline-row">
+            <div class="gcm-pipeline-label"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></div>
+            <div class="gcm-progress" role="img" aria-label="{{ row.label }}: {{ row.count }} pieces, {{ row.percent|floatformat:0 }} percent"><i style="width: {{ row.percent|floatformat:0 }}%"></i></div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="gcm-muted">No content in the pipeline yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading">
+      <div><h2>Needs attention</h2><p>Overdue drafts, reviews, and refresh work in one place.</p></div>
+    </div>
+    {% if attention %}
+      <ul class="gcm-activity-list">
+        {% for row in attention %}
+          <li>
+            <span class="gcm-badge gcm-tone-{{ row.tone }}">{{ row.kind }}</span>
+            <span class="gcm-attention-copy">
+              <a href="{% url 'admin:growth-center-content' %}?section=library&query={{ row.title|urlencode }}">{{ row.title }}</a>
+              <small>{{ row.detail }}</small>
+            </span>
+            <time datetime="{{ row.date|date:'Y-m-d' }}">{{ row.date|date:'d M' }}</time>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="gcm-muted">Nothing needs attention right now. Reviews and overdue dates will appear here.</p>
+    {% endif %}
+  </section>
+</div>
+
+<div class="gcm-overview-grid">
+  <section class="gc-card">
+    <div class="gc-card-heading">
+      <div><h2>SEO readiness</h2><p>{{ seo.published_count }} published pieces · average score {{ seo.score }}%</p></div>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=performance">Performance</a>
+    </div>
+    {% if seo.rows %}
+      <div class="gcm-pipeline-list">
+        {% for row in seo.rows %}
+          <div class="gcm-seo-row">
+            <div class="gcm-pipeline-label">
+              <span>{{ row.label }}</span>
+              <strong class="{% if row.status == 'ok' %}gcm-good{% else %}gcm-warn{% endif %}">{% if row.status == 'ok' %}All published pieces complete{% else %}{{ row.missing }} published pieces missing this check{% endif %}</strong>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="gcm-muted">SEO checks appear once published content exists.</p>
+    {% endif %}
+    {% if seo.needs_review %}
+      <div class="gcm-card-copy">
+        <strong>Lowest scoring published pieces</strong>
+        <ul class="gcm-inline-list">
+          {% for item in seo.needs_review %}
+            <li><a href="{% url 'admin:growth-center-content-detail' item.content_key %}">{{ item.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading">
+      <div><h2>Quick actions</h2><p>Move work forward without leaving the content module.</p></div>
+    </div>
+    <div class="gcm-quick-links">
+      <a class="gcm-quick-link" href="{% url 'admin:growth-center-content-create' %}">
+        <strong>Create Content</strong>
+        <small>New draft with brief, body, and SEO fields</small>
+      </a>
+      <a class="gcm-quick-link" href="{% url 'admin:growth-center-content-idea-create' %}">
+        <strong>Capture Idea</strong>
+        <small>Save a topic before it gets lost</small>
+      </a>
+      <a class="gcm-quick-link" href="{% url 'admin:growth-center-content-brief-create' %}">
+        <strong>Create Brief</strong>
+        <small>Define the objective, audience, and outline</small>
+      </a>
+      <a class="gcm-quick-link" href="{% url 'admin:growth-center-content-refresh-create' %}">
+        <strong>Schedule Refresh</strong>
+        <small>Queue an update for published content</small>
+      </a>
+    </div>
+    <div class="gcm-card-copy">
+      <strong>{{ published_content_count }} published pieces</strong>
+      <p class="gcm-muted">Search Console is not connected. {{ performance.attribution_note }}</p>
+    </div>
+  </section>
+</div>
+
+<section class="gc-card gcm-table-card">
+  <div class="gc-card-heading">
+    <div><h2>Recent library items</h2><p>Latest content across workflow stages.</p></div>
+    <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=library">View all</a>
+  </div>
+  {% if library.page.object_list %}
+    <div class="gcm-table-wrap">
+      <table class="gcm-table">
+        <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Target date</th><th>Visits</th></tr></thead>
+        <tbody>
+          {% for row in library.page.object_list|slice:':5' %}
+            <tr>
+              <td><a href="{% url 'admin:growth-center-content-detail' row.key %}">{{ row.title }}</a><small>{{ row.category }} · {{ row.author }}</small></td>
+              <td>{{ row.content_type }}</td>
+              <td><span class="gcm-status gcm-status-{{ row.status|lower|cut:' '|cut:'-' }}">{{ row.status }}</span>{% if row.overdue %} <span class="gcm-badge gcm-tone-rose">Overdue</span>{% endif %}</td>
+              <td>{% if row.target_date %}{{ row.target_date|date:'d M Y' }}{% else %}—{% endif %}</td>
+              <td>{{ row.visits }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="gcm-empty-inline">
+      <p>No content has been created yet.</p>
+      <a class="gc-button" href="{% url 'admin:growth-center-content-create' %}">Create your first piece</a>
+    </div>
+  {% endif %}
+</section>

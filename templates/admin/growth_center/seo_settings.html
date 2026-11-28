@@ -103,7 +103,7 @@
               {{ form.default_image.errors }}
               <div class="gcseo-image-row">
                 <img data-image-preview src="{% if instance.default_image %}{{ instance.default_image.url }}{% else %}{{ preview.favicon_url }}{% endif %}" alt="Default SEO image preview">
-                <label class="gcseo-check"><input type="checkbox" name="remove_default_image" id="id_remove_default_image" {% if form.remove_default_image.value %}checked{% endif %}> {{ form.remove_default_image.label }}</label>
+                <label class="gcseo-check gcseo-check-inline"><input type="checkbox" name="remove_default_image" id="id_remove_default_image" {% if form.remove_default_image.value %}checked{% endif %}> {{ form.remove_default_image.label }}</label>
               </div>
               <p class="gcseo-help">{{ form.default_image.help_text }}</p>
             </div>

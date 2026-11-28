@@ -1,0 +1,128 @@
+<section class="gc-card gcm-table-card">
+  <div class="gc-card-heading">
+    <div><h2>Content library</h2><p>{{ library.page.paginator.count }} matching pieces · {{ published_content_count }} published overall</p></div>
+    <div class="gcm-header-actions">
+      <a class="gc-button" href="{% url 'admin:growth-center-content-create' %}">New Content</a>
+      <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content' %}?section=templates">Use a template</a>
+    </div>
+  </div>
+
+  <div class="gcm-quick-filters">
+    <div class="gcm-quick-group">
+      <span>Status</span>
+      <a href="{% url 'admin:growth-center-content' %}?section=library" class="gcm-chip {% if not filters.status %}is-active{% endif %}">All</a>
+      {% for value, label in status_choices %}
+        <a href="{% url 'admin:growth-center-content' %}?section=library&status={{ value }}" class="gcm-chip {% if filters.status == value %}is-active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    <div class="gcm-quick-group">
+      <span>Priority</span>
+      <a href="{% url 'admin:growth-center-content' %}?section=library&priority=" class="gcm-chip {% if not filters.priority %}is-active{% endif %}">All</a>
+      {% for value, label in priority_choices %}
+        <a href="{% url 'admin:growth-center-content' %}?section=library&priority={{ value }}" class="gcm-chip {% if filters.priority == value %}is-active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    <div class="gcm-quick-group">
+      <span>Type</span>
+      <a href="{% url 'admin:growth-center-content' %}?section=library&content_type=" class="gcm-chip {% if not filters.content_type %}is-active{% endif %}">All</a>
+      {% for value, label in type_choices %}
+        <a href="{% url 'admin:growth-center-content' %}?section=library&content_type={{ value }}" class="gcm-chip {% if filters.content_type == value %}is-active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if library.page.object_list %}
+    <div class="gcm-table-wrap">
+      <table class="gcm-table gcm-library-table">
+        <thead>
+          <tr><th>Content</th><th>Status</th><th>Priority</th><th>Owner</th><th>Dates</th><th>Traffic</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for row in library.page.object_list %}
+            <tr>
+              <td>
+                <a href="{% url 'admin:growth-center-content-detail' row.key %}">{{ row.title }}</a>
+                <small>{{ row.content_type }} · {{ row.category }} · {{ row.word_count }} words · SEO {{ row.seo_score }}%</small>
+                {% if row.publication_url %}<small><a href="{{ row.publication_url }}" target="_blank" rel="noopener noreferrer">Live URL</a> · {{ row.path }}</small>{% endif %}
+              </td>
+              <td>
+                <span class="gcm-status gcm-status-{{ row.status|lower|cut:' '|cut:'-' }}">{{ row.status }}</span>
+                {% if row.overdue %}<small><span class="gcm-badge gcm-tone-rose">Overdue</span></small>{% endif %}
+              </td>
+              <td>{{ row.priority }}</td>
+              <td>{{ row.author }}<small>{{ row.key }}</small></td>
+              <td>
+                {% if row.target_date %}<span>Target {{ row.target_date|date:'d M Y' }}</span>{% endif %}
+                {% if row.published_at %}<small>Published {{ row.published_at|date:'d M Y' }}</small>{% endif %}
+              </td>
+              <td>
+                <strong>{{ row.visits }}</strong> visits
+                <small>{{ row.views }} views · {{ row.organic_visits }} organic · {{ row.campaign_visits }} campaign</small>
+                <small class="{{ row.change.tone }}">{{ row.change.label }}</small>
+              </td>
+              <td>
+                <div class="gcm-row-actions">
+                  <a href="{% url 'admin:growth-center-content-edit' row.key %}">Edit</a>
+                  <form method="post" action="{% url 'admin:growth-center-content-action' row.key %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="duplicate">Duplicate</button>
+                    <button type="submit" name="action" value="submit_review">Review</button>
+                    <button type="submit" name="action" value="approve">Approve</button>
+                    <button type="submit" name="action" value="archive">Archive</button>
+                    <button type="submit" name="action" value="mark_published">Mark published</button>
+                  </form>
+                  <form method="post" action="{% url 'admin:growth-center-content-action' row.key %}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="delete" class="gcm-danger" data-confirm="Delete “{{ row.title }}”? This cannot be undone.">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gcm-pagination">
+      {% if library.page.has_previous %}
+        <a class="gc-button gc-link-button" href="{% if library.querystring %}?{{ library.querystring|safe }}&page={{ library.page.previous_page_number }}{% else %}?section=library&page={{ library.page.previous_page_number }}{% endif %}" data-page="{{ library.page.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span>Page {{ library.page.number }} of {{ library.page.paginator.num_pages }}</span>
+      {% if library.page.has_next %}
+        <a class="gc-button gc-link-button" href="{% if library.querystring %}?{{ library.querystring|safe }}&page={{ library.page.next_page_number }}{% else %}?section=library&page={{ library.page.next_page_number }}{% endif %}" data-page="{{ library.page.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="gcm-empty-inline">
+      <p>No content matches these filters. Adjust the filters above or start a new piece.</p>
+      <a class="gc-button" href="{% url 'admin:growth-center-content-create' %}">Create Content</a>
+    </div>
+  {% endif %}
+</section>
+
+<div class="gcm-overview-grid">
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Add a category</h2><p>Group related content for planning and filtering.</p></div></div>
+    <form method="post" action="{% url 'admin:growth-center-content' %}" class="gcm-inline-form">
+      {% csrf_token %}
+      <input type="hidden" name="intent" value="add_category">
+      <input type="hidden" name="section" value="library">
+      {{ category_form.non_field_errors }}
+      <label class="gcm-field"><span>Name</span>{{ category_form.name }}{{ category_form.name.errors }}</label>
+      <label class="gcm-field"><span>Description</span>{{ category_form.description }}{{ category_form.description.errors }}</label>
+      <button type="submit" class="gc-button">Add category</button>
+    </form>
+  </section>
+
+  <section class="gc-card">
+    <div class="gc-card-heading"><div><h2>Add a tag</h2><p>Use tags for cross-cutting topics and campaigns.</p></div></div>
+    <form method="post" action="{% url 'admin:growth-center-content' %}" class="gcm-inline-form">
+      {% csrf_token %}
+      <input type="hidden" name="intent" value="add_tag">
+      <input type="hidden" name="section" value="library">
+      {{ tag_form.non_field_errors }}
+      <label class="gcm-field"><span>Name</span>{{ tag_form.name }}{{ tag_form.name.errors }}</label>
+      <button type="submit" class="gc-button">Add tag</button>
+    </form>
+  </section>
+</div>

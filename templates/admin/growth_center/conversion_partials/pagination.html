@@ -1,0 +1,11 @@
+{% if paging.paginator.num_pages > 1 %}
+  <div class="gct-pagination">
+    {% if paging.page.has_previous %}
+      <a class="gc-button gc-link-button" href="?{% if paging.querystring %}{{ paging.querystring }}&{% endif %}{{ param }}={{ paging.page.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span>Page {{ paging.page.number }} of {{ paging.paginator.num_pages }}</span>
+    {% if paging.page.has_next %}
+      <a class="gc-button gc-link-button" href="?{% if paging.querystring %}{{ paging.querystring }}&{% endif %}{{ param }}={{ paging.page.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+{% endif %}

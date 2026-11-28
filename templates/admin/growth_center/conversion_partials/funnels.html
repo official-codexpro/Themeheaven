@@ -1,0 +1,56 @@
+<section class="gct-funnel-list">
+  {% for result in funnels %}
+    <article class="gc-card gct-panel gct-funnel-card">
+      <div class="gct-panel-head">
+        <div>
+          <h2>{{ result.funnel.name }}</h2>
+          <p>{{ result.funnel.description|default:"Ordered conversion path" }}</p>
+        </div>
+        <div class="gct-actions">
+          <span class="gct-status gct-status-{{ result.funnel.status|lower }}">{{ result.funnel.status }}</span>
+          <a href="{% url 'admin:growth-center-conversion-funnel-edit' result.funnel.funnel_key %}">Edit</a>
+          <form method="post" action="{% url 'admin:growth-center-conversion-funnel-action' result.funnel.funnel_key %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle">
+            <button type="submit">{% if result.funnel.status == 'Active' %}Pause{% else %}Activate{% endif %}</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="gct-funnel-summary">
+        <div><span>Sessions in range</span><strong>{{ result.sessions }}</strong></div>
+        <div><span>Overall completion</span><strong>{{ result.overall_rate }}%</strong><small class="{{ result.comparison.tone }}">{{ result.comparison.label }} vs previous</small></div>
+        <div><span>Previous completion</span><strong>{{ result.previous_overall_rate }}%</strong></div>
+      </div>
+
+      <div class="gct-table-wrap">
+        <table class="gct-table">
+          <thead><tr><th>Step</th><th>Type</th><th>Entered</th><th>Completed</th><th>Step rate</th><th>Drop-off</th><th>Overall</th></tr></thead>
+          <tbody>
+            {% for step in result.steps %}
+              <tr>
+                <td>{{ step.order }}. {{ step.label }}</td>
+                <td>{{ step.type }}</td>
+                <td>{{ step.entered }}</td>
+                <td>{{ step.visitors }}</td>
+                <td>{{ step.step_rate }}%</td>
+                <td>{{ step.drop_off }}%</td>
+                <td>{{ step.overall }}%</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" class="gc-table-empty">Add at least one ordered step to calculate this funnel.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  {% empty %}
+    <section class="gc-card gct-panel">
+      <div class="gct-panel-head"><div><h2>No funnels yet</h2><p>Build an ordered funnel from real event names or page paths.</p></div></div>
+    </section>
+  {% endfor %}
+</section>
+
+<div class="gct-header-actions gct-bottom-actions">
+  <a class="gc-button" href="{% url 'admin:growth-center-conversion-funnel-create' %}">Create funnel</a>
+</div>

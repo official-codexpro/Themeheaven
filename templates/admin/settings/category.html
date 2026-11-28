@@ -16,7 +16,7 @@
   </div>
 
   {% if warnings %}
-    <div class="module" style="border-left: 4px solid #ba2121; padding-left: 12px; margin-bottom: 18px;">
+    <div class="module admin-callout admin-callout--danger">
       <h2>Security notices</h2>
       <ul>
         {% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}
@@ -25,7 +25,7 @@
   {% endif %}
 
   {% if restart_issues %}
-    <div class="module" style="border-left: 4px solid #e8a33d; padding-left: 12px; margin-bottom: 18px;">
+    <div class="module admin-callout admin-callout--warning">
       <h2>Restart required</h2>
       <ul>
         {% for issue in restart_issues %}<li>{{ issue }}</li>{% endfor %}
@@ -37,7 +37,7 @@
     <form method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}
       {% if form.non_field_errors %}
-        <div class="module" style="border-left: 4px solid #ba2121; padding-left: 12px; margin-bottom: 18px;">
+        <div class="module admin-callout admin-callout--danger">
           {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
         </div>
       {% endif %}
@@ -60,8 +60,8 @@
   {% endif %}
 
   {% if info_rows %}
-    <div class="module">
-      <table style="width: 100%;">
+    <div class="module admin-table-wrap">
+      <table class="admin-table-full">
         <caption>Current configuration</caption>
         <thead>
           <tr>

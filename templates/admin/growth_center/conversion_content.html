@@ -1,0 +1,100 @@
+<div class="gc-header ga-header gct-header">
+  <div>
+    <p class="gc-eyebrow">GROWTH CENTER / CONVERSION</p>
+    <h1>Conversion Tracking</h1>
+    <p class="gc-summary">Track real events, goals, and funnels using the existing analytics visitor, session, UTM, and device attribution.</p>
+  </div>
+  <div class="gct-header-actions">
+    <a class="gc-button" href="{% url 'admin:growth-center-conversion-goal-create' %}">New Goal</a>
+    <a class="gc-button" href="{% url 'admin:growth-center-conversion-funnel-create' %}">New Funnel</a>
+    <a class="gc-button gc-link-button" href="?section={{ active_section }}" data-refresh>Refresh</a>
+  </div>
+</div>
+
+<nav class="ga-subnav gct-subnav" aria-label="Conversion tracking sections">
+  {% for key, label in sections %}
+    <a href="?section={{ key }}" class="ga-section-link {% if active_section == key %}is-active{% endif %}" data-section="{{ key }}" {% if active_section == key %}aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<form class="gc-controls ga-controls gct-filters" method="get" data-filter-form aria-label="Conversion filters">
+  <input type="hidden" name="section" value="{{ active_section }}">
+  {{ filter_form.non_field_errors }}
+
+  <label class="gct-field"><span>Date range</span>{{ filter_form.range }}{{ filter_form.range.errors }}</label>
+  <label class="gct-field"><span>Start</span>{{ filter_form.start_date }}{{ filter_form.start_date.errors }}</label>
+  <label class="gct-field"><span>End</span>{{ filter_form.end_date }}{{ filter_form.end_date.errors }}</label>
+  <label class="gct-field gct-field-check"><span>{{ filter_form.compare.label }}</span>{{ filter_form.compare }}{{ filter_form.compare.errors }}</label>
+
+  {% if active_section == 'overview' or active_section == 'events' or active_section == 'debugger' %}
+    <label class="gct-field"><span>Event</span>{{ filter_form.event }}{{ filter_form.event.errors }}</label>
+    <label class="gct-field"><span>Event type</span>{{ filter_form.event_type }}{{ filter_form.event_type.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'events' or active_section == 'reports' or active_section == 'debugger' %}
+    <label class="gct-field"><span>Source</span>{{ filter_form.source }}{{ filter_form.source.errors }}</label>
+    <label class="gct-field"><span>Medium</span>{{ filter_form.medium }}{{ filter_form.medium.errors }}</label>
+    <label class="gct-field"><span>Campaign</span>{{ filter_form.campaign }}{{ filter_form.campaign.errors }}</label>
+    <label class="gct-field"><span>Device</span>{{ filter_form.device }}{{ filter_form.device.errors }}</label>
+    <label class="gct-field"><span>Page</span>{{ filter_form.page }}{{ filter_form.page.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'reports' %}
+    <label class="gct-field"><span>Report</span>{{ filter_form.report }}{{ filter_form.report.errors }}</label>
+    <label class="gct-field"><span>Sort by</span>{{ filter_form.sort }}{{ filter_form.sort.errors }}</label>
+    <label class="gct-field"><span>Direction</span>{{ filter_form.direction }}{{ filter_form.direction.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'goals' %}
+    <label class="gct-field"><span>Goal status</span>{{ filter_form.goal_status }}{{ filter_form.goal_status.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'funnels' %}
+    <label class="gct-field"><span>Funnel status</span>{{ filter_form.funnel_status }}{{ filter_form.funnel_status.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'setup' %}
+    <label class="gct-field"><span>Rule status</span>{{ filter_form.rule_status }}{{ filter_form.rule_status.errors }}</label>
+  {% endif %}
+
+  <label class="gct-field gct-field-search"><span>Search</span>{{ filter_form.query }}{{ filter_form.query.errors }}</label>
+  <button type="submit" class="gc-button">Apply filters</button>
+  <a class="gc-button gc-link-button" href="?section={{ active_section }}">Reset</a>
+</form>
+
+<div class="gct-period">
+  <span>Showing {{ range.start }} to {{ range.end }}</span>
+  {% if filters.compare %}<span>Compared with {{ range.previous_start }} to {{ range.previous_end }}</span>{% endif %}
+</div>
+
+<div class="gc-kpi-grid gct-kpi-grid">
+  {% for kpi in kpis %}
+    <article class="gc-card gc-kpi gct-kpi">
+      <div class="gc-kpi-top">
+        <span>{{ kpi.label }}</span>
+      </div>
+      <strong>{{ kpi.display }}</strong>
+      <p class="gc-comparison gc-{{ kpi.comparison.direction }} {{ kpi.comparison.tone }}">
+        {{ kpi.comparison.label }}
+      </p>
+    </article>
+  {% endfor %}
+</div>
+
+{% if active_section == 'overview' %}
+  {% include "admin/growth_center/conversion_partials/overview.html" %}
+{% elif active_section == 'events' %}
+  {% include "admin/growth_center/conversion_partials/events.html" %}
+{% elif active_section == 'goals' %}
+  {% include "admin/growth_center/conversion_partials/goals.html" %}
+{% elif active_section == 'funnels' %}
+  {% include "admin/growth_center/conversion_partials/funnels.html" %}
+{% elif active_section == 'reports' %}
+  {% include "admin/growth_center/conversion_partials/reports.html" %}
+{% elif active_section == 'setup' %}
+  {% include "admin/growth_center/conversion_partials/tracking.html" %}
+{% elif active_section == 'debugger' %}
+  {% include "admin/growth_center/conversion_partials/debugger.html" %}
+{% else %}
+  {% include "admin/growth_center/conversion_partials/overview.html" %}
+{% endif %}

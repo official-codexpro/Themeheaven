@@ -4,11 +4,6 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
-  <style>
-    .themehaven-welcome { margin-bottom: 18px; padding: 14px 18px; }
-    .themehaven-welcome h2 { margin: 0 0 6px; font-size: 1.15rem; }
-    .themehaven-welcome p { margin: 0; color: var(--body-quiet-color, #666); }
-  </style>
 {% endblock %}
 
 {% block coltype %}colMS{% endblock %}
@@ -22,9 +17,9 @@
 {% block content %}
 <div id="content-main">
   {% if system_settings.admin_welcome_text %}
-    <div class="module themhaven-welcome">
-      <h2>Welcome to {{ system_settings.admin_site_name }}</h2>
-      <p>{{ system_settings.admin_welcome_text|linebreaksbr }}</p>
+    <div class="module admin-welcome">
+      <h2 class="admin-welcome__title">Welcome to {{ system_settings.admin_site_name }}</h2>
+      <p class="admin-welcome__text">{{ system_settings.admin_welcome_text|linebreaksbr }}</p>
     </div>
   {% endif %}
   {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
@@ -39,7 +34,7 @@
     {% load log %}
     {% get_admin_log 10 as admin_log for_user user %}
     {% if not admin_log %}
-      <p>{% translate 'None available' %}</p>
+      <p class="admin-empty-state">{% translate 'None available' %}</p>
     {% else %}
       <ul class="actionlist">
         {% for entry in admin_log %}

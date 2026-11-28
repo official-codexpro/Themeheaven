@@ -1,0 +1,61 @@
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head">
+    <div><h2>Tracking rules</h2><p>Rules add event tracking to existing CTAs without changing their behavior.</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-conversion-rule-create' %}">Add rule</a>
+  </div>
+  <div class="gct-table-wrap">
+    <table class="gct-table">
+      <thead><tr><th>Rule</th><th>Selector</th><th>Event</th><th>Type</th><th>Goal</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for rule in tracking_rules %}
+          <tr>
+            <td><strong>{{ rule.name }}</strong>{% if rule.notes %}<br><small>{{ rule.notes }}</small>{% endif %}</td>
+            <td><code>{{ rule.selector }}</code></td>
+            <td>{{ rule.event_name }}</td>
+            <td>{{ rule.event_type }}</td>
+            <td>{{ rule.goal.name|default:"—" }}</td>
+            <td><span class="gct-status gct-status-{{ rule.status|lower }}">{{ rule.status }}</span></td>
+            <td class="gct-actions">
+              <a href="{% url 'admin:growth-center-conversion-rule-edit' rule.id %}">Edit</a>
+              <form method="post" action="{% url 'admin:growth-center-conversion-rule-action' rule.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle">
+                <button type="submit">{% if rule.status == 'Active' %}Pause{% else %}Activate{% endif %}</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="gc-table-empty">No custom rules. Stable CTA attributes below are tracked automatically.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="gc-card gct-panel">
+  <div class="gct-panel-head"><div><h2>Automatic CTA attributes</h2><p>Delegated tracking never blocks navigation, form submission, or dynamic content.</p></div></div>
+  <pre class="gct-code"><code>&lt;a href="/support/"
+   data-track-event="contact_request"
+   data-track-name="support_cta"
+   data-track-type="cta_click"
+   data-track-goal="optional_goal_key"&gt;Contact support&lt;/a&gt;</code></pre>
+  <pre class="gct-code"><code>{% verbatim %}from growth_center.conversion import record_conversion
+
+form.save()
+record_conversion(
+    request,
+    name='contact_request',
+    event_type='contact_request',
+    dedupe_key=f'contact-{form.instance.pk}',
+){% endverbatim %}</code></pre>
+  <ul class="gct-list">
+    <li>Server-side form events are recorded only after a successful save and never include form payloads.</li>
+    <li><strong>data-track-event</strong> — recorded event name.</li>
+    <li><strong>data-track-name</strong> — human-readable source label; never a payload.</li>
+    <li><strong>data-track-type</strong> — optional event type such as <code>download</code>, <code>email_click</code>, or <code>external_link_click</code>.</li>
+    <li><strong>data-track-goal</strong> — optional active goal key.</li>
+    <li><strong>data-track-path</strong> — optional page path override.</li>
+  </ul>
+</section>
+
+<div class="gct-notice">{{ privacy_note }}</div>

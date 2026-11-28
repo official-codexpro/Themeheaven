@@ -1,0 +1,47 @@
+<section class="gc-card">
+  <div class="gc-card-heading">
+    <div><h2>Content templates</h2><p>Reusable structures that prefill content and brief editors.</p></div>
+    <a class="gc-button" href="{% url 'admin:growth-center-content-template-create' %}">Create Template</a>
+  </div>
+
+  {% if templates %}
+    <div class="gcm-template-grid">
+      {% for item in templates %}
+        <article class="gcm-template-card">
+          <div class="gcm-template-heading">
+            <div>
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.content_type }} · {{ item.template_key }}</p>
+            </div>
+            <a href="{% url 'admin:growth-center-content-template-edit' item.template_key %}">Edit</a>
+          </div>
+          {% if item.structure %}<div class="gcm-card-copy"><strong>Structure</strong><p>{{ item.structure|linebreaksbr }}</p></div>{% endif %}
+          {% if item.headings %}<div class="gcm-card-copy"><strong>Headings</strong><p class="gcm-monospace">{{ item.headings|linebreaksbr }}</p></div>{% endif %}
+          {% if item.brief_fields %}<div class="gcm-card-copy"><strong>Brief fields</strong><p>{{ item.brief_fields|linebreaksbr }}</p></div>{% endif %}
+          {% if item.cta %}<div class="gcm-card-copy"><strong>CTA</strong><p>{{ item.cta }}</p></div>{% endif %}
+          {% if item.seo_checklist %}<div class="gcm-card-copy"><strong>SEO checklist</strong><p>{{ item.seo_checklist|linebreaksbr }}</p></div>{% endif %}
+          {% if item.notes %}<div class="gcm-card-copy"><strong>Notes</strong><p>{{ item.notes|linebreaksbr }}</p></div>{% endif %}
+          <div class="gcm-template-links">
+            <a class="gc-button" href="{% url 'admin:growth-center-content-create' %}?template={{ item.template_key }}">New content from template</a>
+            <a class="gc-button gc-link-button" href="{% url 'admin:growth-center-content-brief-create' %}?template={{ item.template_key }}">New brief from template</a>
+          </div>
+          <div class="gcm-row-actions gcm-template-actions">
+            <form method="post" action="{% url 'admin:growth-center-content-template-action' item.template_key %}">
+              {% csrf_token %}
+              <button type="submit" name="action" value="duplicate">Duplicate</button>
+            </form>
+            <form method="post" action="{% url 'admin:growth-center-content-template-action' item.template_key %}">
+              {% csrf_token %}
+              <button type="submit" name="action" value="delete" class="gcm-danger" data-confirm="Delete the template “{{ item.name }}”?">Delete</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="gcm-empty-inline">
+      <p>No templates yet. Templates speed up drafting by prefilling structure, headings, CTA, and SEO notes.</p>
+      <a class="gc-button" href="{% url 'admin:growth-center-content-template-create' %}">Create your first template</a>
+    </div>
+  {% endif %}
+</section>

@@ -1,0 +1,90 @@
+<section class="gc-card gcm-calendar-card">
+  <div class="gc-card-heading gcm-calendar-heading">
+    <div>
+      <h2>Content calendar</h2>
+      <p>{{ calendar.start|date:'d M Y' }} – {{ calendar.end|date:'d M Y' }} · planned and published dates</p>
+    </div>
+    <div class="gcm-calendar-actions">
+      <a class="gc-button gc-link-button" href="?section=calendar&view={{ calendar.view }}&date={{ calendar.previous }}" data-calendar-nav="{{ calendar.previous }}">Previous</a>
+      <a class="gc-button gc-link-button" href="?section=calendar&view={{ calendar.view }}&date={% now 'Y-m-d' %}" data-calendar-nav="{% now 'Y-m-d' %}">Today</a>
+      <a class="gc-button gc-link-button" href="?section=calendar&view={{ calendar.view }}&date={{ calendar.next }}" data-calendar-nav="{{ calendar.next }}">Next</a>
+    </div>
+  </div>
+
+  <div class="gcm-view-switch" aria-label="Calendar view">
+    <a href="?section=calendar&view=month" class="gcm-view-link {% if calendar.view == 'month' %}is-active{% endif %}" data-calendar-view="month" {% if calendar.view == 'month' %}aria-current="page"{% endif %}>Month</a>
+    <a href="?section=calendar&view=week" class="gcm-view-link {% if calendar.view == 'week' %}is-active{% endif %}" data-calendar-view="week" {% if calendar.view == 'week' %}aria-current="page"{% endif %}>Week</a>
+    <a href="?section=calendar&view=day" class="gcm-view-link {% if calendar.view == 'day' %}is-active{% endif %}" data-calendar-view="day" {% if calendar.view == 'day' %}aria-current="page"{% endif %}>Day</a>
+    <a href="?section=calendar&view=list" class="gcm-view-link {% if calendar.view == 'list' %}is-active{% endif %}" data-calendar-view="list" {% if calendar.view == 'list' %}aria-current="page"{% endif %}>List</a>
+  </div>
+
+  {% if calendar.view == 'month' %}
+    <div class="gcm-table-wrap">
+      <div class="gcm-calendar-grid" data-calendar-grid>
+        {% for weekday in calendar.labels %}<div class="gcm-weekday">{{ weekday }}</div>{% endfor %}
+        {% for week in calendar.weeks %}
+          {% for day in week %}
+            <div class="gcm-calendar-day {% if not day.in_month %}is-outside{% endif %} {% if day.is_today %}is-today{% endif %}" data-date="{{ day.date|date:'Y-m-d' }}">
+              <div class="gcm-day-heading">
+                <span>{{ day.date|date:'d' }}</span>
+                <a href="{% url 'admin:growth-center-content-create' %}?date={{ day.date|date:'Y-m-d' }}" aria-label="Create content dated {{ day.date|date:'d M Y' }}">+</a>
+              </div>
+              {% for item in day.items %}
+                <div class="gcm-calendar-entry {% if item.status == 'Published' %}is-published{% endif %}" {% if item.status != 'Published' %}draggable="true"{% endif %} data-key="{{ item.content_key }}" data-date="{{ day.date|date:'Y-m-d' }}">
+                  <a href="{% url 'admin:growth-center-content-detail' item.content_key %}">{{ item.title }}</a>
+                  <span class="gcm-entry-meta">{{ item.content_type }}</span>
+                  <span class="gcm-status gcm-status-{{ item.status|lower|cut:' '|cut:'-' }}">{{ item.status }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+    <p class="gcm-calendar-help">Drag an unscheduled or scheduled card to another day to change its target date.</p>
+  {% elif calendar.view == 'list' %}
+    <div class="gcm-calendar-list">
+      {% if calendar.entries %}
+        {% for entry in calendar.entries %}
+          <div class="gcm-list-row" data-date="{{ entry.day|date:'Y-m-d' }}">
+            <time datetime="{{ entry.day|date:'Y-m-d' }}">{{ entry.day|date:'D d M Y' }}</time>
+            <div class="gcm-calendar-entry {% if entry.item.status == 'Published' %}is-published{% endif %}" {% if entry.item.status != 'Published' %}draggable="true"{% endif %} data-key="{{ entry.item.content_key }}" data-date="{{ entry.day|date:'Y-m-d' }}">
+              <a href="{% url 'admin:growth-center-content-detail' entry.item.content_key %}">{{ entry.item.title }}</a>
+              <span class="gcm-entry-meta">{{ entry.item.content_type }}</span>
+              <span class="gcm-status gcm-status-{{ entry.item.status|lower|cut:' '|cut:'-' }}">{{ entry.item.status }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="gcm-empty-inline"><p>No content has a target or published date in this range.</p></div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="gcm-calendar-days">
+      {% if calendar.entries %}
+        {% for entry in calendar.entries %}
+          <div class="gcm-calendar-day is-panel" data-date="{{ entry.day|date:'Y-m-d' }}">
+            <div class="gcm-day-heading">
+              <span>{{ entry.day|date:'D d M Y' }}</span>
+              <a href="{% url 'admin:growth-center-content-create' %}?date={{ entry.day|date:'Y-m-d' }}" aria-label="Create content dated {{ entry.day|date:'d M Y' }}">+</a>
+            </div>
+            {% if entry.items %}
+              {% for item in entry.items %}
+                <div class="gcm-calendar-entry {% if item.status == 'Published' %}is-published{% endif %}" {% if item.status != 'Published' %}draggable="true"{% endif %} data-key="{{ item.content_key }}" data-date="{{ entry.day|date:'Y-m-d' }}">
+                  <a href="{% url 'admin:growth-center-content-detail' item.content_key %}">{{ item.title }}</a>
+                  <span class="gcm-entry-meta">{{ item.content_type }}</span>
+                  <span class="gcm-status gcm-status-{{ item.status|lower|cut:' '|cut:'-' }}">{{ item.status }}</span>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="gcm-muted">No content on this day.</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="gcm-empty-inline"><p>No content has a target or published date in this range.</p></div>
+      {% endif %}
+    </div>
+    <p class="gcm-calendar-help">Drag a card to another day to change its target date. Published content stays in place.</p>
+  {% endif %}
+</section>

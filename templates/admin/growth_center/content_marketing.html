@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/growth_center.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_analytics.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_social_media.css' %}">
+  <link rel="stylesheet" href="{% static 'css/growth_content_marketing.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div id="growth-content-marketing" class="gc-shell ga-shell gcm-shell" data-dashboard-url="{% url 'admin:growth-center-content' %}" data-reschedule-url="{% url 'admin:growth-center-content-calendar-reschedule' %}">
+    <div id="growth-content-marketing-content">
+      {% include "admin/growth_center/content_marketing_content.html" %}
+    </div>
+  </div>
+  <div id="gcm-status" class="ga-status" role="status" aria-live="polite" hidden></div>
+  <script src="{% static 'js/growth_content_marketing.js' %}"></script>
+{% endblock %}

@@ -6,19 +6,16 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'css/admin_icons.css' %}">
-  <style>
-    #site-name a { display: inline-flex; align-items: center; gap: 10px; }
-    .themehaven-admin-logo { max-height: 34px; max-width: 160px; object-fit: contain; }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/admin_ui.css' %}">
 {% endblock %}
 
 {% block branding %}
 <div id="site-name">
-  <a href="{% url 'admin:index' %}">
+  <a href="{% url 'admin:index' %}" class="admin-brand-link">
     {% if system_settings.admin_logo %}
-      <img src="{{ system_settings.admin_logo.url }}" alt="{{ system_settings.admin_site_name }}" class="themehaven-admin-logo">
+      <img src="{{ system_settings.admin_logo.url }}" alt="{{ system_settings.admin_site_name }}" class="admin-brand-logo">
     {% endif %}
-    <span>{{ site_header|default:_('Django administration') }}</span>
+    <span class="admin-brand-title">{{ site_header|default:_('Django administration') }}</span>
   </a>
 </div>
 {% if user.is_anonymous %}

@@ -1,0 +1,89 @@
+<div class="gc-header ga-header gcm-header">
+  <div>
+    <p class="gc-eyebrow">GROWTH CENTER / CONTENT</p>
+    <h1>Content Marketing</h1>
+    <p class="gc-summary">Plan, draft, review, publish, and refresh content with analytics matched to real pages and campaigns.</p>
+  </div>
+  <div class="gcm-header-actions">
+    <a class="gc-button" href="{% url 'admin:growth-center-content-create' %}">Create Content</a>
+    <a class="gc-button" href="{% url 'admin:growth-center-content-idea-create' %}">Capture Idea</a>
+    <a class="gc-button gc-link-button" href="?section={{ active_section }}" data-refresh>Refresh</a>
+  </div>
+</div>
+
+<nav class="ga-subnav gcm-subnav" aria-label="Content marketing sections">
+  {% for key, label in sections %}
+    <a href="?section={{ key }}" class="ga-section-link {% if active_section == key %}is-active{% endif %}" data-section="{{ key }}" {% if active_section == key %}aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<form class="gc-controls ga-controls gcm-filters" method="get" data-filter-form data-querystring="{{ querystring }}" aria-label="Content filters">
+  <input type="hidden" name="section" value="{{ active_section }}">
+  {{ filter_form.non_field_errors }}
+
+  <label class="gcm-field gcm-field-search">
+    <span>Search</span>
+    {{ filter_form.query }}
+    {{ filter_form.query.errors }}
+  </label>
+
+  {% if active_section == 'library' or active_section == 'overview' %}
+    <label class="gcm-field"><span>Status</span>{{ filter_form.status }}{{ filter_form.status.errors }}</label>
+    <label class="gcm-field"><span>Type</span>{{ filter_form.content_type }}{{ filter_form.content_type.errors }}</label>
+    <label class="gcm-field"><span>Category</span>{{ filter_form.category }}{{ filter_form.category.errors }}</label>
+    <label class="gcm-field"><span>Tag</span>{{ filter_form.tag }}{{ filter_form.tag.errors }}</label>
+    <label class="gcm-field"><span>Priority</span>{{ filter_form.priority }}{{ filter_form.priority.errors }}</label>
+    <label class="gcm-field"><span>Sort by</span>{{ filter_form.sort }}{{ filter_form.sort.errors }}</label>
+    <label class="gcm-field"><span>Direction</span>{{ filter_form.direction }}{{ filter_form.direction.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'calendar' %}
+    <label class="gcm-field"><span>Calendar view</span>{{ filter_form.view }}{{ filter_form.view.errors }}</label>
+    <label class="gcm-field"><span>Anchor date</span>{{ filter_form.date }}{{ filter_form.date.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'performance' %}
+    <label class="gcm-field"><span>Date range</span>{{ filter_form.date_range }}{{ filter_form.date_range.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'ideas' %}
+    <label class="gcm-field"><span>Idea source</span>{{ filter_form.idea_source }}{{ filter_form.idea_source.errors }}</label>
+  {% endif %}
+
+  {% if active_section == 'refresh' %}
+    <label class="gcm-field"><span>Refresh status</span>{{ filter_form.refresh_status }}{{ filter_form.refresh_status.errors }}</label>
+  {% endif %}
+
+  <button type="submit" class="gc-button">Apply filters</button>
+  <a class="gc-button gc-link-button" href="?section={{ active_section }}">Reset</a>
+</form>
+
+<div class="gcm-kpi-grid">
+  {% for kpi in kpis %}
+    <div class="gc-card gcm-kpi">
+      <span>{{ kpi.label }}</span>
+      <strong>{{ kpi.value }}</strong>
+      <small>{{ kpi.detail }}</small>
+    </div>
+  {% endfor %}
+</div>
+
+{% if active_section == 'overview' %}
+  {% include "admin/growth_center/content_partials/overview.html" %}
+{% elif active_section == 'calendar' %}
+  {% include "admin/growth_center/content_partials/calendar.html" %}
+{% elif active_section == 'library' %}
+  {% include "admin/growth_center/content_partials/library.html" %}
+{% elif active_section == 'ideas' %}
+  {% include "admin/growth_center/content_partials/ideas.html" %}
+{% elif active_section == 'briefs' %}
+  {% include "admin/growth_center/content_partials/briefs.html" %}
+{% elif active_section == 'templates' %}
+  {% include "admin/growth_center/content_partials/templates.html" %}
+{% elif active_section == 'performance' %}
+  {% include "admin/growth_center/content_partials/performance.html" %}
+{% elif active_section == 'refresh' %}
+  {% include "admin/growth_center/content_partials/refresh.html" %}
+{% else %}
+  {% include "admin/growth_center/content_partials/overview.html" %}
+{% endif %}
